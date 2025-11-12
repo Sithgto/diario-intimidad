@@ -36,7 +36,16 @@ const Home: React.FC = () => {
         <div className="header-title">Diario de Intimidad</div>
         <nav className="header-nav">
           <Link to="/" className="nav-icon">🏠 Inicio</Link>
-          <Link to="/login" className="nav-icon">🔐 Login</Link>
+          {token ? (
+            <>
+              <Link to="/users" className="nav-icon">👥 Gestionar Usuarios</Link>
+              <Link to="/api-docs" className="nav-icon">📚 Documentación APIs</Link>
+              <span className="nav-icon">👤 {user?.email}</span>
+              <button className="nav-icon logout-btn" onClick={logout}>🚪 Logout</button>
+            </>
+          ) : (
+            <Link to="/login" className="nav-icon">🔐 Login</Link>
+          )}
         </nav>
       </header>
       <main className="main-content">
@@ -52,14 +61,7 @@ const Home: React.FC = () => {
             </ul>
             <p>Únete a miles de personas que han transformado sus vidas a través de la escritura diaria. ¡Comienza hoy mismo!</p>
             {token ? (
-              <div>
-                <p>Bienvenido de vuelta, {user?.email}!</p>
-                <nav className="nav">
-                  <Link to="/users">Gestionar Usuarios</Link>
-                  <Link to="/api-docs">Documentación APIs</Link>
-                  <button className="btn" onClick={logout}>Logout</button>
-                </nav>
-              </div>
+              <p>Bienvenido de vuelta, {user?.email}!</p>
             ) : (
               <button className="btn" onClick={() => navigate('/login')}>Iniciar Sesión</button>
             )}

@@ -10,6 +10,10 @@ public class DiaMaestro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "mes_id")
+    private MesMaestro mesMaestro;
+
     @Column(name = "dia_numero")
     private Integer diaNumero;
 
@@ -23,9 +27,6 @@ public class DiaMaestro {
     @Column(name = "versiculo_diario")
     private String versiculoDiario;
 
-    @Column(name = "link_lectura")
-    private String linkLectura;
-
     public enum TipoDia {
         NORMAL, DOMINGO
     }
@@ -33,6 +34,9 @@ public class DiaMaestro {
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public MesMaestro getMesMaestro() { return mesMaestro; }
+    public void setMesMaestro(MesMaestro mesMaestro) { this.mesMaestro = mesMaestro; }
 
     public Integer getDiaNumero() { return diaNumero; }
     public void setDiaNumero(Integer diaNumero) { this.diaNumero = diaNumero; }
@@ -45,7 +49,4 @@ public class DiaMaestro {
 
     public String getVersiculoDiario() { return versiculoDiario; }
     public void setVersiculoDiario(String versiculoDiario) { this.versiculoDiario = versiculoDiario; }
-
-    public String getLinkLectura() { return linkLectura; }
-    public void setLinkLectura(String linkLectura) { this.linkLectura = linkLectura; }
 }

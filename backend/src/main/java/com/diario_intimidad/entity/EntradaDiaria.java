@@ -1,6 +1,7 @@
 package com.diario_intimidad.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -26,8 +27,8 @@ public class EntradaDiaria {
     @Column(name = "fecha_entrada", nullable = false)
     private LocalDate fechaEntrada;
 
-    @Column(name = "estado_llenado")
-    private Double estadoLlenado = 0.0;
+    @Column(name = "estado_llenado", precision = 5, scale = 2)
+    private BigDecimal estadoLlenado = BigDecimal.ZERO;
 
     private Boolean completado = false;
 
@@ -47,8 +48,8 @@ public class EntradaDiaria {
     public LocalDate getFechaEntrada() { return fechaEntrada; }
     public void setFechaEntrada(LocalDate fechaEntrada) { this.fechaEntrada = fechaEntrada; }
 
-    public Double getEstadoLlenado() { return estadoLlenado; }
-    public void setEstadoLlenado(Double estadoLlenado) { this.estadoLlenado = estadoLlenado; }
+    public BigDecimal getEstadoLlenado() { return estadoLlenado; }
+    public void setEstadoLlenado(BigDecimal estadoLlenado) { this.estadoLlenado = estadoLlenado; }
 
     public Boolean getCompletado() { return completado; }
     public void setCompletado(Boolean completado) { this.completado = completado; }

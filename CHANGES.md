@@ -6,7 +6,40 @@ Este documento registra todos los cambios realizados durante la construcción de
 
 ## Cambios por Fecha
 
-### 2025-11-12 - Mejoras en Interfaz de Usuario
+### 2025-11-12 - Correcciones de Esquema y Entidades Faltantes
+- **Backend - Entidades JPA Completas**
+  - Creada entidad `MesMaestro.java` para tabla `mes_maestro`
+  - Creada entidad `CamposDiario.java` con enum `TipoEntrada` (TEXTO, TEXTAREA, AUDIO)
+  - Creada entidad `ValoresCampo.java` para tabla `valores_campo`
+  - Creada entidad `MetaAnual.java` para tabla `meta_anual`
+  - Creada entidad `MetaMensual.java` para tabla `meta_mensual`
+  - Creada entidad `Pago.java` para tabla `pago`
+  - Agregada relación `@ManyToOne` en `DiaMaestro` con `MesMaestro`
+
+- **Backend - Corrección de Esquema**
+  - Cambiado `estado_llenado` de `DECIMAL(5,2)` a `DOUBLE PRECISION` en `init.sql`
+  - Cambiado `spring.jpa.hibernate.ddl-auto` a `update` para actualizar esquema automáticamente
+  - Usuario admin actualizado: `sithgto@gmail.com` con contraseña `S@1thgto.2@25` (sin encriptar inicialmente)
+
+- **Backend - Logs de Depuración**
+  - Agregados logs en `AuthController` y `UsuarioService` para autenticación
+  - Logs para usuario encontrado, tipo de contraseña, matches exitosos/fallidos
+
+- **Frontend - Header en Gestión de Usuarios**
+  - Agregado header con menú principal en página `UserManagement.tsx`
+  - Menú dinámico según rol: ADMIN ve más opciones, USER ve limitado
+
+- **Frontend - Gestión de Usuarios por Roles**
+  - Implementada lógica de roles: ADMIN ve lista completa, USER solo su perfil
+  - Campo opcional de nueva contraseña para usuarios USER en edición
+  - Ocultar secciones de crear/eliminar para USER
+  - Lista de usuarios solo visible para ADMIN
+
+- **Docker - Espera al Backend**
+  - Modificado `Dockerfile` del frontend para esperar al backend con `wait-for-it.sh`
+  - CMD actualizado para iniciar nginx solo después de que backend responda
+
+### 2025-11-12 - Mejoras en Interfaz de Usuario y Gestión de Usuarios
 - **Frontend - Página de Inicio Pública**
   - Ruta raíz "/" ahora es pública, sin requerir login
   - Login solo requerido para áreas reservadas (/users, /api-docs)
@@ -43,6 +76,37 @@ Este documento registra todos los cambios realizados durante la construcción de
   - Reemplazado window.location.href con useNavigate de React Router
   - Cambiado enlaces <a href> por componentes <Link> para navegación SPA
   - Mejorado manejo de navegación en componentes Home y header
+
+- **Backend - Usuario Administrador**
+  - Cambiado usuario admin por defecto a Sithgto@gmail.com con contraseña S@1thgto.2@25
+  - Modificado init.sql para usuario inicial sin encriptar
+  - Actualizado UsuarioService para manejar contraseñas sin encriptar en autenticación
+
+- **Backend - Logs de Depuración**
+  - Agregados logs detallados en AuthController y UsuarioService
+  - Logs para seguimiento de login: usuario encontrado, contraseña encriptada, matches
+  - Ayuda en diagnóstico de problemas de autenticación
+
+- **Backend - Configuración CORS**
+  - Agregada regla para permitir requests OPTIONS en SecurityConfig
+  - Solucionado problema de preflight requests CORS desde frontend
+
+- **Frontend - Menú Dinámico**
+  - Header ahora muestra diferentes opciones según estado de login
+  - Logueado: Inicio, Gestionar Usuarios, Documentación APIs, usuario actual, Logout
+  - No logueado: Inicio, Login
+  - Iconos para mejor UX: 👤 para usuario, 🚪 para logout
+
+- **Frontend - CRUD Completo de Usuarios**
+  - Implementado formulario completo para crear usuarios (email, password, rol)
+  - Agregada funcionalidad de editar usuarios (email, rol)
+  - Botón de eliminar con confirmación
+  - Lista de usuarios con select para cambiar rol directamente
+  - Integración completa con APIs backend
+
+- **Frontend - Corrección ESLint**
+  - Agregado eslint-disable para uso de confirm en eliminación de usuarios
+  - Solucionado error de compilación en build
 
 ### 2025-11-11 - Desarrollo Completo
 - **Inicialización del Proyecto**
@@ -102,11 +166,13 @@ Este documento registra todos los cambios realizados durante la construcción de
 - ✅ Autenticación JWT con roles USER/ADMIN
 - ✅ CRUD completo para usuarios, diarios, días, entradas
 - ✅ Interfaz web moderna y responsiva
-- ✅ Gestión de usuarios (solo ADMIN)
+- ✅ Gestión de usuarios basada en roles (ADMIN/USER)
 - ✅ Documentación APIs integrada
 - ✅ Manejo de errores centralizado
 - ✅ Contenerización completa con Docker
-- ✅ Espera automática a servicios dependientes
+- ✅ Espera automática a servicios dependientes (DB y backend)
+- ✅ Esquema DB completo con todas las entidades JPA
+- ✅ Logs de depuración en backend
 - ✅ FFmpeg para procesamiento multimedia
 
 ## Próximas Implementaciones (Pendientes)
@@ -119,8 +185,12 @@ Este documento registra todos los cambios realizados durante la construcción de
 
 ## Notas Técnicas
 - Backend espera automáticamente a PostgreSQL con wait-for-it.sh
+- Frontend espera al backend antes de servir con wait-for-it.sh
 - Frontend usa contexto React para autenticación
-- DB inicializa con usuario admin@diario.com / password
+- DB inicializa con usuario sithgto@gmail.com / S@1thgto.2@25 (sin encriptar inicialmente)
+- Esquema DB completo con 10 tablas y todas las entidades JPA
+- Gestión de usuarios basada en roles (ADMIN/USER)
+- DDL auto update para evolución automática del esquema
 - Todos los servicios en Docker con healthchecks
 - APIs protegidas con JWT, públicas solo login
 
@@ -141,4 +211,4 @@ docker-compose down
 ```
 
 ## Estado Final
-Proyecto completamente funcional y documentado, listo para desarrollo adicional de funcionalidades avanzadas.
+Proyecto completamente funcional con esquema DB completo, entidades JPA sincronizadas, gestión de usuarios por roles, logs de depuración y documentación actualizada. Listo para desarrollo adicional de funcionalidades avanzadas como STT, PDFs y pagos.
