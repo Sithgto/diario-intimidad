@@ -107,6 +107,26 @@ const UserManagement: React.FC = () => {
       <div className="card">
         <h2>Gestión de Usuarios</h2>
 
+      {/* Mi Perfil - Para ADMIN y USER */}
+      {user && !editingUser && (
+        <div style={{ marginBottom: '20px' }}>
+          <h3>Mi Perfil</h3>
+          <input
+            className="input"
+            type="email"
+            value={user.email}
+            disabled
+          />
+          <input
+            className="input"
+            type="text"
+            value={user.rol}
+            disabled
+          />
+          <button className="btn" onClick={() => setEditingUser(user)}>Editar Mi Perfil</button>
+        </div>
+      )}
+
       {/* Crear Usuario - Solo ADMIN */}
       {isAdmin && (
         <div style={{ marginBottom: '20px' }}>
@@ -148,16 +168,7 @@ const UserManagement: React.FC = () => {
             value={editingUser.email}
             onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
           />
-          {!isAdmin && (
-            <input
-              className="input"
-              type="password"
-              placeholder="Nueva Contraseña (opcional)"
-              value={editingUser.password || ''}
-              onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
-            />
-          )}
-          {isAdmin && (
+          {editingUser.email !== user?.email && isAdmin && (
             <select
               className="input"
               value={editingUser.rol}
@@ -167,6 +178,13 @@ const UserManagement: React.FC = () => {
               <option value="ADMIN">ADMIN</option>
             </select>
           )}
+          <input
+            className="input"
+            type="password"
+            placeholder="Nueva Contraseña (opcional)"
+            value={editingUser.password || ''}
+            onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+          />
           <button className="btn" onClick={editUser}>Guardar</button>
           <button className="btn" onClick={() => setEditingUser(null)}>Cancelar</button>
         </div>
@@ -192,15 +210,6 @@ const UserManagement: React.FC = () => {
         </>
       )}
 
-      {/* Para USER: Solo mostrar opción de editar perfil */}
-      {!isAdmin && usuarios.length > 0 && (
-        <div>
-          <h3>Mi Perfil</h3>
-          <p>Email: {usuarios[0].email}</p>
-          <p>Rol: {usuarios[0].rol}</p>
-          <button className="btn" onClick={() => setEditingUser(usuarios[0])}>Editar Mi Perfil</button>
-        </div>
-      )}
       </div>
     </div>
   );

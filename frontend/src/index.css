@@ -1,9 +1,9 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0900D2;
   min-height: 100vh;
-  color: #333;
+  color: white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -15,11 +15,12 @@ body {
 }
 
 .card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   padding: 30px;
   margin: 20px 0;
+  color: #333;
 }
 
 .btn {
@@ -60,14 +61,14 @@ body {
 }
 
 .nav a {
-  color: #667eea;
+  color: white;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s;
 }
 
 .nav a:hover {
-  color: #764ba2;
+  color: #90CAF9;
 }
 
 code {
@@ -89,8 +90,8 @@ code {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -99,7 +100,7 @@ code {
 .header-title {
   font-size: 24px;
   font-weight: bold;
-  color: #667eea;
+  color: white;
 }
 
 .header-nav {
@@ -108,7 +109,7 @@ code {
 }
 
 .nav-icon {
-  color: #667eea;
+  color: white;
   text-decoration: none;
   font-size: 18px;
   display: flex;
@@ -118,7 +119,7 @@ code {
 }
 
 .nav-icon:hover {
-  color: #764ba2;
+  color: #90CAF9;
 }
 
 .main-content {
@@ -141,13 +142,14 @@ code {
 .hero-text h1 {
   font-size: 36px;
   margin-bottom: 20px;
-  color: #333;
+  color: white;
 }
 
 .hero-text p {
   font-size: 18px;
   line-height: 1.6;
   margin-bottom: 20px;
+  color: white;
 }
 
 .hero-text ul {
@@ -211,18 +213,19 @@ code {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0900D2;
   padding: 20px;
 }
 
 .login-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   padding: 30px;
   width: 100%;
   max-width: 400px;
   text-align: center;
+  color: #333;
 }
 
 .login-card h2 {
