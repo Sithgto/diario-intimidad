@@ -6,6 +6,46 @@ Este documento registra todos los cambios realizados durante la construcción de
 
 ## Cambios por Fecha
 
+### 2025-11-12 - Formulario Diario Diario y Cambios Visuales
+- **Backend - Formulario Diario Diario**
+  - Creado servicio `DailyEntryService` para lógica de entradas diarias
+  - Creado controlador `DailyEntryController` con endpoints GET `/api/daily-entry/today` y POST `/api/daily-entry/save`
+  - Creados DTOs `DailyEntryResponse` y `DailyEntryRequest` para manejo de datos
+  - Creados repositorios `CamposDiarioRepository` y `ValoresCampoRepository`
+  - Agregado método `findByMesMaestroIdAndDiaNumero` en `DiaMaestroRepository`
+  - Modificado `UsuarioService` para manejar contraseñas sin encriptar en autenticación
+  - Cambiado `estadoLlenado` en `EntradaDiaria` de `Double` a `BigDecimal` para compatibilidad con DECIMAL
+
+- **Frontend - Formulario Diario Diario**
+  - Creada página `DailyEntry.tsx` con formulario dinámico
+  - Lógica condicional: días NORMAL muestran lectura_biblica, días DOMINGO muestran diario_anual + versiculo_diario
+  - Campos dinámicos basados en `CamposDiario` (TEXTO, TEXTAREA, AUDIO)
+  - Agregada ruta `/daily-entry` en `App.tsx`
+  - Enlace "📖 Diario Diario" en navegación principal
+
+- **Frontend - Cambios Visuales**
+  - Cambiado color de fondo a #0900D2 (azul oscuro)
+  - Ajustados colores de texto a blanco para visibilidad
+  - Cards con fondo semi-transparente rgba(255, 255, 255, 0.95)
+  - Header con fondo semi-transparente negro
+  - Navegación con texto blanco y hover azul claro
+  - Página de login con fondo azul oscuro
+
+- **Backend - Usuario Admin**
+  - Contraseña de admin cambiada a 'S@1thgto.2@25' sin encriptar inicialmente
+  - Modificado `UsuarioService.authenticate` para comparar directamente si contraseña no está encriptada
+
+- **Frontend - Gestión de Usuarios**
+  - Agregada sección "Mi Perfil" deshabilitada para ADMIN y USER
+  - Ocultar sección "Mi Perfil" cuando se está editando
+  - Solo ADMIN puede cambiar rol de otros usuarios, no el propio
+
+- **Git y GitHub**
+  - Inicializado repositorio Git local
+  - Creado `.gitignore` para archivos innecesarios
+  - Subido código a rama master en GitHub (https://github.com/Sithgto/diario-intimidad.git)
+  - Creada rama "enrique" local y remota
+
 ### 2025-11-12 - Correcciones de Esquema y Entidades Faltantes
 - **Backend - Entidades JPA Completas**
   - Creada entidad `MesMaestro.java` para tabla `mes_maestro`
@@ -165,7 +205,7 @@ Este documento registra todos los cambios realizados durante la construcción de
 ## Funcionalidades Implementadas
 - ✅ Autenticación JWT con roles USER/ADMIN
 - ✅ CRUD completo para usuarios, diarios, días, entradas
-- ✅ Interfaz web moderna y responsiva
+- ✅ Interfaz web moderna y responsiva con tema azul oscuro
 - ✅ Gestión de usuarios basada en roles (ADMIN/USER)
 - ✅ Documentación APIs integrada
 - ✅ Manejo de errores centralizado
@@ -174,6 +214,9 @@ Este documento registra todos los cambios realizados durante la construcción de
 - ✅ Esquema DB completo con todas las entidades JPA
 - ✅ Logs de depuración en backend
 - ✅ FFmpeg para procesamiento multimedia
+- ✅ Formulario diario diario con campos dinámicos
+- ✅ Lógica condicional NORMAL/DOMINGO
+- ✅ Repositorio Git en GitHub con ramas
 
 ## Próximas Implementaciones (Pendientes)
 - STT con Google Cloud Speech-to-Text
@@ -211,4 +254,4 @@ docker-compose down
 ```
 
 ## Estado Final
-Proyecto completamente funcional con esquema DB completo, entidades JPA sincronizadas, gestión de usuarios por roles, logs de depuración y documentación actualizada. Listo para desarrollo adicional de funcionalidades avanzadas como STT, PDFs y pagos.
+Proyecto completamente funcional con esquema DB completo, entidades JPA sincronizadas, gestión de usuarios por roles, logs de depuración, formulario diario diario con campos dinámicos, tema visual azul oscuro, repositorio Git en GitHub y documentación actualizada. Listo para desarrollo adicional de funcionalidades avanzadas como STT, PDFs y pagos.
