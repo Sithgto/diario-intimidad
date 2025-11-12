@@ -1,0 +1,27 @@
+# Environment variables
+.env
+
+# Maven
+backend/target/
+
+# Node.js (aunque se instala en Docker)
+frontend/node_modules/
+
+# IDE
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+*.tmp
+*.swp
