@@ -157,6 +157,14 @@ INSERT INTO Mes_Maestro (diario_id, mes_numero, nombre, tema_mes, versiculo_mes)
 (1, 1, 'ENERO', 'Avivamiento en Pentecostés', 'Y se les aparecieron lenguas repartidas, como de fuego, asentándose sobre cada uno de ellos. Hechos 2:3')
 ON CONFLICT (diario_id, mes_numero) DO UPDATE SET tema_mes = EXCLUDED.tema_mes;
 
+-- Campos del diario para 2026
+INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_input, es_requerido) VALUES
+(1, 1, 'Escoge un versiculo para meditar en el día y escribelo:', 'VERSICULO', 'TEXTO', TRUE),
+(1, 2, '¿Cómo puedes aplicarlo en tu vida y así desarrollar nuestro avivamiento?', 'APLICACION', 'TEXTAREA', TRUE),
+(1, 3, 'Oración: Utilice este espacio para agradecer.', 'ORACION', 'AUDIO', TRUE),
+(1, 4, 'Prioridades para este Día', 'TEXTAREA', TRUE)
+ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
+
 -- Días NORMALES (ENERO)
 INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica) VALUES
 (1, 1, 'NORMAL', 'Hechos 10:34-48'), (1, 2, 'NORMAL', 'Hechos 1:1-9'), (1, 3, 'NORMAL', 'Juan 16:5-15'), (1, 5, 'NORMAL', 'Lucas 24:36-49'),
@@ -475,16 +483,6 @@ INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica, versicul
 (12, 27, 'DOMINGO', NULL, 'Pastor Gustavo Marto: Crear un ambiente de honra y familia espiritual (Romanos 12:10)')
 ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versiculo_diario;
 
--- Campos del diario para 2026
-INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_input, es_requerido) VALUES
-(1, 1, 'Versículo Escogido', 'VERSICULO', 'TEXTO', TRUE),
-(1, 2, 'Meditación del Versículo', 'APLICACION', 'TEXTAREA', TRUE),
-(1, 3, 'Aplicación Práctica', 'APLICACION', 'TEXTAREA', TRUE),
-(1, 4, 'Oración/Agradecimiento', 'ORACION', 'AUDIO', TRUE),
-(1, 5, 'Prioridades del Día', 'PRIORIDADES', 'TEXTAREA', FALSE)
-ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
-
-
 -- =======================================================
 -- SIMULACIÓN DE CARGA DE DATOS - DIARIO 2027: AÑO COMPLETO
 -- Diario ID = 2.
@@ -497,22 +495,13 @@ INSERT INTO Diario_Anual (id, anio, titulo, tema_principal) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Estructura de Campos_Diario para 2027 (Copiada del ID=1 y modificada)
-INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_input, es_requerido)
-SELECT
-    2 AS diario_id,
-    orden,
-    nombre_campo,
-    tipo_entrada,
-    tipo_input,
-    es_requerido
-FROM Campos_Diario
-WHERE diario_id = 1
-ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
 
--- Modificación específica para el Diario 2027: Oración ahora es TEXTAREA
-UPDATE Campos_Diario
-SET tipo_input = 'TEXTAREA'
-WHERE diario_id = 2 AND nombre_campo = 'Oración/Agradecimiento';
+INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_input, es_requerido) VALUES
+(2, 1, '2027 Escoge un versículo para meditar en el día y escribelo:', 'VERSICULO', 'TEXTO', TRUE),
+(2, 2, '2027 ¿Comó puedes aplicarlo en tu vida y asi desarrollar nuestro avivamiento?', 'APLICACION', 'TEXTAREA', TRUE),
+(2, 3, 'Oración: Utilice este espacio para agradecer.', 'ORACION', 'AUDIO', TRUE),
+(2, 4, 'Prioridades para este Día', 'PRIORIDADES', 'TEXTAREA', TRUE)
+ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
 
 
 -- =======================================================
@@ -845,32 +834,23 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 -- =======================================================
 -- SIMULACIÓN DE CARGA DE DATOS - DIARIO 2025: AÑO COMPLETO
 -- Diario ID = 3.
--- Título: "Raíces Profundas"
+-- Título: "Héroes de la Fe"
 -- El contenido es inventado para demostrar la modularidad.
 -- =======================================================
 
 -- 1. Inserción del nuevo Diario Anual (ID = 3)
 INSERT INTO Diario_Anual (id, anio, titulo, tema_principal) VALUES
-(3, 2025, 'Raíces Profundas', '\"Echa raíces hacia abajo, y dé fruto hacia arriba.\" Isaías 37:31')
+(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960')
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Estructura de Campos_Diario para 2025 (Copiada del ID=1 y modificada)
-INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_input, es_requerido)
-SELECT
-    3 AS diario_id,
-    orden,
-    nombre_campo,
-    tipo_entrada,
-    tipo_input,
-    es_requerido
-FROM Campos_Diario
-WHERE diario_id = 1
-ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
+-- 2. Estructura de Campos_Diario para 2025
 
--- Modificación específica para el Diario 2025: "Prioridades del Día" es REQUERIDO (TRUE)
-UPDATE Campos_Diario
-SET es_requerido = TRUE
-WHERE diario_id = 3 AND nombre_campo = 'Prioridades del Día';
+INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_input, es_requerido) VALUES
+(3, 1, '¿Qué versiculó de este pasaje te impactó más? Ecríbelo.', 'VERSICULO', 'TEXTO', TRUE),
+(3, 2, '¿Qué cosas tomas de este personaje para imitarlo y de esta manera seguir sus pisadas?', 'APLICACION', 'TEXTAREA', TRUE),
+(3, 3, 'Oración: Utilice este espacio para agradecer.', 'ORACION', 'AUDIO', TRUE),
+(3, 4, 'Prioridades para este Día', 'PRIORIDADES', 'TEXTAREA', TRUE)
+ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
 
 
 -- =======================================================
