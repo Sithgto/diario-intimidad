@@ -27,37 +27,78 @@ interface CampoValor {
   valorAudioUrl?: string;
 }
 
+interface DiarioAnual {
+  id: number;
+  titulo: string;
+  anio: number;
+}
+
 const DailyEntry: React.FC = () => {
   const [data, setData] = useState<DailyEntryData | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(true);
+  const [diarios, setDiarios] = useState<DiarioAnual[]>([]);
+  const [selectedAnio, setSelectedAnio] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDiarios = async () => {
       try {
+        console.log('Frontend: Fetching diarios...');
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8085/api/daily-entry/today', {
+        const response = await axios.get('http://localhost:8085/api/daily-entry/diarios', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setData(response.data);
-        // Inicializar valores
-        const initialValores: { [key: number]: CampoValor } = {};
-        response.data.camposDiario.forEach((campo: CampoDiario) => {
-          initialValores[campo.id] = {
-            campoDiarioId: campo.id,
-            valorTexto: '',
-            valorAudioUrl: campo.tipoEntrada === 'AUDIO' ? '' : undefined
-          };
-        });
-        setValores(initialValores);
+        console.log('Frontend: Diarios response:', response.data);
+        setDiarios(response.data);
+        // Seleccionar el año actual por defecto si existe
+        const currentYear = new Date().getFullYear();
+        const defaultDiario = response.data.find((d: DiarioAnual) => d.anio === currentYear);
+        console.log('Frontend: Selected diario:', defaultDiario);
+        if (defaultDiario) {
+          setSelectedAnio(defaultDiario.anio);
+        }
       } catch (error) {
-        console.error('Error fetching daily entry data', error);
-      } finally {
-        setLoading(false);
+        console.error('Frontend: Error fetching diarios', error);
       }
     };
-    fetchData();
+    fetchDiarios();
   }, []);
+
+  useEffect(() => {
+    if (selectedAnio !== null) {
+      const fetchData = async () => {
+        console.log('Frontend: Fetching daily entry for anio:', selectedAnio);
+        setLoading(true);
+        try {
+          const token = localStorage.getItem('token');
+          const url = `http://localhost:8085/api/daily-entry/today?anio=${selectedAnio}`;
+          console.log('Frontend: Request URL:', url);
+          const response = await axios.get(url, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log('Frontend: Daily entry response:', response.data);
+          setData(response.data);
+          // Inicializar valores
+          const initialValores: { [key: number]: CampoValor } = {};
+          response.data.camposDiario.forEach((campo: CampoDiario) => {
+            initialValores[campo.id] = {
+              campoDiarioId: campo.id,
+              valorTexto: '',
+              valorAudioUrl: campo.tipoEntrada === 'AUDIO' ? '' : undefined
+            };
+          });
+          setValores(initialValores);
+        } catch (error) {
+          console.error('Frontend: Error fetching daily entry data', error);
+          console.log('Frontend: Error response:', error.response);
+          setData(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    }
+  }, [selectedAnio]);
 
   const handleSave = async () => {
     try {
@@ -91,6 +132,21 @@ const DailyEntry: React.FC = () => {
       </header>
       <div className="card">
         <h2>Entrada Diaria - {data.fecha}</h2>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label>Seleccionar Año del Diario:</label>
+          <select
+            value={selectedAnio || ''}
+            onChange={(e) => setSelectedAnio(Number(e.target.value))}
+            className="input"
+          >
+            {diarios.map(diario => (
+              <option key={diario.id} value={diario.anio}>
+                {diario.titulo} - {diario.anio}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {data.tipoDia === 'DOMINGO' && data.diarioAnual && (
           <div>

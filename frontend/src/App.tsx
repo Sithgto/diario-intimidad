@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import UserManagement from './pages/UserManagement';
 import ApiDocs from './pages/ApiDocs';
 import DailyEntry from './pages/DailyEntry';
+import Calendario from './pages/Calendario';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useContext(AuthContext)!;
@@ -20,6 +21,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
             <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
+            <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
             <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
             <Route path="/api-docs" element={<PrivateRoute><ApiDocs /></PrivateRoute>} />
           </Routes>
@@ -41,6 +43,7 @@ const Home: React.FC = () => {
           {token ? (
             <>
               <Link to="/daily-entry" className="nav-icon">📖 Diario Diario</Link>
+              <Link to="/calendario" className="nav-icon">📅 Calendario</Link>
               <Link to="/users" className="nav-icon">👥 Gestionar Usuarios</Link>
               <Link to="/api-docs" className="nav-icon">📚 Documentación APIs</Link>
               <span className="nav-icon">👤 {user?.email}</span>

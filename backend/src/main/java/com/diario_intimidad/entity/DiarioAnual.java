@@ -1,6 +1,8 @@
 package com.diario_intimidad.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "diario_anual")
@@ -21,6 +23,10 @@ public class DiarioAnual {
     @Column(name = "tema_principal")
     private String temaPrincipal;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "diarioAnual", cascade = CascadeType.ALL)
+    private List<MesMaestro> mesesMaestro;
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -36,4 +42,7 @@ public class DiarioAnual {
 
     public String getTemaPrincipal() { return temaPrincipal; }
     public void setTemaPrincipal(String temaPrincipal) { this.temaPrincipal = temaPrincipal; }
+
+    public List<MesMaestro> getMesesMaestro() { return mesesMaestro; }
+    public void setMesesMaestro(List<MesMaestro> mesesMaestro) { this.mesesMaestro = mesesMaestro; }
 }

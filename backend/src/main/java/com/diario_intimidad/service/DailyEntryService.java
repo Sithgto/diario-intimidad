@@ -1,7 +1,10 @@
 package com.diario_intimidad.service;
 
+import com.diario_intimidad.dto.CalendarEntryResponse;
 import com.diario_intimidad.entity.*;
 import com.diario_intimidad.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +14,8 @@ import java.util.Optional;
 
 @Service
 public class DailyEntryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(DailyEntryService.class);
 
     @Autowired
     private DiaMaestroRepository diaMaestroRepository;
@@ -27,22 +32,39 @@ public class DailyEntryService {
     @Autowired
     private ValoresCampoRepository valoresCampoRepository;
 
+    @Autowired
+    private MesMaestroRepository mesMaestroRepository;
+
     public Optional<DiaMaestro> getDiaMaestroForToday() {
-        // Asumir que hay un diario anual activo, por simplicidad tomar el primero
-        Optional<DiarioAnual> diario = diarioAnualRepository.findAll().stream().findFirst();
+        LocalDate today = LocalDate.now();
+        return getDiaMaestroForDate(today.getYear(), today.getMonthValue(), today.getDayOfMonth());
+    }
+
+    public Optional<DiaMaestro> getDiaMaestroForDate(int anio, int mes, int dia) {
+        logger.info("Buscando DiaMaestro para anio={}, mes={}, dia={}", anio, mes, dia);
+        // Buscar el diario anual del año especificado
+        Optional<DiarioAnual> diario = diarioAnualRepository.findByAnio(anio);
+        logger.info("Diario encontrado: {}", diario.isPresent() ? diario.get().getId() : "ninguno");
         if (diario.isEmpty()) return Optional.empty();
 
-        LocalDate today = LocalDate.now();
-        // Asumir que mes_id corresponde al mes, dia_numero al día
-        int mes = today.getMonthValue();
-        int dia = today.getDayOfMonth();
+        // Buscar el mes maestro del diario y mes especificado
+        Optional<MesMaestro> mesMaestro = mesMaestroRepository.findByDiarioAnualIdAndMesNumero(diario.get().getId(), mes);
+        logger.info("MesMaestro encontrado: {}", mesMaestro.isPresent() ? mesMaestro.get().getId() : "ninguno");
+        if (mesMaestro.isEmpty()) return Optional.empty();
 
-        return diaMaestroRepository.findByMesMaestroIdAndDiaNumero((long) mes, dia);
+        // Buscar el día maestro del mes y día especificado
+        Optional<DiaMaestro> diaMaestro = diaMaestroRepository.findByMesMaestroIdAndDiaNumero(mesMaestro.get().getId(), dia);
+        logger.info("DiaMaestro encontrado: {}", diaMaestro.isPresent() ? diaMaestro.get().getId() : "ninguno");
+        return diaMaestro;
     }
 
     public List<CamposDiario> getCamposDiario() {
         // Asumir diario_id = 1
         return camposDiarioRepository.findByDiarioAnualId(1L);
+    }
+
+    public List<CamposDiario> getCamposDiarioForDiario(Long diarioId) {
+        return camposDiarioRepository.findByDiarioAnualId(diarioId);
     }
 
     public EntradaDiaria saveEntradaDiaria(EntradaDiaria entrada) {
@@ -51,5 +73,26 @@ public class DailyEntryService {
 
     public ValoresCampo saveValoresCampo(ValoresCampo valoresCampo) {
         return valoresCampoRepository.save(valoresCampo);
+    }
+
+    public CalendarEntryResponse getTodayData(LocalDate date) {
+        Optional<DiaMaestro> diaMaestro = getDiaMaestroForDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+        if (diaMaestro.isEmpty()) {
+            return null;
+        }
+
+        DiarioAnual diarioAnual = diaMaestro.get().getMesMaestro().getDiarioAnual();
+
+        List<CamposDiario> camposDiario = getCamposDiarioForDiario(diarioAnual.getId());
+
+        CalendarEntryResponse response = new CalendarEntryResponse();
+        response.setFecha(date);
+        response.setTipoDia(diaMaestro.get().getTipoDia().name());
+        response.setLecturaBiblica(diaMaestro.get().getLecturaBiblica());
+        response.setVersiculoDiario(diaMaestro.get().getVersiculoDiario());
+        response.setDiarioAnual(diarioAnual);
+        response.setCamposDiario(camposDiario);
+
+        return response;
     }
 }

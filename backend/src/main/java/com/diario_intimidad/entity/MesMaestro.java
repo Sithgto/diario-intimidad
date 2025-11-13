@@ -14,6 +14,9 @@ public class MesMaestro {
     @JoinColumn(name = "diario_id")
     private DiarioAnual diarioAnual;
 
+    @Column(name = "mes_numero")
+    private Integer mesNumero;
+
     @Column(name = "nombre")
     private String nombre;
 
@@ -29,6 +32,9 @@ public class MesMaestro {
 
     public DiarioAnual getDiarioAnual() { return diarioAnual; }
     public void setDiarioAnual(DiarioAnual diarioAnual) { this.diarioAnual = diarioAnual; }
+
+    public Integer getMesNumero() { return mesNumero; }
+    public void setMesNumero(Integer mesNumero) { this.mesNumero = mesNumero; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

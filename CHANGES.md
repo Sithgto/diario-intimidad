@@ -202,7 +202,21 @@ Este documento registra todos los cambios realizados durante la construcción de
   - README.md completo con instalación, APIs, funcionalidades
   - Registro de cambios en CHANGES.md
 
+### 2025-11-13 - Logs de Debugging y Corrección de Enum
+- **Backend - Logs de Debugging**
+  - Agregados logs en DailyEntryController.java para debugging de la petición del calendario
+
+- **Frontend - Logs de Debugging**
+  - Agregados logs en Calendario.tsx para debugging de la petición del calendario
+
+- **Backend - Corrección de Enum**
+  - Agregados 'APLICACION', 'ORACION' y 'PRIORIDADES' al enum TipoEntrada en CamposDiario.java para resolver errores de enum
+
+- **Backend - Cambio de Enum a String**
+  - Cambiado campo tipoEntrada en CamposDiario de enum a String para permitir valores dinámicos
 ## Funcionalidades Implementadas
+- **Backend - Modificación en saveEntry**
+  - Actualizado método saveEntry en DailyEntryController.java para asignar diario y diaMaestro correctamente al guardar la entrada diaria
 - ✅ Autenticación JWT con roles USER/ADMIN
 - ✅ CRUD completo para usuarios, diarios, días, entradas
 - ✅ Interfaz web moderna y responsiva con tema azul oscuro
