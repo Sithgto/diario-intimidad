@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Menu from '../components/Menu';
 
 interface CalendarEntryResponse {
   fecha: string; // Asumiendo que se serializa como string
@@ -92,16 +92,7 @@ const Calendario: React.FC = () => {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <div className="header-title">Diario de Intimidad</div>
-        <nav className="header-nav">
-          <Link to="/" className="nav-icon">🏠 Inicio</Link>
-          <Link to="/daily-entry" className="nav-icon">📖 Diario Diario</Link>
-          <Link to="/users" className="nav-icon">👥 Gestionar Usuarios</Link>
-          <Link to="/api-docs" className="nav-icon">📚 Documentación APIs</Link>
-          <button className="nav-icon logout-btn" onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }}>🚪 Logout</button>
-        </nav>
-      </header>
+      <Menu />
       <div className="card">
         <h2>Calendario de Entradas</h2>
 

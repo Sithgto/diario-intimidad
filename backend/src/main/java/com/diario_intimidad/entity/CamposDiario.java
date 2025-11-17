@@ -16,6 +16,9 @@ public class CamposDiario {
     @Column(name = "tipo_entrada")
     private String tipoEntrada;
 
+    @Column(name = "orden")
+    private Integer orden;
+
     @Column(name = "es_requerido")
     private Boolean esRequerido = false;
 
@@ -36,6 +39,9 @@ public class CamposDiario {
 
     public Boolean getEsRequerido() { return esRequerido; }
     public void setEsRequerido(Boolean esRequerido) { this.esRequerido = esRequerido; }
+
+    public Integer getOrden() { return orden; }
+    public void setOrden(Integer orden) { this.orden = orden; }
 
     public DiarioAnual getDiarioAnual() { return diarioAnual; }
     public void setDiarioAnual(DiarioAnual diarioAnual) { this.diarioAnual = diarioAnual; }

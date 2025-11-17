@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CamposDiarioRepository extends JpaRepository<CamposDiario, Long> {
-    List<CamposDiario> findByDiarioAnualId(Long diarioAnualId);
+    List<CamposDiario> findByDiarioAnualIdOrderByOrdenAsc(Long diarioAnualId);
 }

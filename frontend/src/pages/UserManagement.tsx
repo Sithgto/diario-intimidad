@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 import { getErrorMessage } from '../constants/errors';
+import Menu from '../components/Menu';
 
 interface Usuario {
   id?: number;
@@ -90,20 +91,7 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <div className="header-title">Diario de Intimidad</div>
-        <nav className="header-nav">
-          <Link to="/" className="nav-icon">🏠 Inicio</Link>
-          {user?.rol === 'ADMIN' && (
-            <>
-              <Link to="/users" className="nav-icon">👥 Gestionar Usuarios</Link>
-              <Link to="/api-docs" className="nav-icon">📚 Documentación APIs</Link>
-            </>
-          )}
-          <span className="nav-icon">👤 {user?.email}</span>
-          <button className="nav-icon logout-btn" onClick={logout}>🚪 Logout</button>
-        </nav>
-      </header>
+      <Menu />
       <div className="card">
         <h2>Gestión de Usuarios</h2>
 

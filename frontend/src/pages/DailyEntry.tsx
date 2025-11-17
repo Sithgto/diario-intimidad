@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
+import Menu from '../components/Menu';
 
 interface DailyEntryData {
   fecha: string;
@@ -121,15 +121,7 @@ const DailyEntry: React.FC = () => {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <div className="header-title">Diario de Intimidad</div>
-        <nav className="header-nav">
-          <Link to="/" className="nav-icon">🏠 Inicio</Link>
-          <Link to="/users" className="nav-icon">👥 Gestionar Usuarios</Link>
-          <Link to="/api-docs" className="nav-icon">📚 Documentación APIs</Link>
-          <button className="nav-icon logout-btn" onClick={() => { localStorage.removeItem('token'); window.location.href = '/login'; }}>🚪 Logout</button>
-        </nav>
-      </header>
+      <Menu />
       <div className="card">
         <h2>Entrada Diaria - {data.fecha}</h2>
 

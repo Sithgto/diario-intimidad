@@ -5,129 +5,129 @@
 
 -- 1. Tablas de Usuario y Autenticación
 CREATE TABLE Usuario (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL, -- Almacenar el hash de la contraseña (ej. BCrypt)
     rol VARCHAR(50) NOT NULL DEFAULT 'USER', -- 'USER', 'ADMIN'
     fecha_registro TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+ );
 
 -- 2. Tablas de Contenido Maestro (Diario Anual)
 
 -- Almacena información de cada edición del diario (ej. 2026, 2027)
 CREATE TABLE Diario_Anual (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     anio INTEGER UNIQUE NOT NULL,
     titulo VARCHAR(255) NOT NULL, -- Título principal (ej. "Avivamiento")
     portada_url VARCHAR(255),
     tema_principal TEXT -- Versículo principal del año (ej. Jeremías 32:17)
-);
+ );
 
 -- Almacena los temas y versículos por mes para un año específico
 CREATE TABLE Mes_Maestro (
-    id SERIAL PRIMARY KEY,
-    diario_id INTEGER NOT NULL REFERENCES Diario_Anual(id),
+    id BIGSERIAL PRIMARY KEY,
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
     mes_numero INTEGER NOT NULL, -- 1 a 12
     nombre VARCHAR(50) NOT NULL, -- Nombre del mes (ej. "ENERO")
     tema_mes VARCHAR(255),
     versiculo_mes TEXT, -- Versículo temático del mes (ej. Hechos 2:3)
     UNIQUE (diario_id, mes_numero)
-);
+ );
 
 -- Almacena el contenido fijo para cada día del diario
 CREATE TABLE Dia_Maestro (
-    id SERIAL PRIMARY KEY,
-    mes_id INTEGER NOT NULL REFERENCES Mes_Maestro(id),
+    id BIGSERIAL PRIMARY KEY,
+    mes_id BIGINT NOT NULL REFERENCES Mes_Maestro(id),
     dia_numero INTEGER NOT NULL, -- 1 a 31
     tipo_dia VARCHAR(20) NOT NULL DEFAULT 'NORMAL', -- 'NORMAL', 'DOMINGO'
     lectura_biblica VARCHAR(100), -- Referencia (ej. "Hechos 10:34-48")
     versiculo_diario TEXT, -- El texto sugerido para el versículo del día (si aplica)
     -- link_lectura se genera en la aplicación usando la API de la Biblia
     UNIQUE (mes_id, dia_numero)
-);
+ );
 
 -- 3. Tabla para la flexibilidad de los campos a rellenar (CLAVE)
 -- Define la estructura de la entrada que verá el usuario
 CREATE TABLE Campos_Diario (
-    id SERIAL PRIMARY KEY,
-    diario_id INTEGER NOT NULL REFERENCES Diario_Anual(id), -- A qué diario anual aplica
+    id BIGSERIAL PRIMARY KEY,
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id), -- A qué diario anual aplica
     orden INTEGER NOT NULL, -- Orden de aparición en el frontend
     nombre_campo VARCHAR(100) NOT NULL, -- Título/etiqueta del campo (ej. 'Aplicación Práctica')
     tipo_entrada VARCHAR(50) NOT NULL, -- 'VERSICULO', 'APLICACION', 'ORACION', 'PRIORIDADES'
     tipo_input VARCHAR(50) NOT NULL, -- Tipo de input en el frontend: 'TEXTO', 'TEXTAREA', 'AUDIO'
     es_requerido BOOLEAN NOT NULL DEFAULT TRUE,
     UNIQUE (diario_id, nombre_campo)
-);
+ );
 
 -- 4. Tablas de Entrada de Usuario (Progreso)
 -- Registra el intento o la entrada de un usuario en un día específico
 CREATE TABLE Entrada_Diaria (
     id BIGSERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES Usuario(id),
-    diario_id INTEGER NOT NULL REFERENCES Diario_Anual(id),
-    dia_maestro_id INTEGER NOT NULL REFERENCES Dia_Maestro(id),
+    usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
+    dia_maestro_id BIGINT NOT NULL REFERENCES Dia_Maestro(id),
     fecha_entrada DATE NOT NULL,
     estado_llenado NUMERIC(5, 2) DEFAULT 0.00, -- Porcentaje de campos rellenados (0.00 a 100.00)
     completado BOOLEAN NOT NULL DEFAULT FALSE,
     fecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     fecha_ultima_edicion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (usuario_id, dia_maestro_id)
-);
+ );
 
 -- Almacena los valores reales de los campos rellenados por el usuario
 CREATE TABLE Valores_Campo (
     id BIGSERIAL PRIMARY KEY,
     entrada_diaria_id BIGINT NOT NULL REFERENCES Entrada_Diaria(id),
-    campo_diario_id INTEGER NOT NULL REFERENCES Campos_Diario(id),
+    campo_diario_id BIGINT NOT NULL REFERENCES Campos_Diario(id),
     valor_texto TEXT, -- Para entradas de texto y transcripciones de audio
     valor_audio_url VARCHAR(255), -- URL al archivo de audio almacenado (si aplica)
     UNIQUE (entrada_diaria_id, campo_diario_id)
-);
+ );
 
 -- 5. Tablas de Metas y Pagos (Sin cambios significativos de la propuesta anterior)
 
 -- Metas Anuales del usuario
 CREATE TABLE Meta_Anual (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES Usuario(id),
-    diario_id INTEGER NOT NULL REFERENCES Diario_Anual(id),
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
     tipo_meta VARCHAR(50) NOT NULL, -- 'Personal', 'Familiar', 'Económica', 'Ministerial'
     descripcion TEXT NOT NULL,
     estado VARCHAR(50) NOT NULL DEFAULT 'PENDIENTE',
     fecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+ );
 
 -- Metas Mensuales del usuario
 CREATE TABLE Meta_Mensual (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES Usuario(id),
-    diario_id INTEGER NOT NULL REFERENCES Diario_Anual(id),
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
     mes_numero INTEGER NOT NULL, -- Mes al que pertenece la meta
     descripcion TEXT NOT NULL,
     cumplida BOOLEAN NOT NULL DEFAULT FALSE,
     pasa_siguiente_mes BOOLEAN NOT NULL DEFAULT FALSE, -- Se arrastra al siguiente mes si no se cumple
     fecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+ );
 
 -- Registro de transacciones
 CREATE TABLE Pago (
-    id SERIAL PRIMARY KEY,
-    usuario_id INTEGER NOT NULL REFERENCES Usuario(id),
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
     monto NUMERIC(10, 2) NOT NULL,
     fecha_pago TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(50) NOT NULL, -- 'COMPLETADO', 'FALLIDO', 'PENDIENTE'
     metodo_pago VARCHAR(50)
-);
+ );
 
 -- Insertar datos de prueba
 -- Password: 'password' encriptado con BCrypt
-INSERT INTO usuario (email, password, rol, fecha_registro) VALUES ('Sithgto@gmail.com', 'S@1thgto.2@25', 'ADMIN', CURRENT_TIMESTAMP);
+INSERT INTO usuario (email, password, rol, fecha_registro) VALUES ('Sithgto@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN', CURRENT_TIMESTAMP);
 INSERT INTO usuario (email, password, rol, fecha_registro) VALUES ('user@diario.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'USER', CURRENT_TIMESTAMP);
 
 -- Usuario por defecto ADMIN
 -- Email: Sithgto@gmail.com
--- Password: S@1thgto.2@25
+-- Password: password
 
 
 -- =======================================================
@@ -162,7 +162,7 @@ INSERT INTO Campos_Diario (diario_id, orden, nombre_campo, tipo_entrada, tipo_in
 (1, 1, 'Escoge un versiculo para meditar en el día y escribelo:', 'VERSICULO', 'TEXTO', TRUE),
 (1, 2, '¿Cómo puedes aplicarlo en tu vida y así desarrollar nuestro avivamiento?', 'APLICACION', 'TEXTAREA', TRUE),
 (1, 3, 'Oración: Utilice este espacio para agradecer.', 'ORACION', 'AUDIO', TRUE),
-(1, 4, 'Prioridades para este Día', 'TEXTAREA', TRUE)
+(1, 4, 'Prioridades para este Día', 'PRIORIDADES', 'TEXTAREA', TRUE)
 ON CONFLICT (diario_id, nombre_campo) DO NOTHING;
 
 -- Días NORMALES (ENERO)

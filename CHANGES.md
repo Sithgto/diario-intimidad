@@ -4,7 +4,39 @@
 
 Este documento registra todos los cambios realizados durante la construcción del proyecto "Diario de Intimidad" desde la inicialización hasta la versión actual.
 
+## Tecnologías y Dependencias
+
+- **Backend:**
+  - Java: 21
+  - Spring Boot: 3.2.0
+  - PostgreSQL: 13
+
+- **Frontend:**
+  - React: 18.2.0
+  - TypeScript: 4.9.0
+
+- **Contenerización:**
+  - Docker
 ## Cambios por Fecha
+### 2025-11-17 - Actualización a Java 21
+- **Backend - Actualización de Java y Dependencias**
+  - Actualizado Java de versión 17 a 21
+  - Actualizado Spring Boot de 3.0.0 a 3.2.0 para compatibilidad con Java 21
+  - Actualizado Lombok a 1.18.30 para soporte completo de Java 21
+  - Modificado Dockerfile para usar eclipse-temurin:21-jdk-alpine y eclipse-temurin:21-jre
+  - Instalación manual de Maven y ffmpeg en el contenedor de build
+  - Validado build exitoso con docker-compose
+
+### 2025-11-13 - Creación del Componente de Menú Compartido Menu.tsx
+- **Frontend - Componente Menu**
+  - Creado componente Menu.tsx compartido
+  - Integrado en todas las páginas excepto Login
+
+### 2025-11-13 - Adición de Campo Orden en CamposDiario
+- **Backend - CamposDiario**
+  - Agregado campo 'orden' a CamposDiario.java
+  - Modificado CamposDiarioRepository.java para ordenar por 'orden' ascendente
+
 
 ### 2025-11-12 - Formulario Diario Diario y Cambios Visuales
 - **Backend - Formulario Diario Diario**
@@ -214,7 +246,17 @@ Este documento registra todos los cambios realizados durante la construcción de
 
 - **Backend - Cambio de Enum a String**
   - Cambiado campo tipoEntrada en CamposDiario de enum a String para permitir valores dinámicos
-## Funcionalidades Implementadas
+
+### 2025-11-13 - Corrección en DB/init.sql para INSERT de Campos_Diario
+- **Base de Datos - Corrección de INSERT**
+  - Agregado el valor faltante 'PRIORIDADES' en el campo tipo_entrada de la última fila del INSERT de Campos_Diario en init.sql
+  
+  ### 2025-11-13 - Actualización de ApiDocs.tsx con Documentación Completa de Endpoints
+  - **Frontend - ApiDocs.tsx**
+    - Actualizada documentación completa de todos los endpoints del backend
+    - Incluye detalles de autenticación, parámetros, respuestas y ejemplos
+  
+  ## Funcionalidades Implementadas
 - **Backend - Modificación en saveEntry**
   - Actualizado método saveEntry en DailyEntryController.java para asignar diario y diaMaestro correctamente al guardar la entrada diaria
 - ✅ Autenticación JWT con roles USER/ADMIN

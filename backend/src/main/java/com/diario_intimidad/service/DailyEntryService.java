@@ -60,11 +60,11 @@ public class DailyEntryService {
 
     public List<CamposDiario> getCamposDiario() {
         // Asumir diario_id = 1
-        return camposDiarioRepository.findByDiarioAnualId(1L);
+        return camposDiarioRepository.findByDiarioAnualIdOrderByOrdenAsc(1L);
     }
 
     public List<CamposDiario> getCamposDiarioForDiario(Long diarioId) {
-        return camposDiarioRepository.findByDiarioAnualId(diarioId);
+        return camposDiarioRepository.findByDiarioAnualIdOrderByOrdenAsc(diarioId);
     }
 
     public EntradaDiaria saveEntradaDiaria(EntradaDiaria entrada) {
