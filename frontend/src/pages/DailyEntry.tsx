@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Menu from '../components/Menu';
 
 interface DailyEntryData {
   fecha: string;
@@ -102,7 +101,6 @@ const DailyEntry: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Menu />
       <div className="card">
         <h2>Entrada Diaria - {data.fecha}</h2>
 

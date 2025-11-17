@@ -3,10 +3,12 @@ import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '../constants/errors';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useContext(AuthContext)!;
   const navigate = useNavigate();
 
@@ -32,9 +34,41 @@ const Login: React.FC = () => {
           </div>
           <div>
             <label>Contraseña:</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <div style={{ position: 'relative' }}>
+              <input
+                className="input"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ paddingRight: '40px' }}
+              />
+              {showPassword ? (
+                <FaEyeSlash
+                  onClick={() => setShowPassword(false)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    cursor: 'pointer'
+                  }}
+                />
+              ) : (
+                <FaEye
+                  onClick={() => setShowPassword(true)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    cursor: 'pointer'
+                  }}
+                />
+              )}
+            </div>
           </div>
-          <button className="btn" type="submit">Iniciar Sesión</button>
+          <button className="btn" type="submit">Diario Intimidad Login</button>
         </form>
       </div>
     </div>

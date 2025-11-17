@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Menu from '../components/Menu';
 
 const ApiDocs: React.FC = () => {
   useEffect(() => {
@@ -10,7 +9,6 @@ const ApiDocs: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Menu />
       <div className="card">
       <h2>Documentación de APIs</h2>
       <h3>Autenticación</h3>

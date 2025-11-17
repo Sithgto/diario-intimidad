@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Menu from '../components/Menu';
 
 interface CalendarEntryResponse {
   fecha: string; // Asumiendo que se serializa como string
@@ -92,7 +91,6 @@ const Calendario: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Menu />
       <div className="card">
         <h2>Calendario de Entradas</h2>
 

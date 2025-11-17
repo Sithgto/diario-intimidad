@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 import { getErrorMessage } from '../constants/errors';
-import Menu from '../components/Menu';
 
 interface Usuario {
   id?: number;
@@ -91,7 +90,6 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className="app-container">
-      <Menu />
       <div className="card">
         <h2>Gestión de Usuarios</h2>
 
