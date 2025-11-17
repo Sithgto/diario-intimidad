@@ -16,11 +16,13 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <>
-      <Header />
-      <main className="main-content">{children}</main>
-      <Footer />
-    </>
+    <div className="layout-wrapper">
+      <div className="app-container">
+        <Header />
+        <main className="main-content">{children}</main>
+        <Footer />
+      </div>
+    </div>
   );
 };
 
@@ -29,16 +31,14 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="app-container">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Home />} />
-            <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
-            <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
-            <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
-            <Route path="/api-docs" element={<PrivateRoute><ApiDocs /></PrivateRoute>} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
+          <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
+          <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
+          <Route path="/api-docs" element={<PrivateRoute><ApiDocs /></PrivateRoute>} />
+        </Routes>
       </Router>
     </AuthProvider>
   );
@@ -79,18 +79,20 @@ const Home: React.FC = () => {
     return <Layout>{content}</Layout>;
   } else {
     return (
-      <div className="home-container">
-        <header className="header">
-          <div className="header-title">Diario de Intimidad</div>
-          <nav className="header-nav">
-            <Link to="/" className="nav-icon">🏠 Inicio</Link>
-            <Link to="/login" className="nav-icon">🔐 Login</Link>
-          </nav>
-        </header>
-        <main className="main-content">
-          {content}
-        </main>
-        <Footer />
+      <div className="layout-wrapper">
+        <div className="app-container">
+          <header className="header">
+            <div className="header-title">Diario de Intimidad</div>
+            <nav className="header-nav">
+              <Link to="/" className="nav-icon">🏠 Inicio</Link>
+              <Link to="/login" className="nav-icon">🔐 Login</Link>
+            </nav>
+          </header>
+          <main className="main-content">
+            {content}
+          </main>
+          <Footer />
+        </div>
       </div>
     );
   }

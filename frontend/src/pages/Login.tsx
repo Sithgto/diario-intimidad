@@ -25,51 +25,53 @@ const Login: React.FC = () => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>Iniciar Sesión</h2>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Email:</label>
-            <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div>
-            <label>Contraseña:</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                className="input"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ paddingRight: '40px' }}
-              />
-              {showPassword ? (
-                <FaEyeSlash
-                  onClick={() => setShowPassword(false)}
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    cursor: 'pointer'
-                  }}
-                />
-              ) : (
-                <FaEye
-                  onClick={() => setShowPassword(true)}
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    cursor: 'pointer'
-                  }}
-                />
-              )}
+      <div className="login-main">
+        <div className="login-card">
+          <h2>Diario de Intimidad</h2>
+          <form onSubmit={handleSubmit}>
+            <div>
+              <label>Email:</label>
+              <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
-          </div>
-          <button className="btn" type="submit">Diario Intimidad Login</button>
-        </form>
+            <div>
+              <label>Contraseña:</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="input"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  style={{ paddingRight: '40px' }}
+                />
+                {showPassword ? (
+                  <FaEyeSlash
+                    onClick={() => setShowPassword(false)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      cursor: 'pointer'
+                    }}
+                  />
+                ) : (
+                  <FaEye
+                    onClick={() => setShowPassword(true)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      cursor: 'pointer'
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+            <button className="btn" type="submit">Login</button>
+          </form>
+        </div>
       </div>
     </div>
   );

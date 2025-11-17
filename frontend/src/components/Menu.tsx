@@ -11,7 +11,7 @@ const Menu: React.FC = () => {
       <Link to="/" className="nav-icon"><FaHome /> Inicio</Link>
       <Link to="/calendario" className="nav-icon"><FaCalendarAlt /> Calendario</Link>
       <Link to="/daily-entry" className="nav-icon" title="el pasage/versiculo para leer hoy"><FaBookOpen /> Hoy</Link>
-      <Link to="/users" className="nav-icon"><FaUsers /> Gestionar Usuarios</Link>
+      <Link to="/users" className="nav-icon"><FaUsers /> Usuarios</Link>
       {user && <span className="nav-icon"><FaUser /> {user.email}</span>}
       <button className="nav-icon logout-btn" onClick={logout}><FaSignOutAlt /> Logout</button>
     </nav>
