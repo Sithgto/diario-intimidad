@@ -8,6 +8,8 @@ import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
+console.log('index.tsx rendering');
+
 root.render(
 
   <React.StrictMode>

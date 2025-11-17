@@ -125,10 +125,6 @@ CREATE TABLE Pago (
 INSERT INTO usuario (email, password, rol, fecha_registro) VALUES ('Sithgto@gmail.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ADMIN', CURRENT_TIMESTAMP);
 INSERT INTO usuario (email, password, rol, fecha_registro) VALUES ('user@diario.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'USER', CURRENT_TIMESTAMP);
 
--- Usuario por defecto ADMIN
--- Email: Sithgto@gmail.com
--- Password: password
-
 
 -- =======================================================
 -- CARGA DE DATOS INICIALES - DIARIO 2026: AÑO COMPLETO

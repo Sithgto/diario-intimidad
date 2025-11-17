@@ -18,6 +18,30 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-17 - Cambios en Sesión Actual
+- **Actualización a Java 21**
+  - Actualizado Java de versión 17 a 21
+  - Actualizado Spring Boot de 3.0.0 a 3.2.0 para compatibilidad con Java 21
+  - Actualizado Lombok a 1.18.30 para soporte completo de Java 21
+  - Modificado Dockerfile para usar eclipse-temurin:21-jdk-alpine y eclipse-temurin:21-jre
+  - Instalación manual de Maven y ffmpeg en el contenedor de build
+  - Validado build exitoso con docker-compose
+
+- **Correcciones en la Base de Datos**
+  - Correcciones realizadas en el esquema y entidades de la base de datos
+
+- **Correcciones en el Frontend**
+  - Mejoras y correcciones en la interfaz de usuario del frontend
+
+- **Correcciones en la Autenticación**
+  - Actualizaciones y correcciones en el sistema de autenticación
+
+- **Correcciones en el Menú**
+  - Ajustes y mejoras en el componente de menú
+
+- **Actualizaciones en API Docs**
+  - Documentación actualizada de las APIs
+
 ### 2025-11-17 - Actualización a Java 21
 - **Backend - Actualización de Java y Dependencias**
   - Actualizado Java de versión 17 a 21

@@ -37,31 +37,12 @@ const DailyEntry: React.FC = () => {
   const [data, setData] = useState<DailyEntryData | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(true);
-  const [diarios, setDiarios] = useState<DiarioAnual[]>([]);
   const [selectedAnio, setSelectedAnio] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchDiarios = async () => {
-      try {
-        console.log('Frontend: Fetching diarios...');
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8085/api/daily-entry/diarios', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log('Frontend: Diarios response:', response.data);
-        setDiarios(response.data);
-        // Seleccionar el año actual por defecto si existe
-        const currentYear = new Date().getFullYear();
-        const defaultDiario = response.data.find((d: DiarioAnual) => d.anio === currentYear);
-        console.log('Frontend: Selected diario:', defaultDiario);
-        if (defaultDiario) {
-          setSelectedAnio(defaultDiario.anio);
-        }
-      } catch (error) {
-        console.error('Frontend: Error fetching diarios', error);
-      }
-    };
-    fetchDiarios();
+    // Establecer el año actual por defecto
+    const currentYear = new Date().getFullYear();
+    setSelectedAnio(currentYear);
   }, []);
 
   useEffect(() => {
@@ -124,21 +105,6 @@ const DailyEntry: React.FC = () => {
       <Menu />
       <div className="card">
         <h2>Entrada Diaria - {data.fecha}</h2>
-
-        <div style={{ marginBottom: '20px' }}>
-          <label>Seleccionar Año del Diario:</label>
-          <select
-            value={selectedAnio || ''}
-            onChange={(e) => setSelectedAnio(Number(e.target.value))}
-            className="input"
-          >
-            {diarios.map(diario => (
-              <option key={diario.id} value={diario.anio}>
-                {diario.titulo} - {diario.anio}
-              </option>
-            ))}
-          </select>
-        </div>
 
         {data.tipoDia === 'DOMINGO' && data.diarioAnual && (
           <div>
