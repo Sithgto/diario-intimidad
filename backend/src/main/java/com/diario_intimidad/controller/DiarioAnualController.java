@@ -2,6 +2,8 @@ package com.diario_intimidad.controller;
 
 import com.diario_intimidad.entity.DiarioAnual;
 import com.diario_intimidad.service.DiarioAnualService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.UUID;
 @RequestMapping("/api/diarios-anuales")
 @CrossOrigin(origins = "http://localhost:3005")
 public class DiarioAnualController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DiarioAnualController.class);
 
     @Autowired
     private DiarioAnualService diarioAnualService;
@@ -44,6 +48,11 @@ public class DiarioAnualController {
         if (optionalDiarioAnual.isPresent()) {
             DiarioAnual existingDiarioAnual = optionalDiarioAnual.get();
 
+            // Log valores antes de la actualización
+            logger.info("Valores antes de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}",
+                existingDiarioAnual.getId(), existingDiarioAnual.getAnio(), existingDiarioAnual.getTitulo(),
+                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal());
+
             // Actualizar solo campos no nulos
             if (diarioAnualDetails.getAnio() != null) {
                 existingDiarioAnual.setAnio(diarioAnualDetails.getAnio());
@@ -61,7 +70,20 @@ public class DiarioAnualController {
                 existingDiarioAnual.setTemaPrincipal(diarioAnualDetails.getTemaPrincipal());
             }
 
-            return ResponseEntity.ok(diarioAnualService.save(existingDiarioAnual));
+            // Log del estado de actualización
+            logger.info("Updating diario {} with status {}", id, diarioAnualDetails.getStatus());
+
+            // Log valores después de la actualización
+            logger.info("Valores después de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}",
+                existingDiarioAnual.getId(), existingDiarioAnual.getAnio(), existingDiarioAnual.getTitulo(),
+                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal());
+
+            DiarioAnual saved = diarioAnualService.save(existingDiarioAnual);
+
+            // Confirmar que se guardó correctamente
+            logger.info("Updated diario saved with id {}", saved.getId());
+
+            return ResponseEntity.ok(saved);
         } else {
             return ResponseEntity.notFound().build();
         }

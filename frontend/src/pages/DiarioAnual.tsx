@@ -9,6 +9,9 @@ interface DiarioAnual {
   portadaUrl: string;
   temaPrincipal: string;
   logoUrl: string;
+  status: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const DiarioAnual: React.FC = () => {
@@ -22,13 +25,15 @@ const DiarioAnual: React.FC = () => {
     titulo: '',
     portadaUrl: '',
     temaPrincipal: '',
-    logoUrl: ''
+    logoUrl: '',
+    status: 'Activo'
   });
   const [selectedPortadaFile, setSelectedPortadaFile] = useState<File | null>(null);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [portadaPreview, setPortadaPreview] = useState<string>('');
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [originalForm, setOriginalForm] = useState<DiarioAnual | null>(null);
+  const [showAll, setShowAll] = useState<boolean>(false);
   const { token } = useContext(AuthContext)!;
 
   const fetchDiarios = async () => {
@@ -117,7 +122,7 @@ const DiarioAnual: React.FC = () => {
   };
 
   const handleCreate = async () => {
-    if (!form.anio || !form.titulo.trim() || !form.temaPrincipal.trim()) {
+    if (!form.anio || !form.titulo.trim() || !form.temaPrincipal.trim() || !form.status.trim()) {
       setError('VALIDATION_REQUIRED');
       return;
     }
@@ -141,7 +146,7 @@ const DiarioAnual: React.FC = () => {
       }
       const newDiario: DiarioAnual = await response.json();
       setDiarios([...diarios, newDiario]);
-      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '' });
+      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
       setSelectedPortadaFile(null);
       setSelectedLogoFile(null);
       setPortadaPreview('');
@@ -154,7 +159,7 @@ const DiarioAnual: React.FC = () => {
 
   const handleUpdate = async () => {
     if (!editing) return;
-    if (!form.anio || !form.titulo.trim() || !form.temaPrincipal.trim()) {
+    if (!form.anio || !form.titulo.trim() || !form.temaPrincipal.trim() || !form.status.trim()) {
       setError('VALIDATION_REQUIRED');
       return;
     }
@@ -180,7 +185,7 @@ const DiarioAnual: React.FC = () => {
       setDiarios(diarios.map((d: DiarioAnual) => d.id === editing.id ? updatedDiario : d));
       setEditing(null);
       setOriginalForm(null);
-      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '' });
+      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
       setSelectedPortadaFile(null);
       setSelectedLogoFile(null);
       setPortadaPreview('');
@@ -219,7 +224,7 @@ const DiarioAnual: React.FC = () => {
 
   const cancelEdit = () => {
     setEditing(null);
-    setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '' });
+    setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
     setSelectedPortadaFile(null);
     setSelectedLogoFile(null);
     setPortadaPreview('');
@@ -229,7 +234,7 @@ const DiarioAnual: React.FC = () => {
   };
 
   const hasChanges = () => {
-    return originalForm && JSON.stringify(form) !== JSON.stringify(originalForm);
+    return originalForm && (JSON.stringify(form) !== JSON.stringify(originalForm) || selectedPortadaFile !== null || selectedLogoFile !== null);
   };
 
   return (
@@ -238,7 +243,7 @@ const DiarioAnual: React.FC = () => {
         <h2>Diarios Anuales</h2>
         {loading && <p>Cargando...</p>}
 
-        <button className="btn" onClick={() => setShowForm(true)}>Crear Nuevo Diario</button>
+        {!editing && <button className="btn" onClick={() => setShowForm(true)}>Crear Nuevo Diario</button>}
 
         {/* Formulario para crear/editar */}
         {showForm && (
@@ -260,15 +265,30 @@ const DiarioAnual: React.FC = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, titulo: e.target.value })}
             required
           />
-          <label>Carátula:</label>
-          <input
-            className="input"
-            type="file"
-            accept="image/*"
-            onChange={handlePortadaSelect}
-          />
-          {portadaPreview && <img src={portadaPreview} alt="Previsualización Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />}
-          {form.portadaUrl && <img src={`http://localhost:8085${form.portadaUrl}`} alt="Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />}
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            <div>
+              <label>Carátula:</label>
+              <input
+                className="input"
+                type="file"
+                accept="image/*"
+                onChange={handlePortadaSelect}
+              />
+              {portadaPreview && <img src={portadaPreview} alt="Previsualización Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />}
+              <img src={form.portadaUrl ? `http://localhost:8085${form.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />
+            </div>
+            <div>
+              <label>Logo:</label>
+              <input
+                className="input"
+                type="file"
+                accept="image/*"
+                onChange={handleLogoSelect}
+              />
+              {logoPreview && <img src={logoPreview} alt="Previsualización Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />}
+              <img src={form.logoUrl ? `http://localhost:8085${form.logoUrl}` : '/images/default-logo.jpg'} alt="Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />
+            </div>
+          </div>
           <input
             className="input"
             type="text"
@@ -277,15 +297,22 @@ const DiarioAnual: React.FC = () => {
             onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, temaPrincipal: e.target.value })}
             required
           />
-          <label>Logo:</label>
-          <input
+          <select
             className="input"
-            type="file"
-            accept="image/*"
-            onChange={handleLogoSelect}
-          />
-          {logoPreview && <img src={logoPreview} alt="Previsualización Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />}
-          {form.logoUrl && <img src={`http://localhost:8085${form.logoUrl}`} alt="Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />}
+            value={form.status}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })}
+            required
+          >
+            <option value="Desarrollo">Desarrollo</option>
+            <option value="Descatalogado">Descatalogado</option>
+            <option value="Activo">Activo</option>
+          </select>
+          {editing && (
+            <div>
+              <p>Creado: {form.createdAt ? new Date(form.createdAt).toLocaleString() : ''}</p>
+              <p>Modificado: {form.updatedAt ? new Date(form.updatedAt).toLocaleString() : ''}</p>
+            </div>
+          )}
           {!editing && <button className="btn" onClick={handleCreate}>Crear</button>}
           {editing && hasChanges() && <button className="btn" onClick={handleUpdate}>Actualizar</button>}
           {editing && <button className="btn" onClick={cancelEdit}>Cancelar</button>}
@@ -296,13 +323,24 @@ const DiarioAnual: React.FC = () => {
         {!editing && (
           <>
             <h3>Lista de Diarios Anuales</h3>
+            <label>
+              <input
+                type="checkbox"
+                checked={showAll}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setShowAll(e.target.checked)}
+              />
+              Mostrar todos los diarios
+            </label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-              {diarios.map((diario: DiarioAnual) => (
+              {diarios.filter((diario: DiarioAnual) => showAll || diario.status === 'Activo').map((diario: DiarioAnual) => (
                 <div key={diario.id} className="diario-card" style={{ border: '1px solid #ccc', padding: '10px', cursor: 'pointer' }} onClick={() => startEdit(diario)}>
                   <img src={diario.portadaUrl ? `http://localhost:8085${diario.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ width: '100px', height: '150px', objectFit: 'cover' }} />
                   <h4>{diario.titulo}</h4>
                   <p>Año: {diario.anio}</p>
                   <p>Tema: {diario.temaPrincipal}</p>
+                  <p>Status: {diario.status}</p>
+                  <p>Creado: {diario.createdAt ? new Date(diario.createdAt).toLocaleString() : ''}</p>
+                  <p>Modificado: {diario.updatedAt ? new Date(diario.updatedAt).toLocaleString() : ''}</p>
                 </div>
               ))}
             </div>

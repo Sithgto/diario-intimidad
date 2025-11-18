@@ -18,6 +18,42 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-18 - Adición de Imágenes por Defecto para Carátula y Logo, Uso en Frontend y Ocultación de Botón en Modo Edición
+- **Archivos afectados:** frontend/public/images/default-cover.jpg, frontend/public/images/default-logo.jpg, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregadas imágenes por defecto default-cover.jpg y default-logo.jpg en frontend/public/images/; implementado uso de estas imágenes en el frontend cuando no hay imágenes personalizadas subidas; ocultado el botón "Crear Nuevo Diario" en modo edición para evitar confusión.
+- **Explicación del porqué se realiza el cambio:** Para proporcionar una experiencia visual consistente mostrando imágenes por defecto cuando los usuarios no han subido carátulas o logos personalizados, y para mejorar la interfaz ocultando acciones irrelevantes durante la edición de diarios.
+- **Resultado esperado:** Los usuarios ven imágenes por defecto en lugar de espacios vacíos, y la interfaz es más limpia en modo edición sin botones distractores.
+
+### 2025-11-18 - Cambio de ddl-auto a 'none' para Usar Solo init.sql y Evitar Conflictos de Esquema
+- **Archivos afectados:** backend/src/main/resources/application.properties
+- **Cambios específicos realizados:** Cambiado spring.jpa.hibernate.ddl-auto de 'create' a 'none' en application.properties para usar únicamente el esquema definido en init.sql y evitar conflictos de esquema.
+- **Explicación del porqué se realiza el cambio:** Para prevenir que Hibernate modifique automáticamente el esquema de la base de datos, asegurando que solo se use el esquema definido en init.sql y evitando conflictos potenciales durante el desarrollo y despliegue.
+- **Resultado esperado:** El esquema de la base de datos se mantiene consistente con init.sql sin modificaciones automáticas de Hibernate, reduciendo riesgos de conflictos de esquema.
+
+### 2025-11-18 - Cambio de ddl-auto a 'create' para Resolver Error de Validación de Esquema y Reinicio del Backend
+- **Archivos afectados:** backend/src/main/resources/application.properties
+- **Cambios específicos realizados:** Cambiado spring.jpa.hibernate.ddl-auto de 'update' a 'create' en application.properties para resolver errores de validación de esquema; reiniciado el backend para aplicar el cambio.
+- **Explicación del porqué se realiza el cambio:** Para resolver errores de validación de esquema que ocurrían con 'update', cambiando a 'create' que recrea el esquema completamente, y reiniciar el backend para asegurar que los cambios se apliquen correctamente.
+- **Resultado esperado:** El esquema se recrea sin errores de validación, y el backend se reinicia exitosamente, permitiendo el funcionamiento correcto de la aplicación.
+
+### 2025-11-18 - Adición de ALTER TABLE en init.sql para Actualizar Esquema con Nuevas Columnas y Reinicio del Backend
+- **Archivos afectados:** DB/init.sql
+- **Cambios específicos realizados:** Agregados comandos ALTER TABLE en init.sql para añadir nuevas columnas al esquema de la base de datos; reiniciado el backend para aplicar los cambios en el esquema.
+- **Explicación del porqué se realiza el cambio:** Para actualizar el esquema de la base de datos con nuevas columnas requeridas para expandir funcionalidades, y asegurar que el backend se sincronice con los cambios del esquema.
+- **Resultado esperado:** El esquema se actualiza exitosamente con las nuevas columnas, y el backend se reinicia sin problemas, permitiendo el funcionamiento correcto de las nuevas funcionalidades.
+
+### 2025-11-18 - Adición de Campo Status a DiarioAnual con Filtro y Select Dropdown
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, DB/init.sql, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregado campo status de tipo String con valores posibles "Desarrollo", "Descatalogado", "Activo" en la entidad DiarioAnual con anotaciones @NotNull y @Column(nullable = false); actualizado esquema en init.sql agregando columna status VARCHAR(50) NOT NULL y modificando inserts para incluir status 'Activo'; en DiarioAnual.tsx agregado status a la interfaz, estado del formulario y validaciones, select dropdown en formulario con opciones, display de status en tarjetas, filtro con checkbox para mostrar solo "Activo" por defecto con opción de mostrar todos.
+- **Explicación del porqué se realiza el cambio:** Para categorizar los diarios anuales según su estado de desarrollo y permitir a los usuarios filtrar la vista para enfocarse en diarios activos, mejorando la organización y usabilidad de la gestión de diarios.
+- **Resultado esperado:** Los usuarios pueden asignar status a diarios, ver el status en las tarjetas, y filtrar para mostrar solo diarios "Activo" o todos, facilitando la navegación y gestión según el estado del diario.
+
+### 2025-11-18 - Adición de Campos de Timestamp, Detección de Cambios en Archivos Seleccionados, Layout Mejorado de Carátula y Logo, e Historial Básico de Fechas
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx, backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java
+- **Cambios específicos realizados:** Agregados campos de timestamp (createdAt, updatedAt) en la entidad DiarioAnual con anotaciones @CreationTimestamp y @UpdateTimestamp; implementada detección de cambios en archivos seleccionados mediante comparación de estado previo y actual en el frontend; mejorado el layout de carátula y logo con estilos CSS responsivos y previsualización en tiempo real; agregado historial básico de fechas mostrando la fecha de creación y última modificación en la interfaz.
+- **Explicación del porqué se realiza el cambio:** Para mejorar el seguimiento de cambios en los diarios anuales, proporcionar feedback visual inmediato sobre selecciones de archivos, optimizar la presentación de elementos visuales clave, y ofrecer un historial simple para que los usuarios puedan ver cuándo se crearon o modificaron sus diarios.
+- **Resultado esperado:** Los usuarios ven timestamps precisos para creación y actualización, detectan cambios en archivos antes de confirmar, disfrutan de un layout más atractivo y funcional para carátulas y logos, y acceden a un historial básico de fechas que facilita la gestión de sus diarios.
+
 ### 2025-11-18 - Adición de Proxy en package.json para Resolver NETWORK_ERROR en Uploads y Reinicio de Servicios
 - **Archivos afectados:** frontend/package.json
 - **Cambios específicos realizados:** Agregada la línea "proxy": "http://localhost:8085" en el archivo package.json para redirigir las solicitudes API al backend durante el desarrollo.

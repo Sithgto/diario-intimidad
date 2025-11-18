@@ -3,6 +3,9 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -29,6 +32,18 @@ public class DiarioAnual {
     @NotNull
     private String temaPrincipal;
 
+    @Column(nullable = false)
+    @NotNull
+    private String status;
+
+    @Column(name = "created_at")
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
     @JsonIgnore
     @OneToMany(mappedBy = "diarioAnual", cascade = CascadeType.ALL)
     private List<MesMaestro> mesesMaestro;
@@ -54,4 +69,13 @@ public class DiarioAnual {
 
     public List<MesMaestro> getMesesMaestro() { return mesesMaestro; }
     public void setMesesMaestro(List<MesMaestro> mesesMaestro) { this.mesesMaestro = mesesMaestro; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

@@ -21,8 +21,17 @@ CREATE TABLE Diario_Anual (
     titulo VARCHAR(255) NOT NULL, -- Título principal (ej. "Avivamiento")
     portada_url VARCHAR(255),
     logo_url VARCHAR(255),
-    tema_principal TEXT -- Versículo principal del año (ej. Jeremías 32:17)
+    tema_principal TEXT, -- Versículo principal del año (ej. Jeremías 32:17)
+    status VARCHAR(50) NOT NULL, -- 'Desarrollo', 'Descatalogado', 'Activo'
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- Agregar columnas nuevas si no existen (para migración de esquema)
+ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS logo_url VARCHAR(255);
+ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Activo';
+ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+
 
 -- Almacena los temas y versículos por mes para un año específico
 CREATE TABLE Mes_Maestro (
@@ -143,8 +152,8 @@ TRUNCATE TABLE Campos_Diario CASCADE;
 TRUNCATE TABLE Diario_Anual CASCADE;
 
 -- 1. Asegurar la inserción del Diario Anual (Se asume ID=1)
-INSERT INTO Diario_Anual (id, anio, titulo, tema_principal) VALUES
-(1, 2026, 'Avivamiento', '\"¡Oh Señor Jehová! He aquí que tú hiciste el cielo y la tierra con tu gran poder, y con tu brazo extendido, ni hay nada que sea dificil para ti\". Jeremías 32:17')
+INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status) VALUES
+(1, 2026, 'Avivamiento', '\"¡Oh Señor Jehová! He aquí que tú hiciste el cielo y la tierra con tu gran poder, y con tu brazo extendido, ni hay nada que sea dificil para ti\". Jeremías 32:17', 'Activo')
 ON CONFLICT (id) DO NOTHING;
 
 -- =======================================================
@@ -487,8 +496,8 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 -- =======================================================
 
 -- 1. Inserción del nuevo Diario Anual (ID = 2)
-INSERT INTO Diario_Anual (id, anio, titulo, tema_principal) VALUES
-(2, 2027, 'Crecimiento y Multiplicación', '\"He aquí, yo hago cosa nueva; pronto saldrá a luz; ¿no la conoceréis? Otra vez abriré camino en el desierto, y ríos en la soledad.\" Isaías 43:19')
+INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status) VALUES
+(2, 2027, 'Crecimiento y Multiplicación', '\"He aquí, yo hago cosa nueva; pronto saldrá a luz; ¿no la conoceréis? Otra vez abriré camino en el desierto, y ríos en la soledad.\" Isaías 43:19', 'Activo')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Estructura de Campos_Diario para 2027 (Copiada del ID=1 y modificada)
@@ -836,8 +845,8 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 -- =======================================================
 
 -- 1. Inserción del nuevo Diario Anual (ID = 3)
-INSERT INTO Diario_Anual (id, anio, titulo, tema_principal) VALUES
-(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960')
+INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status) VALUES
+(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960', 'Activo')
 ON CONFLICT (id) DO NOTHING;
 SELECT setval('diario_anual_id_seq', (SELECT MAX(id) FROM diario_anual));
 
