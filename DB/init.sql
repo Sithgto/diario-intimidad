@@ -20,13 +20,14 @@ CREATE TABLE Diario_Anual (
     anio INTEGER UNIQUE NOT NULL,
     titulo VARCHAR(255) NOT NULL, -- Título principal (ej. "Avivamiento")
     portada_url VARCHAR(255),
+    logo_url VARCHAR(255),
     tema_principal TEXT -- Versículo principal del año (ej. Jeremías 32:17)
- );
+);
 
 -- Almacena los temas y versículos por mes para un año específico
 CREATE TABLE Mes_Maestro (
     id BIGSERIAL PRIMARY KEY,
-    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id) ON DELETE CASCADE,
     mes_numero INTEGER NOT NULL, -- 1 a 12
     nombre VARCHAR(50) NOT NULL, -- Nombre del mes (ej. "ENERO")
     tema_mes VARCHAR(255),
@@ -50,7 +51,7 @@ CREATE TABLE Dia_Maestro (
 -- Define la estructura de la entrada que verá el usuario
 CREATE TABLE Campos_Diario (
     id BIGSERIAL PRIMARY KEY,
-    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id), -- A qué diario anual aplica
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id) ON DELETE CASCADE, -- A qué diario anual aplica
     orden INTEGER NOT NULL, -- Orden de aparición en el frontend
     nombre_campo VARCHAR(100) NOT NULL, -- Título/etiqueta del campo (ej. 'Aplicación Práctica')
     tipo_entrada VARCHAR(50) NOT NULL, -- 'VERSICULO', 'APLICACION', 'ORACION', 'PRIORIDADES'
@@ -64,7 +65,7 @@ CREATE TABLE Campos_Diario (
 CREATE TABLE Entrada_Diaria (
     id BIGSERIAL PRIMARY KEY,
     usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
-    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id) ON DELETE CASCADE,
     dia_maestro_id BIGINT NOT NULL REFERENCES Dia_Maestro(id),
     fecha_entrada DATE NOT NULL,
     estado_llenado NUMERIC(5, 2) DEFAULT 0.00, -- Porcentaje de campos rellenados (0.00 a 100.00)
@@ -90,7 +91,7 @@ CREATE TABLE Valores_Campo (
 CREATE TABLE Meta_Anual (
     id BIGSERIAL PRIMARY KEY,
     usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
-    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id) ON DELETE CASCADE,
     tipo_meta VARCHAR(50) NOT NULL, -- 'Personal', 'Familiar', 'Económica', 'Ministerial'
     descripcion TEXT NOT NULL,
     estado VARCHAR(50) NOT NULL DEFAULT 'PENDIENTE',
@@ -102,7 +103,7 @@ CREATE TABLE Meta_Anual (
 CREATE TABLE Meta_Mensual (
     id BIGSERIAL PRIMARY KEY,
     usuario_id BIGINT NOT NULL REFERENCES Usuario(id),
-    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id) ON DELETE CASCADE,
     mes_numero INTEGER NOT NULL, -- Mes al que pertenece la meta
     descripcion TEXT NOT NULL,
     cumplida BOOLEAN NOT NULL DEFAULT FALSE,
@@ -838,6 +839,7 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 INSERT INTO Diario_Anual (id, anio, titulo, tema_principal) VALUES
 (3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960')
 ON CONFLICT (id) DO NOTHING;
+SELECT setval('diario_anual_id_seq', (SELECT MAX(id) FROM diario_anual));
 
 -- 2. Estructura de Campos_Diario para 2025
 

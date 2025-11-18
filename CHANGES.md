@@ -18,9 +18,63 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-18 - Adición de Proxy en package.json para Resolver NETWORK_ERROR en Uploads y Reinicio de Servicios
+- **Archivos afectados:** frontend/package.json
+- **Cambios específicos realizados:** Agregada la línea "proxy": "http://localhost:8085" en el archivo package.json para redirigir las solicitudes API al backend durante el desarrollo.
+- **Explicación del porqué se realiza el cambio:** Para resolver errores NETWORK_ERROR en las subidas de archivos, ya que el frontend en modo desarrollo no puede hacer solicitudes directas al backend en un puerto diferente sin configuración de proxy.
+- **Resultado esperado:** Las subidas de archivos funcionan correctamente sin errores de red, permitiendo que las solicitudes se proxyen automáticamente al backend.
+- **Servicios**
+  - Reinicio de servicios para aplicar los cambios
+
+### 2025-11-18 - Mejoras en DiarioAnual: Previsualización de Imágenes y Subida Manual
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregadas funciones handlePortadaSelect, handlePortadaUpload, handleLogoSelect, handleLogoUpload para manejo de selección y subida de archivos; agregado estado para previsualización (portadaPreview, logoPreview); cambiadas etiquetas de inputs a "Carátula" y "Logo"; agregados placeholders como "Ejemplo: 2023", "Ejemplo: Mi Diario 2023", etc.; implementado renderizado condicional de imágenes de previsualización y subidas.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la experiencia del usuario al permitir previsualizar imágenes antes de subirlas y controlar manualmente el proceso de subida, además de hacer la interfaz más intuitiva con etiquetas claras y ejemplos.
+- **Resultado esperado:** Los usuarios pueden seleccionar archivos, ver una previsualización antes de subir, subir manualmente con botones dedicados, y ver las imágenes subidas en la interfaz.
+
 ### 2025-11-18 - Redirección Automática Después de Login
-- **Frontend - Login**
-  - Después de un login exitoso, la aplicación ahora redirige automáticamente a /daily-entry en lugar de /.
+- **Archivos afectados:** frontend/src/pages/Login.tsx
+- **Cambios específicos realizados:** En la función handleSubmit, después de login(response.data.token, response.data.email, response.data.rol), agregado navigate('/daily-entry').
+- **Explicación del porqué se realiza el cambio:** Para mejorar la experiencia del usuario dirigiendo automáticamente a la funcionalidad principal del diario después del login, en lugar de la página de inicio.
+- **Resultado esperado:** Los usuarios son redirigidos automáticamente a la página de entrada diaria tras un login exitoso.
+
+### 2025-11-18 - Incorporación de logoUrl en DiarioAnual y CRUD Frontend Completo
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, frontend/src/pages/DiarioAnual.tsx, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java
+- **Cambios específicos realizados:** Agregado campo logoUrl de tipo String en la entidad DiarioAnual con anotación @Column(name = "logo_url"); implementadas funciones handleCreate, handleUpdate, handleDelete en DiarioAnual.tsx con llamadas a API; agregado método PUT en DiarioAnualController.java para actualizar campos no nulos; configurado cascade delete en relaciones.
+- **Explicación del porqué se realiza el cambio:** Para completar el modelo de DiarioAnual con soporte para logos, y proporcionar una interfaz completa de gestión CRUD para que los usuarios puedan administrar sus diarios anuales.
+- **Resultado esperado:** Los diarios anuales pueden tener logos asociados, y los usuarios pueden crear, leer, actualizar y eliminar diarios a través de la interfaz web.
+### 2025-11-18 - Implementación de Subida de Imágenes para portadaUrl y logoUrl en DiarioAnual
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java, backend/src/main/java/com/diario_intimidad/config/WebConfig.java, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregado método uploadImage en DiarioAnualController.java que recibe MultipartFile, genera nombre único con UUID, guarda en uploads/images/, retorna URL relativa; configurado WebConfig.java con addResourceHandler("/uploads/**").addResourceLocations("file:uploads/"); implementado manejo de subida en DiarioAnual.tsx con FormData y llamadas al endpoint.
+- **Explicación del porqué se realiza el cambio:** Para permitir que los usuarios suban imágenes para las carátulas y logos de sus diarios anuales, almacenándolas en el servidor y sirviéndolas estáticamente.
+- **Resultado esperado:** Los usuarios pueden subir imágenes que se almacenan en el servidor y se muestran correctamente en la aplicación.
+### 2025-11-18 - Implementación del Sistema Global de Manejo de Errores en el Frontend
+- **Archivos afectados:** frontend/src/contexts/ErrorContext.tsx, frontend/src/components/ErrorDisplay.tsx, frontend/src/App.tsx, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Creado ErrorContext con useState para error, setError y clearError; creado ErrorDisplay componente que muestra error en posición fija con botón de cerrar; envuelto App en ErrorProvider; usado useError en DiarioAnual.tsx para setError en catches.
+- **Explicación del porqué se realiza el cambio:** Para proporcionar un manejo consistente y centralizado de errores en toda la aplicación frontend, mejorando la experiencia del usuario al mostrar errores de manera clara y permitir su cierre.
+- **Resultado esperado:** Los errores se muestran en una notificación fija en la esquina superior derecha, y los usuarios pueden cerrarlos manualmente.
+### 2025-11-18 - Adición de Validaciones de Obligatoriedad para Campos en DiarioAnual
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregadas anotaciones @NotNull en titulo y temaPrincipal en la entidad (anio ya era nullable=false); agregadas validaciones en handleCreate y handleUpdate en DiarioAnual.tsx para verificar que anio, titulo y temaPrincipal no estén vacíos.
+- **Explicación del porqué se realiza el cambio:** Para asegurar que los diarios anuales tengan información esencial completa, previniendo la creación de registros incompletos.
+- **Resultado esperado:** Los usuarios reciben errores de validación si intentan crear o actualizar un diario sin anio, titulo o temaPrincipal.
+### 2025-11-18 - Eliminación de Botones "Subir Archivo" y Subida Automática de Imágenes con Validación
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java
+- **Cambios específicos realizados:** Eliminados botones "Subir Archivo" para portada y logo; implementada subida automática de imágenes al crear/actualizar diario anual; agregada validación de campos requeridos (anio, titulo, temaPrincipal) antes de la subida.
+- **Explicación del porqué se realiza el cambio:** Para simplificar la interfaz de usuario eliminando pasos manuales de subida, automatizando el proceso y asegurando que solo se suban imágenes cuando los campos requeridos estén completos.
+- **Resultado esperado:** Los usuarios crean o actualizan diarios con subida automática de imágenes solo si los campos requeridos están validados, mejorando la eficiencia y reduciendo errores.
+
+### 2025-11-18 - Cambio de Layout a Tarjetas en DiarioAnual.tsx, Inclusión de Imagen por Defecto, Botón "Crear Nuevo Diario" y Formulario Condicional
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Cambiado el layout de lista a tarjetas para mostrar los diarios anuales; incluida una imagen por defecto cuando no hay portada; agregado botón "Crear Nuevo Diario" para iniciar la creación; implementado formulario condicional que se muestra para crear o editar diarios.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la experiencia del usuario con una interfaz más visual y atractiva, facilitando la navegación y gestión de diarios anuales.
+- **Resultado esperado:** Los usuarios ven los diarios en tarjetas con imágenes, pueden crear nuevos diarios fácilmente, y el formulario aparece condicionalmente para operaciones de creación o edición.
+
+### 2025-11-18 - Ocultación de la Lista de Tarjetas en Modo Edición y Botón "Actualizar" Condicional Basado en Cambios
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Implementada lógica para ocultar la lista de tarjetas cuando se está editando un diario; agregado estado para rastrear cambios en los campos del formulario; el botón "Actualizar" solo se muestra cuando hay cambios detectados.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la experiencia del usuario enfocando la atención en la edición sin distracciones visuales, y optimizando la interfaz al mostrar acciones solo cuando son necesarias.
+- **Resultado esperado:** En modo edición, los usuarios ven únicamente el formulario de edición sin la lista de tarjetas; el botón "Actualizar" aparece solo cuando se detectan cambios en los campos, reduciendo confusión y mejorando la eficiencia.
 
 ### 2025-11-17 - Cambios en Sesión Actual
 - **Actualización a Java 21**

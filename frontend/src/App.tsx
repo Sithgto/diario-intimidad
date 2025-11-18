@@ -1,13 +1,16 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
+import { ErrorProvider } from './contexts/ErrorContext';
 import Login from './pages/Login';
 import UserManagement from './pages/UserManagement';
 import ApiDocs from './pages/ApiDocs';
 import DailyEntry from './pages/DailyEntry';
 import Calendario from './pages/Calendario';
+import DiarioAnual from './pages/DiarioAnual';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ErrorDisplay from './components/ErrorDisplay';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useContext(AuthContext)!;
@@ -22,6 +25,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <main className="main-content">{children}</main>
         <Footer />
       </div>
+      <ErrorDisplay />
     </div>
   );
 };
@@ -29,18 +33,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function App() {
   console.log('App component rendering');
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
-          <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
-          <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
-          <Route path="/api-docs" element={<PrivateRoute><ApiDocs /></PrivateRoute>} />
-        </Routes>
-      </Router>
-    </AuthProvider>
+    <ErrorProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
+            <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
+            <Route path="/diario-anual" element={<PrivateRoute><DiarioAnual /></PrivateRoute>} />
+            <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
+            <Route path="/api-docs" element={<PrivateRoute><ApiDocs /></PrivateRoute>} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ErrorProvider>
   );
 }
 

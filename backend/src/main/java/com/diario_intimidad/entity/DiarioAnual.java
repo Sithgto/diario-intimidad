@@ -1,7 +1,8 @@
-package com.diario_intimidad.entity;
+ package com.diario_intimidad.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -15,12 +16,17 @@ public class DiarioAnual {
     @Column(nullable = false)
     private Integer anio;
 
+    @NotNull
     private String titulo;
 
     @Column(name = "portada_url")
     private String portadaUrl;
 
+    @Column(name = "logo_url")
+    private String logoUrl;
+
     @Column(name = "tema_principal")
+    @NotNull
     private String temaPrincipal;
 
     @JsonIgnore
@@ -39,6 +45,9 @@ public class DiarioAnual {
 
     public String getPortadaUrl() { return portadaUrl; }
     public void setPortadaUrl(String portadaUrl) { this.portadaUrl = portadaUrl; }
+
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
     public String getTemaPrincipal() { return temaPrincipal; }
     public void setTemaPrincipal(String temaPrincipal) { this.temaPrincipal = temaPrincipal; }
