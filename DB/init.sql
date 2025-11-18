@@ -32,7 +32,6 @@ ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Ac
 ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-
 -- Almacena los temas y versículos por mes para un año específico
 CREATE TABLE Mes_Maestro (
     id BIGSERIAL PRIMARY KEY,
@@ -103,7 +102,7 @@ CREATE TABLE Meta_Anual (
     diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id) ON DELETE CASCADE,
     tipo_meta VARCHAR(50) NOT NULL, -- 'Personal', 'Familiar', 'Económica', 'Ministerial'
     descripcion TEXT NOT NULL,
-    estado VARCHAR(50) NOT NULL DEFAULT 'PENDIENTE',
+    estado VARCHAR(50) NOT NULL DEFAULT 'Activo',
     fecha_creacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
  );
@@ -1184,3 +1183,15 @@ INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica, versicul
 (36, 21, 'DOMINGO', NULL, 'Reflexión: Celebrando el Legado y la Influencia.'),
 (36, 28, 'DOMINGO', NULL, 'Reflexión: Planificando 2026: Una Visión de Avivamiento.')
 ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versiculo_diario;
+
+-- Otorgar permisos al usuario diario_user
+GRANT SELECT, INSERT, UPDATE, DELETE ON diario_anual TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON mes_maestro TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON dia_maestro TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON campos_diario TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON entrada_diaria TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON valores_campo TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON usuario TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON meta_anual TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON meta_mensual TO diario_user;
+GRANT SELECT, INSERT, UPDATE, DELETE ON pago TO diario_user;

@@ -18,6 +18,30 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-18 - Adición de Estados de Carga para Subidas de Imágenes, Deshabilitación del Botón "Actualizar" Durante Carga, y Mensaje "Subiendo imagen..."
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregados estados de carga para subidas de imágenes, deshabilitación del botón "Actualizar" durante la carga, y mensaje "Subiendo imagen..." para feedback visual.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la experiencia del usuario proporcionando retroalimentación durante las subidas de imágenes y previniendo envíos múltiples mientras se procesa la carga.
+- **Resultado esperado:** Los usuarios ven un indicador de carga y no pueden actualizar mientras se sube una imagen, reduciendo errores y mejorando la usabilidad.
+
+### 2025-11-18 - Implementación de Subida Automática de Imágenes al Seleccionar Archivo, Eliminación de Estados selectedFile y Botones, y Actualización de handleUpdate
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Implementada subida automática de imágenes al seleccionar archivos para carátula y logo; eliminados los estados selectedFile y los botones manuales de subida; actualizada la función handleUpdate para manejar el nuevo flujo de subida automática.
+- **Explicación del porqué se realiza el cambio:** Para simplificar la experiencia del usuario eliminando pasos manuales innecesarios, automatizando el proceso de subida de imágenes y reduciendo la complejidad del estado del componente.
+- **Resultado esperado:** Los usuarios pueden seleccionar archivos y las imágenes se suben automáticamente sin necesidad de botones adicionales, mejorando la eficiencia y reduciendo posibles errores en la interfaz.
+
+### 2025-11-18 - Corrección de la URL de upload para evitar doble slash y cambio de WebConfig a ruta absoluta para servir imágenes
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/config/WebConfig.java, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** En WebConfig.java, cambiada la ubicación de recursos de "file:uploads/" a "file:/app/uploads/" para usar ruta absoluta; corregida la construcción de URL de upload en el frontend para evitar doble slash al concatenar baseUrl y ruta relativa.
+- **Explicación del porqué se realiza el cambio:** Para resolver problemas de acceso a imágenes en el contenedor Docker usando rutas absolutas, y evitar errores de URL malformadas causadas por doble slash en las solicitudes de upload.
+- **Resultado esperado:** Las imágenes se sirven correctamente desde rutas absolutas en el servidor, y las URLs de upload se construyen sin doble slash, mejorando la estabilidad de las subidas de archivos.
+
+### 2025-11-18 - Correcciones en DiarioAnual.tsx: Cambio de response.json() a text() en upload, Ajuste de URLs, Visualización única de imágenes en formulario, y Aseguramiento de actualización de lista
+- **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Cambiado response.json() a text() en la función de upload; ajustadas las URLs para correcta resolución; implementada visualización única de imágenes en el formulario; asegurado que la lista se actualice correctamente después de operaciones.
+- **Explicación del porqué se realiza el cambio:** Para corregir errores en el manejo de respuestas de upload, mejorar la resolución de URLs, evitar duplicaciones en la visualización de imágenes, y garantizar que la lista refleje los cambios inmediatamente.
+- **Resultado esperado:** Las subidas de archivos funcionan correctamente, las URLs se resuelven apropiadamente, las imágenes se muestran sin duplicados, y la lista se actualiza automáticamente tras modificaciones.
+
 ### 2025-11-18 - Adición de Imágenes por Defecto para Carátula y Logo, Uso en Frontend y Ocultación de Botón en Modo Edición
 - **Archivos afectados:** frontend/public/images/default-cover.jpg, frontend/public/images/default-logo.jpg, frontend/src/pages/DiarioAnual.tsx
 - **Cambios específicos realizados:** Agregadas imágenes por defecto default-cover.jpg y default-logo.jpg en frontend/public/images/; implementado uso de estas imágenes en el frontend cuando no hay imágenes personalizadas subidas; ocultado el botón "Crear Nuevo Diario" en modo edición para evitar confusión.

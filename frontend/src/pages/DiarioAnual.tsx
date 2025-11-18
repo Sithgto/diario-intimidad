@@ -28,13 +28,25 @@ const DiarioAnual: React.FC = () => {
     logoUrl: '',
     status: 'Activo'
   });
-  const [selectedPortadaFile, setSelectedPortadaFile] = useState<File | null>(null);
-  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
-  const [portadaPreview, setPortadaPreview] = useState<string>('');
-  const [logoPreview, setLogoPreview] = useState<string>('');
   const [originalForm, setOriginalForm] = useState<DiarioAnual | null>(null);
   const [showAll, setShowAll] = useState<boolean>(false);
+  const [uploadingPortada, setUploadingPortada] = useState<boolean>(false);
+  const [uploadingLogo, setUploadingLogo] = useState<boolean>(false);
   const { token } = useContext(AuthContext)!;
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await fetch('http://localhost:8085/api/diarios-anuales/upload', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+    if (!response.ok) throw new Error('Error al subir archivo');
+    return await response.text();
+  };
 
   const fetchDiarios = async () => {
     setLoading(true);
@@ -61,63 +73,33 @@ const DiarioAnual: React.FC = () => {
     fetchDiarios();
   }, [token]);
 
-  const handlePortadaSelect = (e: ChangeEvent<HTMLInputElement>) => {
+  const handlePortadaChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedPortadaFile(file);
-      setPortadaPreview(URL.createObjectURL(file));
+      setUploadingPortada(true);
+      try {
+        const url = await uploadFile(file);
+        setForm({ ...form, portadaUrl: url });
+      } catch (err) {
+        setError('NETWORK_ERROR');
+      } finally {
+        setUploadingPortada(false);
+      }
     }
   };
 
-  const handlePortadaUpload = async () => {
-    if (!selectedPortadaFile) return;
-    const formData = new FormData();
-    formData.append('file', selectedPortadaFile);
-    try {
-      const response = await fetch('http://localhost:8085/api/diarios-anuales/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      if (!response.ok) throw new Error('Error al subir la carátula');
-      const data = await response.json();
-      setForm({ ...form, portadaUrl: data.url });
-      setSelectedPortadaFile(null);
-      setPortadaPreview('');
-    } catch (err) {
-      setError('NETWORK_ERROR');
-    }
-  };
-
-  const handleLogoSelect = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleLogoUpload = async () => {
-    if (!selectedLogoFile) return;
-    const formData = new FormData();
-    formData.append('file', selectedLogoFile);
-    try {
-      const response = await fetch('http://localhost:8085/api/diarios-anuales/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-      if (!response.ok) throw new Error('Error al subir el logo');
-      const data = await response.json();
-      setForm({ ...form, logoUrl: data.url });
-      setSelectedLogoFile(null);
-      setLogoPreview('');
-    } catch (err) {
-      setError('NETWORK_ERROR');
+      setUploadingLogo(true);
+      try {
+        const url = await uploadFile(file);
+        setForm({ ...form, logoUrl: url });
+      } catch (err) {
+        setError('NETWORK_ERROR');
+      } finally {
+        setUploadingLogo(false);
+      }
     }
   };
 
@@ -127,12 +109,6 @@ const DiarioAnual: React.FC = () => {
       return;
     }
     try {
-      if (selectedPortadaFile) {
-        await handlePortadaUpload();
-      }
-      if (selectedLogoFile) {
-        await handleLogoUpload();
-      }
       const response = await fetch('http://localhost:8085/api/diarios-anuales', {
         method: 'POST',
         headers: {
@@ -147,10 +123,6 @@ const DiarioAnual: React.FC = () => {
       const newDiario: DiarioAnual = await response.json();
       setDiarios([...diarios, newDiario]);
       setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
-      setSelectedPortadaFile(null);
-      setSelectedLogoFile(null);
-      setPortadaPreview('');
-      setLogoPreview('');
       setShowForm(false);
     } catch (err) {
       setError('NETWORK_ERROR');
@@ -164,12 +136,6 @@ const DiarioAnual: React.FC = () => {
       return;
     }
     try {
-      if (selectedPortadaFile) {
-        await handlePortadaUpload();
-      }
-      if (selectedLogoFile) {
-        await handleLogoUpload();
-      }
       const response = await fetch(`http://localhost:8085/api/diarios-anuales/${editing.id}`, {
         method: 'PUT',
         headers: {
@@ -186,10 +152,6 @@ const DiarioAnual: React.FC = () => {
       setEditing(null);
       setOriginalForm(null);
       setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
-      setSelectedPortadaFile(null);
-      setSelectedLogoFile(null);
-      setPortadaPreview('');
-      setLogoPreview('');
       setShowForm(false);
     } catch (err) {
       setError('NETWORK_ERROR');
@@ -225,16 +187,12 @@ const DiarioAnual: React.FC = () => {
   const cancelEdit = () => {
     setEditing(null);
     setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
-    setSelectedPortadaFile(null);
-    setSelectedLogoFile(null);
-    setPortadaPreview('');
-    setLogoPreview('');
     setOriginalForm(null);
     setShowForm(false);
   };
 
   const hasChanges = () => {
-    return originalForm && (JSON.stringify(form) !== JSON.stringify(originalForm) || selectedPortadaFile !== null || selectedLogoFile !== null);
+    return originalForm && JSON.stringify(form) !== JSON.stringify(originalForm);
   };
 
   return (
@@ -272,10 +230,10 @@ const DiarioAnual: React.FC = () => {
                 className="input"
                 type="file"
                 accept="image/*"
-                onChange={handlePortadaSelect}
+                onChange={handlePortadaChange}
               />
-              {portadaPreview && <img src={portadaPreview} alt="Previsualización Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />}
               <img src={form.portadaUrl ? `http://localhost:8085${form.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />
+              {uploadingPortada && <p>Subiendo imagen...</p>}
             </div>
             <div>
               <label>Logo:</label>
@@ -283,10 +241,10 @@ const DiarioAnual: React.FC = () => {
                 className="input"
                 type="file"
                 accept="image/*"
-                onChange={handleLogoSelect}
+                onChange={handleLogoChange}
               />
-              {logoPreview && <img src={logoPreview} alt="Previsualización Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />}
               <img src={form.logoUrl ? `http://localhost:8085${form.logoUrl}` : '/images/default-logo.jpg'} alt="Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />
+              {uploadingLogo && <p>Subiendo imagen...</p>}
             </div>
           </div>
           <input
@@ -314,7 +272,7 @@ const DiarioAnual: React.FC = () => {
             </div>
           )}
           {!editing && <button className="btn" onClick={handleCreate}>Crear</button>}
-          {editing && hasChanges() && <button className="btn" onClick={handleUpdate}>Actualizar</button>}
+          {editing && hasChanges() && <button className="btn" onClick={handleUpdate} disabled={uploadingPortada || uploadingLogo}>Actualizar</button>}
           {editing && <button className="btn" onClick={cancelEdit}>Cancelar</button>}
         </div>
         )}

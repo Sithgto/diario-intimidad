@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
@@ -39,19 +40,22 @@ public class DiarioAnualController {
 
     @PostMapping
     public DiarioAnual createDiarioAnual(@RequestBody DiarioAnual diarioAnual) {
-        return diarioAnualService.save(diarioAnual);
+        DiarioAnual saved = diarioAnualService.save(diarioAnual);
+        logger.info("Saved diario: id={}, status={}", saved.getId(), saved.getStatus());
+        return saved;
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DiarioAnual> updateDiarioAnual(@PathVariable Long id, @RequestBody DiarioAnual diarioAnualDetails) {
         Optional<DiarioAnual> optionalDiarioAnual = diarioAnualService.findById(id);
         if (optionalDiarioAnual.isPresent()) {
             DiarioAnual existingDiarioAnual = optionalDiarioAnual.get();
 
             // Log valores antes de la actualización
-            logger.info("Valores antes de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}",
+            logger.info("Valores antes de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}, status={}",
                 existingDiarioAnual.getId(), existingDiarioAnual.getAnio(), existingDiarioAnual.getTitulo(),
-                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal());
+                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal(), existingDiarioAnual.getStatus());
 
             // Actualizar solo campos no nulos
             if (diarioAnualDetails.getAnio() != null) {
@@ -69,19 +73,22 @@ public class DiarioAnualController {
             if (diarioAnualDetails.getTemaPrincipal() != null) {
                 existingDiarioAnual.setTemaPrincipal(diarioAnualDetails.getTemaPrincipal());
             }
+            if (diarioAnualDetails.getStatus() != null) {
+                existingDiarioAnual.setStatus(diarioAnualDetails.getStatus());
+            }
 
             // Log del estado de actualización
             logger.info("Updating diario {} with status {}", id, diarioAnualDetails.getStatus());
 
             // Log valores después de la actualización
-            logger.info("Valores después de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}",
+            logger.info("Valores después de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}, status={}",
                 existingDiarioAnual.getId(), existingDiarioAnual.getAnio(), existingDiarioAnual.getTitulo(),
-                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal());
+                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal(), existingDiarioAnual.getStatus());
 
             DiarioAnual saved = diarioAnualService.save(existingDiarioAnual);
 
             // Confirmar que se guardó correctamente
-            logger.info("Updated diario saved with id {}", saved.getId());
+            logger.info("Updated diario saved with id {} and status {}", saved.getId(), saved.getStatus());
 
             return ResponseEntity.ok(saved);
         } else {
@@ -106,12 +113,14 @@ public class DiarioAnualController {
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
-            String uniqueName = UUID.randomUUID().toString() + extension;
+            String fileName = UUID.randomUUID().toString() + extension;
             Path uploadDir = Paths.get("uploads/images/");
             Files.createDirectories(uploadDir);
-            Path filePath = uploadDir.resolve(uniqueName);
+            Path filePath = uploadDir.resolve(fileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            String relativeUrl = "/uploads/images/" + uniqueName;
+            logger.info("File uploaded successfully: {}", fileName);
+            String relativeUrl = "/uploads/images/" + fileName;
+            logger.info("Returning path: /uploads/images/{}", fileName);
             return ResponseEntity.ok(relativeUrl);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body("Error al subir el archivo");
