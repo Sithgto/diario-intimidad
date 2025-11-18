@@ -18,6 +18,10 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-18 - Redirección Automática Después de Login
+- **Frontend - Login**
+  - Después de un login exitoso, la aplicación ahora redirige automáticamente a /daily-entry en lugar de /.
+
 ### 2025-11-17 - Cambios en Sesión Actual
 - **Actualización a Java 21**
   - Actualizado Java de versión 17 a 21

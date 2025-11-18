@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     try {
       const response = await axios.post('http://localhost:8085/api/auth/login', { email, password });
       login(response.data.token, response.data.email, response.data.rol);
-      navigate('/');
+      navigate('/daily-entry');
     } catch (error) {
       alert(getErrorMessage('AUTH_INVALID_CREDENTIALS'));
     }
