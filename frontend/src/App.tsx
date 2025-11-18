@@ -20,11 +20,11 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="layout-wrapper">
+      <Header />
       <div className="app-container">
-        <Header />
         <main className="main-content">{children}</main>
-        <Footer />
       </div>
+      <Footer />
       <ErrorDisplay />
     </div>
   );

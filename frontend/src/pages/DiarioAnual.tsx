@@ -205,76 +205,255 @@ const DiarioAnual: React.FC = () => {
 
         {/* Formulario para crear/editar */}
         {showForm && (
-        <div style={{ marginBottom: '20px' }}>
-          <h3>{editing ? 'Editar Diario Anual' : 'Crear Nuevo Diario Anual'}</h3>
-          <input
-            className="input"
-            type="number"
-            placeholder="Ejemplo: 2023"
-            value={form.anio}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, anio: parseInt(e.target.value) })}
-            required
-          />
-          <input
-            className="input"
-            type="text"
-            placeholder="Ejemplo: Mi Diario 2023"
-            value={form.titulo}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, titulo: e.target.value })}
-            required
-          />
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-            <div>
-              <label>Carátula:</label>
-              <input
-                className="input"
-                type="file"
-                accept="image/*"
-                onChange={handlePortadaChange}
-              />
-              <img src={form.portadaUrl ? `http://localhost:8085${form.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ maxWidth: '200px', marginTop: '10px' }} />
-              {uploadingPortada && <p>Subiendo imagen...</p>}
+          <div style={{
+            marginTop: '-10px',
+            marginBottom: '20px',
+            padding: '30px',
+            border: '1px solid #e0e0e0',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            transition: 'all 0.3s ease',
+            maxWidth: '1800px',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            <h3 style={{
+              marginBottom: '20px',
+              color: '#333',
+              fontSize: '1.5em',
+              textAlign: 'center',
+              textShadow: '1px 1px 2px rgba(0,0,0,0.1)'
+            }}>
+              {editing ? 'Diario Anual' : 'Crear Nuevo Diario Anual'}
+            </h3>
+
+            {/* Header con Creado y Modificado */}
+            {editing && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '20px',
+                padding: '10px',
+                background: 'rgba(255,255,255,0.8)',
+                borderRadius: '8px',
+                fontSize: '0.9em'
+              }}>
+                <span><strong>Creado:</strong> {form.createdAt ? new Date(form.createdAt).toLocaleString() : 'N/A'}</span>
+                <span><strong>Modificado:</strong> {form.updatedAt ? new Date(form.updatedAt).toLocaleString() : 'N/A'}</span>
+              </div>
+            )}
+
+            {/* Año y Título */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'auto 1fr',
+              gap: '15px',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <label style={{ fontWeight: 'bold', color: '#555' }}>Año:</label>
+                <input
+                  type="number"
+                  maxLength={6}
+                  style={{
+                    width: '80px',
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    fontSize: '1em',
+                    transition: 'border-color 0.3s'
+                  }}
+                  value={form.anio}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, anio: parseInt(e.target.value) })}
+                  required
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <label style={{ fontWeight: 'bold', color: '#555' }}>Título:</label>
+                <input
+                  type="text"
+                  placeholder="Ejemplo: Mi Diario 2023"
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    fontSize: '1em',
+                    transition: 'border-color 0.3s'
+                  }}
+                  value={form.titulo}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, titulo: e.target.value })}
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <label>Logo:</label>
-              <input
-                className="input"
-                type="file"
-                accept="image/*"
-                onChange={handleLogoChange}
+
+            {/* Carátula y Logo */}
+            <div style={{
+              display: 'flex',
+              gap: '20px',
+              justifyContent: 'center',
+              marginBottom: '20px'
+            }}>
+              <div style={{ position: 'relative', textAlign: 'center' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#555' }}>Carátula</label>
+                <div style={{
+                  position: 'relative',
+                  width: '150px',
+                  height: '200px',
+                  border: '2px dashed #ccc',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.3s'
+                }}
+                onClick={() => document.getElementById('portada-input')?.click()}
+                >
+                  <img
+                    src={form.portadaUrl ? `http://localhost:8085${form.portadaUrl}` : '/images/default-cover.jpg'}
+                    alt="Carátula"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.3s'
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    padding: '5px 10px',
+                    borderRadius: '50%',
+                    fontSize: '1.5em',
+                    opacity: 0,
+                    transition: 'opacity 0.3s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+                  >
+                    📷
+                  </div>
+                </div>
+                <input
+                  id="portada-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePortadaChange}
+                  style={{ display: 'none' }}
+                />
+                {uploadingPortada && <p style={{ marginTop: '10px', color: '#007bff' }}>Subiendo imagen...</p>}
+              </div>
+
+              <div style={{ position: 'relative', textAlign: 'center' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#555' }}>Logo</label>
+                <div style={{
+                  position: 'relative',
+                  width: '200px',
+                  height: '200px',
+                  border: '2px dashed #ccc',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.3s'
+                }}
+                onClick={() => document.getElementById('logo-input')?.click()}
+                >
+                  <img
+                    src={form.logoUrl ? `http://localhost:8085${form.logoUrl}` : '/images/default-logo.jpg'}
+                    alt="Logo"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      transition: 'transform 0.3s'
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    padding: '5px 10px',
+                    borderRadius: '50%',
+                    fontSize: '1.5em',
+                    opacity: 0,
+                    transition: 'opacity 0.3s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+                  >
+                    📷
+                  </div>
+                </div>
+                <input
+                  id="logo-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  style={{ display: 'none' }}
+                />
+                {uploadingLogo && <p style={{ marginTop: '10px', color: '#007bff' }}>Subiendo imagen...</p>}
+              </div>
+            </div>
+
+            {/* Tema */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold', color: '#555' }}>Tema / Lema:</label>
+              <textarea
+                placeholder="Ejemplo: Reflexiones Personales&#10;&#10;Lema: 'Crecer cada día'"
+                style={{
+                  width: '100%',
+                  height: '100px',
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontSize: '1em',
+                  resize: 'vertical',
+                  transition: 'border-color 0.3s'
+                }}
+                value={form.temaPrincipal}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setForm({ ...form, temaPrincipal: e.target.value })}
+                required
               />
-              <img src={form.logoUrl ? `http://localhost:8085${form.logoUrl}` : '/images/default-logo.jpg'} alt="Logo" style={{ maxWidth: '200px', marginTop: '10px' }} />
-              {uploadingLogo && <p>Subiendo imagen...</p>}
+            </div>
+
+            {/* Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <label style={{ fontWeight: 'bold', color: '#555' }}>Activo:</label>
+              <select
+                style={{
+                  padding: '8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontSize: '1em',
+                  minWidth: '120px',
+                  transition: 'border-color 0.3s'
+                }}
+                value={form.status}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })}
+                required
+              >
+                <option value="Desarrollo">Desarrollo</option>
+                <option value="Descatalogado">Descatalogado</option>
+                <option value="Activo">Activo</option>
+              </select>
+            </div>
+
+            {/* Botones */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+              {!editing && <button className="btn" onClick={handleCreate} style={{ background: '#28a745', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Crear</button>}
+              {editing && hasChanges() && <button className="btn" onClick={handleUpdate} disabled={uploadingPortada || uploadingLogo} style={{ background: '#007bff', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Actualizar</button>}
+              {editing && <button className="btn" onClick={cancelEdit} style={{ background: '#6c757d', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Cancelar</button>}
             </div>
           </div>
-          <input
-            className="input"
-            type="text"
-            placeholder="Ejemplo: Reflexiones Personales"
-            value={form.temaPrincipal}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, temaPrincipal: e.target.value })}
-            required
-          />
-          <select
-            className="input"
-            value={form.status}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) => setForm({ ...form, status: e.target.value })}
-            required
-          >
-            <option value="Desarrollo">Desarrollo</option>
-            <option value="Descatalogado">Descatalogado</option>
-            <option value="Activo">Activo</option>
-          </select>
-          {editing && (
-            <div>
-              <p>Creado: {form.createdAt ? new Date(form.createdAt).toLocaleString() : ''}</p>
-              <p>Modificado: {form.updatedAt ? new Date(form.updatedAt).toLocaleString() : ''}</p>
-            </div>
-          )}
-          {!editing && <button className="btn" onClick={handleCreate}>Crear</button>}
-          {editing && hasChanges() && <button className="btn" onClick={handleUpdate} disabled={uploadingPortada || uploadingLogo}>Actualizar</button>}
-          {editing && <button className="btn" onClick={cancelEdit}>Cancelar</button>}
-        </div>
         )}
 
         {/* Lista de diarios */}
