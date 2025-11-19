@@ -103,11 +103,20 @@ public class DailyEntryService {
         response.setFecha(date);
         response.setTipoDia(diaMaestro.get().getTipoDia().name());
         response.setLecturaBiblica(diaMaestro.get().getLecturaBiblica());
-        String versiculoDiario = diaMaestro.get().getVersiculoDiario();
-        if (versiculoDiario == null || versiculoDiario.trim().isEmpty()) {
-            versiculoDiario = "Juan 3:16"; // Versículo por defecto
+        String versiculoReference;
+        String tipoDia = diaMaestro.get().getTipoDia().name();
+        if (tipoDia.equals("NORMAL")) {
+            versiculoReference = diaMaestro.get().getVersiculoDiario();
+        } else if (tipoDia.equals("DOMINGO")) {
+            versiculoReference = diaMaestro.get().getLecturaBiblica();
+        } else {
+            versiculoReference = diaMaestro.get().getVersiculoDiario();
         }
-        response.setVersiculoDiario(versiculoDiario);
+        if (versiculoReference == null) {
+            versiculoReference = "";
+        }
+        response.setVersiculoDiario(versiculoReference); // Para compatibilidad
+        response.setVersiculoReference(versiculoReference);
         response.setDiarioAnual(diarioAnual);
         response.setCamposDiario(camposDiario);
 

@@ -46,8 +46,8 @@ const DailyEntry: React.FC = () => {
   const [selectedAnio, setSelectedAnio] = useState<number | null>(null);
   const [verse1, setVerse1] = useState<VerseData | null>(null);
   const [verse2, setVerse2] = useState<VerseData | null>(null);
-  const [translation1, setTranslation1] = useState('rvr1960');
-  const [translation2, setTranslation2] = useState('nvi');
+  const [translation1, setTranslation1] = useState('rv1960');
+  const [translation2, setTranslation2] = useState('rv1995');
   const [isPlaying1, setIsPlaying1] = useState(false);
   const [isPlaying2, setIsPlaying2] = useState(false);
   const [customVerse, setCustomVerse] = useState('');
@@ -76,6 +76,7 @@ const DailyEntry: React.FC = () => {
             headers: { Authorization: `Bearer ${token}` }
           });
           console.log('Frontend: Daily entry response:', response.data);
+          console.log('versiculoDiario:', response.data.versiculoDiario);
           setData(response.data);
           // Inicializar valores
           const initialValores: { [key: number]: CampoValor } = {};
@@ -91,6 +92,9 @@ const DailyEntry: React.FC = () => {
           // Fetch Bible verses if there's a daily verse defined
           if (response.data.versiculoDiario) {
             await fetchVerses(response.data.versiculoDiario);
+          } else {
+            // If no daily verse, show selector
+            setShowVerseSelector(true);
           }
         } catch (error) {
           console.error('Frontend: Error fetching daily entry data', error);
@@ -182,141 +186,145 @@ const DailyEntry: React.FC = () => {
         {data.diarioAnual && (
           <div>
             <h3>{data.diarioAnual.titulo} - {data.diarioAnual.anio}</h3>
-
-            <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                <h3>📖 Versículo Diario</h3>
-                {(!verse1 || verseError) && (
-                  <button
-                    className="btn"
-                    onClick={() => setShowVerseSelector(!showVerseSelector)}
-                    style={{ fontSize: '14px', padding: '5px 10px' }}
-                  >
-                    {showVerseSelector ? 'Ocultar' : 'Seleccionar Versículo'}
-                  </button>
-                )}
-              </div>
-              {verseError && <p style={{color: 'red', marginBottom: '10px'}}>{verseError}</p>}
-
-              {showVerseSelector && !data.versiculoDiario && (
-                <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#fff3cd', borderRadius: '5px' }}>
-                  <input
-                    className="input"
-                    type="text"
-                    placeholder="Buscar versículo (ej: Juan 3:16)"
-                    value={customVerse}
-                    onChange={(e) => setCustomVerse(e.target.value)}
-                    style={{ marginRight: '10px', width: '250px' }}
-                  />
-                  <button
-                    className="btn"
-                    onClick={() => {
-                      if (customVerse.trim()) {
-                        fetchVerses(customVerse.trim());
-                        setShowVerseSelector(false);
-                      }
-                    }}
-                  >
-                    Cargar Versículo
-                  </button>
-                </div>
-              )}
-
-              {(data.versiculoDiario || (verse1 && verse2)) && (
-                <>
-                  <h4>{data.versiculoDiario || customVerse}</h4>
-                  <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
-                    {/* Versión 1 */}
-                    <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <select
-                          value={translation1}
-                          onChange={(e) => {
-                            setTranslation1(e.target.value);
-                            if (data.versiculoDiario) fetchVerses(data.versiculoDiario);
-                          }}
-                          style={{ padding: '5px', borderRadius: '4px' }}
-                        >
-                          <option value="rvr1960">Reina Valera 1960</option>
-                          <option value="rv">Reina Valera Antigua</option>
-                          <option value="nvi">Nueva Versión Internacional</option>
-                          <option value="lbla">La Biblia de las Américas</option>
-                        </select>
-                        <button
-                          className="btn"
-                          onClick={() => speakVerse(verse1?.text || '', setIsPlaying1)}
-                          style={{
-                            backgroundColor: isPlaying1 ? '#ff4444' : '#4CAF50',
-                            color: 'white',
-                            border: 'none',
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {isPlaying1 ? '⏹️ Detener' : '🔊 Escuchar'}
-                        </button>
-                      </div>
-                      {verse1 && (
-                        <div>
-                          <p style={{ fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
-                            {verse1.text}
-                          </p>
-                          <small style={{ color: '#666', display: 'block', marginTop: '8px' }}>
-                            {verse1.translation_name}
-                          </small>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Versión 2 */}
-                    <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f0f8ff' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                        <select
-                          value={translation2}
-                          onChange={(e) => {
-                            setTranslation2(e.target.value);
-                            if (data.versiculoDiario) fetchVerses(data.versiculoDiario);
-                          }}
-                          style={{ padding: '5px', borderRadius: '4px' }}
-                        >
-                          <option value="rvr1960">Reina Valera 1960</option>
-                          <option value="rv">Reina Valera Antigua</option>
-                          <option value="nvi">Nueva Versión Internacional</option>
-                          <option value="lbla">La Biblia de las Américas</option>
-                        </select>
-                        <button
-                          className="btn"
-                          onClick={() => speakVerse(verse2?.text || '', setIsPlaying2)}
-                          style={{
-                            backgroundColor: isPlaying2 ? '#ff4444' : '#4CAF50',
-                            color: 'white',
-                            border: 'none',
-                            padding: '8px 12px',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {isPlaying2 ? '⏹️ Detener' : '🔊 Escuchar'}
-                        </button>
-                      </div>
-                      {verse2 && (
-                        <div>
-                          <p style={{ fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
-                            {verse2.text}
-                          </p>
-                          <small style={{ color: '#666', display: 'block', marginTop: '8px' }}>
-                            {verse2.translation_name}
-                          </small>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         )}
+
+        <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+            <h3>📖 Versículo Diario</h3>
+            {(!verse1 || verseError) && (
+              <button
+                className="btn"
+                onClick={() => setShowVerseSelector(!showVerseSelector)}
+                style={{ fontSize: '14px', padding: '5px 10px' }}
+              >
+                {showVerseSelector ? 'Ocultar' : 'Seleccionar Versículo'}
+              </button>
+            )}
+          </div>
+          {verseError && <p style={{color: 'red', marginBottom: '10px'}}>{verseError}</p>}
+
+          {showVerseSelector && (
+            <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#fff3cd', borderRadius: '5px' }}>
+              <input
+                className="input"
+                type="text"
+                placeholder="Buscar versículo (ej: Juan 3:16)"
+                value={customVerse}
+                onChange={(e) => setCustomVerse(e.target.value)}
+                style={{ marginRight: '10px', width: '250px' }}
+              />
+              <button
+                className="btn"
+                onClick={() => {
+                  if (customVerse.trim()) {
+                    fetchVerses(customVerse.trim());
+                    setShowVerseSelector(false);
+                  }
+                }}
+              >
+                Cargar Versículo
+              </button>
+            </div>
+          )}
+
+          {(data.versiculoDiario || (verse1 && verse2)) && (
+            <>
+              <h4>{data.versiculoDiario || customVerse}</h4>
+              <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
+                {/* Versión 1 */}
+                <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <select
+                      value={translation1}
+                      onChange={(e) => {
+                        setTranslation1(e.target.value);
+                        if (data.versiculoDiario) fetchVerses(data.versiculoDiario);
+                      }}
+                      style={{ padding: '5px', borderRadius: '4px' }}
+                    >
+                      <option value="rv1960">Reina Valera 1960</option>
+                      <option value="rv1995">Reina Valera 1995</option>
+                      <option value="nvi">Nueva version internacional</option>
+                      <option value="dhh">Dios habla hoy</option>
+                      <option value="pdt">Palabra de Dios para todos</option>
+                      <option value="kjv">King James Version</option>
+                    </select>
+                    <button
+                      className="btn"
+                      onClick={() => speakVerse(verse1?.text || '', setIsPlaying1)}
+                      style={{
+                        backgroundColor: isPlaying1 ? '#ff4444' : '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isPlaying1 ? '⏹️ Detener' : '🔊 Escuchar'}
+                    </button>
+                  </div>
+                  {verse1 && (
+                    <div>
+                      <p style={{ fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
+                        {verse1.text}
+                      </p>
+                      <small style={{ color: '#666', display: 'block', marginTop: '8px' }}>
+                        {verse1.translation_name}
+                      </small>
+                    </div>
+                  )}
+                </div>
+
+                {/* Versión 2 */}
+                <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f0f8ff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <select
+                      value={translation2}
+                      onChange={(e) => {
+                        setTranslation2(e.target.value);
+                        if (data.versiculoDiario) fetchVerses(data.versiculoDiario);
+                      }}
+                      style={{ padding: '5px', borderRadius: '4px' }}
+                    >
+                      <option value="rv1960">Reina Valera 1960</option>
+                      <option value="rv1995">Reina Valera 1995</option>
+                      <option value="nvi">Nueva version internacional</option>
+                      <option value="dhh">Dios habla hoy</option>
+                      <option value="pdt">Palabra de Dios para todos</option>
+                      <option value="kjv">King James Version</option>
+                    </select>
+                    <button
+                      className="btn"
+                      onClick={() => speakVerse(verse2?.text || '', setIsPlaying2)}
+                      style={{
+                        backgroundColor: isPlaying2 ? '#ff4444' : '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isPlaying2 ? '⏹️ Detener' : '🔊 Escuchar'}
+                    </button>
+                  </div>
+                  {verse2 && (
+                    <div>
+                      <p style={{ fontSize: '16px', lineHeight: '1.6', margin: 0 }}>
+                        {verse2.text}
+                      </p>
+                      <small style={{ color: '#666', display: 'block', marginTop: '8px' }}>
+                        {verse2.translation_name}
+                      </small>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {data.tipoDia === 'NORMAL' && data.lecturaBiblica && (
           <div>

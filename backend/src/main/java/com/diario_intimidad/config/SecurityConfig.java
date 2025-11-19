@@ -27,6 +27,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/bible/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated()
             )

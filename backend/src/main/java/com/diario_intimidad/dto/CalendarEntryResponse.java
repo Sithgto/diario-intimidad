@@ -11,6 +11,7 @@ public class CalendarEntryResponse {
     private String tipoDia;
     private String lecturaBiblica;
     private String versiculoDiario;
+    private String versiculoReference;
     private DiarioAnual diarioAnual;
     private List<CamposDiario> camposDiario;
 
@@ -32,4 +33,7 @@ public class CalendarEntryResponse {
 
     public List<CamposDiario> getCamposDiario() { return camposDiario; }
     public void setCamposDiario(List<CamposDiario> camposDiario) { this.camposDiario = camposDiario; }
+
+    public String getVersiculoReference() { return versiculoReference; }
+    public void setVersiculoReference(String versiculoReference) { this.versiculoReference = versiculoReference; }
 }
