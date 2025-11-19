@@ -156,15 +156,15 @@ const DailyEntry: React.FC = () => {
                 />
               </div>
             ) : (
-              <input
+              <textarea
                 className="input"
-                type="text"
                 value={valores[campo.id]?.valorTexto || ''}
                 onChange={(e) => setValores({
                   ...valores,
                   [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
                 })}
                 required={campo.esRequerido}
+                rows={4}
               />
             )}
           </div>

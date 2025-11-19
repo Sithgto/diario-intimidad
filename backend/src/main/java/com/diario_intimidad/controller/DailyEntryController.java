@@ -4,6 +4,7 @@ import com.diario_intimidad.dto.CalendarEntryResponse;
 import com.diario_intimidad.dto.DailyEntryRequest;
 import com.diario_intimidad.dto.DailyEntryResponse;
 import com.diario_intimidad.entity.*;
+import com.diario_intimidad.repository.CamposDiarioRepository;
 import com.diario_intimidad.repository.DiarioAnualRepository;
 import com.diario_intimidad.repository.MesMaestroRepository;
 import com.diario_intimidad.repository.DiaMaestroRepository;
@@ -42,6 +43,9 @@ public class DailyEntryController {
     @Autowired
     private DiaMaestroRepository diaMaestroRepository;
 
+    @Autowired
+    private CamposDiarioRepository camposDiarioRepository;
+
     @GetMapping("/diarios")
     public ResponseEntity<List<DiarioAnual>> getDiariosDisponibles() {
         List<DiarioAnual> diarios = diarioAnualRepository.findAll();
@@ -69,6 +73,25 @@ public class DailyEntryController {
 
         logger.info("Retornando 200 OK con respuesta");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user-entries")
+    public ResponseEntity<List<EntradaDiaria>> getUserEntries(@RequestParam Integer anio, @RequestParam Integer mes, Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        List<EntradaDiaria> entradas = dailyEntryService.getEntradasByUsuarioAndMes(usuario.getId(), anio, mes);
+        return ResponseEntity.ok(entradas);
+    }
+
+    @GetMapping("/entry-values/{entryId}")
+    public ResponseEntity<List<ValoresCampo>> getEntryValues(@PathVariable Long entryId, Authentication authentication) {
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        // Verificar que la entrada pertenece al usuario
+        EntradaDiaria entrada = dailyEntryService.findEntradaById(entryId);
+        if (entrada == null || !entrada.getUsuario().getId().equals(usuario.getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        List<ValoresCampo> valores = dailyEntryService.getValoresByEntrada(entryId);
+        return ResponseEntity.ok(valores);
     }
 
     @PostMapping("/save")
@@ -116,7 +139,12 @@ public class DailyEntryController {
         for (DailyEntryRequest.CampoValor cv : request.getValoresCampo()) {
             ValoresCampo vc = new ValoresCampo();
             vc.setEntradaDiaria(savedEntrada);
-            // vc.setCampoDiario(...);
+            Optional<CamposDiario> campoOpt = camposDiarioRepository.findById(cv.getCampoDiarioId());
+            if (campoOpt.isPresent()) {
+                vc.setCamposDiario(campoOpt.get());
+            } else {
+                return ResponseEntity.badRequest().body("Campo diario no encontrado: " + cv.getCampoDiarioId());
+            }
             vc.setValorTexto(cv.getValorTexto());
             vc.setValorAudioUrl(cv.getValorAudioUrl());
             dailyEntryService.saveValoresCampo(vc);

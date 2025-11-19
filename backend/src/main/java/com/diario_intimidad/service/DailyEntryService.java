@@ -75,6 +75,20 @@ public class DailyEntryService {
         return valoresCampoRepository.save(valoresCampo);
     }
 
+    public EntradaDiaria findEntradaById(Long id) {
+        return entradaDiariaRepository.findById(id).orElse(null);
+    }
+
+    public List<ValoresCampo> getValoresByEntrada(Long entradaId) {
+        return valoresCampoRepository.findByEntradaDiariaId(entradaId);
+    }
+
+    public List<EntradaDiaria> getEntradasByUsuarioAndMes(Long usuarioId, Integer anio, Integer mes) {
+        LocalDate start = LocalDate.of(anio, mes, 1);
+        LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+        return entradaDiariaRepository.findByUsuarioIdAndFechaEntradaBetween(usuarioId, start, end);
+    }
+
     public CalendarEntryResponse getTodayData(LocalDate date) {
         Optional<DiaMaestro> diaMaestro = getDiaMaestroForDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         if (diaMaestro.isEmpty()) {

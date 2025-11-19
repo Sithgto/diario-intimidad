@@ -1,9 +1,9 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #0900D2;
+  background: #f0f0f0;
   min-height: 100vh;
-  color: white;
+  color: #003366;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
@@ -106,7 +106,7 @@ code {
 
 .footer {
   text-align: center;
-  color: white;
+  color: #003366;
   width: 100%;
   height: 50px;
   display: flex;
@@ -117,7 +117,7 @@ code {
 .header-title {
   font-size: 18px;
   font-weight: bold;
-  color: white;
+  color: #003366;
   padding-left: 10px;
 }
 
@@ -128,7 +128,7 @@ code {
 }
 
 .nav-icon {
-  color: white;
+  color: #003366;
   text-decoration: none;
   font-size: 18px;
   display: flex;
@@ -138,11 +138,15 @@ code {
 }
 
 .nav-icon:hover {
-  color: #90CAF9;
+  color: white;
 }
 
 .nav-icon svg {
-  fill: #ffffff;
+  fill: #003366;
+}
+
+.nav-icon:hover svg {
+  fill: white;
 }
 
 .logout-btn {
@@ -161,7 +165,7 @@ code {
 }
 
 .logout-btn svg {
-  fill: #0900D2;
+  fill: #003366;
 }
 
 .logout-btn:hover svg {
@@ -252,7 +256,7 @@ code {
   }
 
   .header-title {
-    font-size: 20px;
+    font-size: 16px;
     padding-left: 0;
   }
 
@@ -425,6 +429,25 @@ code {
 }
 
 .login-card .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(9, 0, 210, 0.4);
+  background: linear-gradient(45deg, #1a237e, #0900D2);
+}
+
+.create-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(45deg, #0900D2, #667eea);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.create-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 30px rgba(9, 0, 210, 0.4);
   background: linear-gradient(45deg, #1a237e, #0900D2);

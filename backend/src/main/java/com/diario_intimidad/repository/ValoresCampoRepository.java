@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ValoresCampoRepository extends JpaRepository<ValoresCampo, Long> {
+
+    java.util.List<ValoresCampo> findByEntradaDiariaId(Long entradaDiariaId);
 }

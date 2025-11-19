@@ -30,8 +30,12 @@ public class UsuarioService {
     }
 
     public Usuario save(Usuario usuario) {
+        logger.info("Saving user with email: {}, rol: {}", usuario.getEmail(), usuario.getRol());
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
-        return usuarioRepository.save(usuario);
+        logger.info("Password encoded, saving to repository");
+        Usuario saved = usuarioRepository.save(usuario);
+        logger.info("User saved with id: {}", saved.getId());
+        return saved;
     }
 
     public void deleteById(Long id) {

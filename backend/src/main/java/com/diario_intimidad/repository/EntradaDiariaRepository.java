@@ -10,4 +10,6 @@ public interface EntradaDiariaRepository extends JpaRepository<EntradaDiaria, Lo
 
     List<EntradaDiaria> findByUsuarioIdAndDiarioId(Long usuarioId, Long diarioId);
 
+    List<EntradaDiaria> findByUsuarioIdAndFechaEntradaBetween(Long usuarioId, java.time.LocalDate start, java.time.LocalDate end);
+
 }

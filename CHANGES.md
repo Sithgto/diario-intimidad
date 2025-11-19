@@ -1,5 +1,6 @@
 # Registro de Cambios - Diario de Intimidad
 
+
 ## Resumen de Desarrollo
 
 Este documento registra todos los cambios realizados durante la construcción del proyecto "Diario de Intimidad" desde la inicialización hasta la versión actual.
@@ -18,6 +19,66 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-19 - Cambio de Color de Fondo a Blanco y Mejoras en Diario Anual
+- **Archivos afectados:** frontend/src/App.tsx, frontend/src/components/Header.tsx, frontend/src/index.css, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Cambiado el color de fondo a blanco, actualizado header y footer, mejorado el manejo de Diario Anual con nuevas funcionalidades.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la estética visual y la funcionalidad del diario anual.
+- **Resultado esperado:** Interfaz más clara y funcional.
+
+### 2025-11-19 - Modificación Completa de Diario Anual Funcionando
+- **Archivos afectados:** CHANGES.md, DB/init.sql, backend/src/main/java/com/diario_intimidad/config/SecurityConfig.java, backend/src/main/java/com/diario_intimidad/config/WebConfig.java, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java, backend/src/main/java/com/diario_intimidad/service/DiarioAnualService.java, backend/src/main/resources/application.properties, docker-compose.yml, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Actualizaciones en configuración de seguridad, web, controlador y servicio de Diario Anual, cambios en base de datos y frontend.
+- **Explicación del porqué se realiza el cambio:** Para completar y corregir la funcionalidad de modificación de diarios anuales.
+- **Resultado esperado:** Diario Anual completamente funcional con todas las operaciones CRUD.
+
+### 2025-11-19 - Mejora en Manejo de Diarios con Imágenes por Defecto
+- **Archivos afectados:** CHANGES.md, DB/init.sql, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java, backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, backend/src/main/resources/application.properties, frontend/public/images/default-cover.jpg, frontend/public/images/default-logo.jpg, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Agregadas imágenes por defecto para carátula y logo, actualizada entidad DiarioAnual, controlador y frontend.
+- **Explicación del porqué se realiza el cambio:** Para proporcionar una mejor experiencia visual con imágenes por defecto cuando no se suben personalizadas.
+- **Resultado esperado:** Los diarios muestran imágenes por defecto mejorando la presentación.
+
+### 2025-11-19 - Implementación de Manejo de Diarios Anuales con Tarjetas Básicas
+- **Archivos afectados:** CHANGES.md, DB/init.sql, backend/src/main/java/com/diario_intimidad/config/SecurityConfig.java, backend/src/main/java/com/diario_intimidad/config/WebConfig.java, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java, backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, backend/src/main/resources/application.properties, frontend/package.json, frontend/src/App.tsx, frontend/src/components/ErrorDisplay.tsx, frontend/src/components/Menu.tsx, frontend/src/contexts/ErrorContext.tsx, frontend/src/pages/DiarioAnual.tsx
+- **Cambios específicos realizados:** Implementado sistema de manejo de errores, actualizado controlador y entidad, agregado proxy en package.json, mejorado frontend con tarjetas para diarios.
+- **Explicación del porqué se realiza el cambio:** Para proporcionar una interfaz de usuario mejorada con tarjetas para gestionar diarios anuales y manejo centralizado de errores.
+- **Resultado esperado:** Gestión intuitiva de diarios con tarjetas y errores manejados globalmente.
+
+### 2025-11-19 - Redirección Automática a Página HOY Después de Login
+- **Archivos afectados:** CHANGES.md, frontend/src/pages/Login.tsx
+- **Cambios específicos realizados:** Agregada redirección automática a la página HOY tras login exitoso.
+- **Explicación del porqué se realiza el cambio:** Para mejorar el flujo de usuario dirigiéndolo directamente a la funcionalidad principal.
+- **Resultado esperado:** Usuarios acceden inmediatamente a la página HOY después de iniciar sesión.
+
+### 2025-11-19 - Color Homogéneo en Azul para Header y Footer
+- **Archivos afectados:** frontend/src/App.tsx, frontend/src/components/Menu.tsx, frontend/src/index.css, frontend/src/pages/Login.tsx
+- **Cambios específicos realizados:** Aplicado color azul homogéneo en header, footer y otros componentes.
+- **Explicación del porqué se realiza el cambio:** Para mantener consistencia visual en toda la aplicación.
+- **Resultado esperado:** Apariencia uniforme y profesional.
+
+### 2025-11-19 - Mejora en Pantalla de Login
+- **Archivos afectados:** frontend/package.json, frontend/src/App.tsx, frontend/src/components/Footer.tsx, frontend/src/components/Header.tsx, frontend/src/components/Menu.tsx, frontend/src/index.css, frontend/src/pages/ApiDocs.tsx, frontend/src/pages/Calendario.tsx, frontend/src/pages/DailyEntry.tsx, frontend/src/pages/Login.tsx, frontend/src/pages/UserManagement.tsx
+- **Cambios específicos realizados:** Mejorada la pantalla de login con estilos actualizados, agregado footer, actualizado header y menú.
+- **Explicación del porqué se realiza el cambio:** Para proporcionar una experiencia de login más atractiva y funcional.
+- **Resultado esperado:** Pantalla de login mejorada con mejor usabilidad.
+
+### 2025-11-19 - Eliminación de Selección de Diario en Página HOY
+- **Archivos afectados:** CHANGES.md, DB/init.sql, frontend/package.json, frontend/src/App.tsx, frontend/src/components/Menu.tsx, frontend/src/contexts/AuthContext.tsx, frontend/src/index.tsx, frontend/src/pages/ApiDocs.tsx, frontend/src/pages/DailyEntry.tsx
+- **Cambios específicos realizados:** Eliminada la selección de diario en la página HOY, actualizado contexto de autenticación y otras páginas.
+- **Explicación del porqué se realiza el cambio:** Para simplificar la interfaz eliminando selecciones innecesarias.
+- **Resultado esperado:** Página HOY más directa y fácil de usar.
+
+### 2025-11-19 - Cambio de Menú a HOY y Encriptación de Contraseñas
+- **Archivos afectados:** CHANGES.md, DB/init.sql, backend/Dockerfile, backend/pom.xml, backend/src/main/java/com/diario_intimidad/entity/CamposDiario.java, backend/src/main/java/com/diario_intimidad/repository/CamposDiarioRepository.java, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, backend/src/main/resources/application.properties, docker-compose.yml, frontend/src/components/Menu.tsx, frontend/src/pages/ApiDocs.tsx, frontend/src/pages/Calendario.tsx, frontend/src/pages/DailyEntry.tsx, frontend/src/pages/UserManagement.tsx
+- **Cambios específicos realizados:** Cambiado menú principal a "HOY", implementada encriptación de contraseñas, actualizadas dependencias y servicios.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la navegación y seguridad con contraseñas encriptadas.
+- **Resultado esperado:** Menú centrado en HOY y mayor seguridad en autenticación.
+
+### 2025-11-19 - Modificación de Tareas Diarias
+- **Archivos afectados:** DB/init.sql
+- **Cambios específicos realizados:** Actualizadas las tareas diarias en la base de datos inicial.
+- **Explicación del porqué se realiza el cambio:** Para ajustar y mejorar las tareas diarias disponibles.
+- **Resultado esperado:** Tareas diarias actualizadas y funcionales.
+
 ### 2025-11-18 - Adición de Estados de Carga para Subidas de Imágenes, Deshabilitación del Botón "Actualizar" Durante Carga, y Mensaje "Subiendo imagen..."
 - **Archivos afectados:** frontend/src/pages/DiarioAnual.tsx
 - **Cambios específicos realizados:** Agregados estados de carga para subidas de imágenes, deshabilitación del botón "Actualizar" durante la carga, y mensaje "Subiendo imagen..." para feedback visual.

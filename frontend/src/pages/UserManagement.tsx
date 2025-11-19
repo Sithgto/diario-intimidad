@@ -24,11 +24,7 @@ const UserManagement: React.FC = () => {
         const response = await axios.get('http://localhost:8085/api/usuarios', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        let filteredUsuarios = response.data;
-        if (user?.rol === 'USER') {
-          filteredUsuarios = response.data.filter((u: Usuario) => u.email === user.email);
-        }
-        setUsuarios(filteredUsuarios);
+        setUsuarios(response.data);
       } catch (error) {
         alert(getErrorMessage('NETWORK_ERROR'));
       }
@@ -48,12 +44,17 @@ const UserManagement: React.FC = () => {
   };
 
   const createUser = async () => {
+    if (!newUser.email || !newUser.password) {
+      alert('Email y contraseña son obligatorios');
+      return;
+    }
     try {
       const response = await axios.post('http://localhost:8085/api/usuarios', newUser, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsuarios([...usuarios, response.data]);
       setNewUser({ email: '', password: '', rol: 'USER' });
+      setView('list'); // Cambiar a vista de lista después de crear
     } catch (error) {
       alert(getErrorMessage('USER_CREATE_FAILED'));
     }
@@ -88,35 +89,38 @@ const UserManagement: React.FC = () => {
 
   const isAdmin = user?.rol === 'ADMIN';
 
+  const [view, setView] = useState<'profile' | 'list' | 'create'>('profile');
+
   return (
     <div className="app-container">
       <div className="card">
         <h2>Gestión de Usuarios</h2>
 
-      {/* Mi Perfil - Para ADMIN y USER */}
-      {user && !editingUser && (
-        <div style={{ marginBottom: '20px' }}>
-          <h3>Mi Perfil</h3>
-          <input
-            className="input"
-            type="email"
-            value={user.email}
-            disabled
-          />
-          <input
-            className="input"
-            type="text"
-            value={user.rol}
-            disabled
-          />
-          <button className="btn" onClick={() => setEditingUser(user)}>Editar Mi Perfil</button>
-        </div>
-      )}
+        {view !== 'create' && (
+          <>
+            {/* Navegación */}
+            <div style={{ marginBottom: '20px' }}>
+              <button className="btn" onClick={() => setView('profile')}>Mi Perfil</button>
+              {isAdmin && <button className="btn" onClick={() => setView('list')} style={{ marginLeft: '10px' }}>Ver Usuarios</button>}
+              {isAdmin && <button className="btn" onClick={() => setView('create')} style={{ marginLeft: '10px' }}>Crear Usuario</button>}
+            </div>
+          </>
+        )}
+
+        {/* Mi Perfil */}
+        {view === 'profile' && user && !editingUser && (
+          <div style={{ marginBottom: '20px' }}>
+            <h3>Mi Perfil</h3>
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Rol:</strong> {user.rol}</p>
+            <button className="btn" onClick={() => setEditingUser(user)}>Editar Mi Perfil</button>
+          </div>
+        )}
 
       {/* Crear Usuario - Solo ADMIN */}
-      {isAdmin && (
+      {view === 'create' && isAdmin && (
         <div style={{ marginBottom: '20px' }}>
-          <h3>Crear Usuario</h3>
+          <h3>Crear Nuevo Usuario</h3>
           <input
             className="input"
             type="email"
@@ -139,7 +143,7 @@ const UserManagement: React.FC = () => {
             <option value="USER">USER</option>
             <option value="ADMIN">ADMIN</option>
           </select>
-          <button className="btn" onClick={createUser}>Crear</button>
+          <button className="create-btn" onClick={createUser}>Crear</button>
         </div>
       )}
 
@@ -177,13 +181,13 @@ const UserManagement: React.FC = () => {
       )}
 
       {/* Listar Usuarios - Solo ADMIN */}
-      {isAdmin && (
+      {view === 'list' && isAdmin && (
         <>
           <h3>Lista de Usuarios</h3>
           <ul>
             {usuarios.map(u => (
               <li key={u.id} style={{ marginBottom: '10px' }}>
-                {u.email} - {u.rol}
+                <span style={{ cursor: 'pointer', color: 'blue' }} onClick={() => setEditingUser(u)}>{u.email}</span> - {u.rol}
                 <select className="input" value={u.rol} onChange={(e) => updateRol(u.id!, e.target.value)} style={{ marginLeft: '10px', width: 'auto' }}>
                   <option value="USER">USER</option>
                   <option value="ADMIN">ADMIN</option>

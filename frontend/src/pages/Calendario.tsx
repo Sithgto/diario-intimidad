@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 interface CalendarEntryResponse {
@@ -26,11 +26,37 @@ interface CampoValor {
   valorAudioUrl?: string;
 }
 
+interface EntradaDiaria {
+  id: number;
+  fechaEntrada: string;
+  completado: boolean;
+}
+
 const Calendario: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [data, setData] = useState<CalendarEntryResponse | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [entradas, setEntradas] = useState<EntradaDiaria[]>([]);
+  const [existingEntry, setExistingEntry] = useState<EntradaDiaria | null>(null);
+
+  useEffect(() => {
+    fetchEntradas();
+  }, [currentYear, currentMonth]);
+
+  const fetchEntradas = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`http://localhost:8085/api/daily-entry/user-entries?anio=${currentYear}&mes=${currentMonth}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setEntradas(response.data);
+    } catch (error) {
+      console.error('Error fetching entradas', error);
+    }
+  };
 
   const handleDateChange = async (date: string) => {
     setSelectedDate(date);
