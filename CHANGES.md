@@ -19,6 +19,12 @@ Este documento registra todos los cambios realizados durante la construcción de
 - **Contenerización:**
   - Docker
 ## Cambios por Fecha
+### 2025-11-19 - Corrección de Script wait-for-it.sh en Contenedores Docker
+- **Archivos afectados:** frontend/Dockerfile, backend/Dockerfile
+- **Cambios específicos realizados:** Agregada la instalación de `dos2unix` y su ejecución sobre los scripts `wait-for-it.sh` en los Dockerfiles de frontend y backend.
+- **Explicación del porqué se realiza el cambio:** Para solucionar el error `exec /wait-for-it.sh: no such file or directory` causado por finales de línea de Windows (CRLF) en un entorno Linux (LF). La conversión a formato Unix asegura la correcta ejecución del script.
+- **Resultado esperado:** Los contenedores inician sin errores relacionados con el script `wait-for-it.sh`, mejorando la estabilidad del arranque de los servicios.
+
 ### 2025-11-19 - Cambio de Color de Fondo a Blanco y Mejoras en Diario Anual
 - **Archivos afectados:** frontend/src/App.tsx, frontend/src/components/Header.tsx, frontend/src/index.css, frontend/src/pages/DiarioAnual.tsx
 - **Cambios específicos realizados:** Cambiado el color de fondo a blanco, actualizado header y footer, mejorado el manejo de Diario Anual con nuevas funcionalidades.
