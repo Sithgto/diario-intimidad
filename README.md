@@ -53,9 +53,9 @@ diario_intimidad/
 4. Accede a http://localhost:3005
 
 ### Usuario por Defecto
-- **Email**: admin@diario.com
+- **Email**: user@diario.com
 - **Password**: password
-- **Rol**: ADMIN
+- **Rol**: USER
 
 ## APIs Disponibles
 

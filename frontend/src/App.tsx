@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
 import { ErrorProvider } from './contexts/ErrorContext';
+import { FaUser } from 'react-icons/fa';
 import Login from './pages/Login';
 import UserManagement from './pages/UserManagement';
 import ApiDocs from './pages/ApiDocs';
@@ -93,8 +94,7 @@ const Home: React.FC = () => {
           <header className="header">
             <div className="header-title">Diario de Intimidad</div>
             <nav className="header-nav">
-              <Link to="/" className="nav-icon">🏠 Inicio</Link>
-              <Link to="/login" className="nav-icon">🔐 Login</Link>
+              <Link to="/login" className="nav-icon"><FaUser /> Login</Link>
             </nav>
           </header>
           <main className="main-content">
