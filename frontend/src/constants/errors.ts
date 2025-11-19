@@ -20,6 +20,7 @@ export const ERROR_MESSAGES = {
   // Errores de usuario
   USER_NOT_FOUND: 'Usuario no encontrado.',
   USER_ALREADY_EXISTS: 'El email ya está registrado.',
+  USER_CREATE_FAILED: 'Error al crear el usuario.',
   USER_UPDATE_FAILED: 'Error al actualizar el usuario.',
   USER_DELETE_FAILED: 'Error al eliminar el usuario.',
 
