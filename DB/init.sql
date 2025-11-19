@@ -1142,10 +1142,10 @@ INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica) VALUES
 (35, 1, 'NORMAL', 'Efesios 2:10'), (35, 3, 'NORMAL', 'Romanos 12:4-8'), (35, 4, 'NORMAL', '1 Corintios 12:1-11'), (35, 5, 'NORMAL', '2 Timoteo 1:9'),
 (35, 6, 'NORMAL', 'Jeremías 1:5'), (35, 7, 'NORMAL', 'Isaías 43:7'), (35, 8, 'NORMAL', 'Juan 15:16'), (35, 10, 'NORMAL', 'Mateo 25:14-30'),
 (35, 11, 'NORMAL', '1 Pedro 4:10-11'), (35, 12, 'NORMAL', 'Proverbios 19:21'), (35, 13, 'NORMAL', 'Salmos 57:2'), (35, 14, 'NORMAL', 'Efesios 4:11-13'),
-(35, 15, 'NORMAL', 'Hebreos 10:24-25'), (35, 17, 'NORMAL', 'Romanos 8:28'), (35, 18, 'NORMAL', 'Proverbios 3:5-6'), (35, 19, 'NORMAL', '1 Corintios 9:24-27'),
-(35, 20, 'NORMAL', 'Colosenses 3:17'), (35, 21, 'NORMAL', 'Mateo 5:13-16'), (35, 22, 'NORMAL', 'Tito 2:7-8'), (35, 24, 'NORMAL', 'Filipenses 3:13-14'),
-(35, 25, 'NORMAL', 'Hechos 20:24'), (35, 26, 'NORMAL', '2 Timoteo 4:7-8'), (35, 27, 'NORMAL', 'Gálatas 6:9'), (35, 28, 'NORMAL', 'Apocalipsis 3:8'),
-(35, 29, 'NORMAL', 'Proverbios 16:9'), (35, 30, 'NORMAL', 'Salmos 139:13-16')
+(35, 15, 'NORMAL', 'Hebreos 10:24-25'), (35, 17, 'NORMAL', 'Romanos 8:28'), (35, 18, 'NORMAL', 'Proverbios 3:5-6'), (35, 19, 'NORMAL', 'Lucas 7:36-50'),
+(35, 20, 'NORMAL', 'Lucas 10:38-42'), (35, 21, 'NORMAL', 'Lucas 19:1-10'), (35, 22, 'NORMAL', 'Juan 1:43-51'), (35, 24, 'NORMAL', 'Juan 3:1-21'),
+(35, 25, 'NORMAL', 'Juan 4:1-42'), (35, 26, 'NORMAL', 'Juan 7:1-9'), (35, 27, 'NORMAL', 'Juan 8:1-11'), (35, 28, 'NORMAL', 'Juan 12:1-8'),
+(35, 29, 'NORMAL', 'Juan 12:20-26')
 ON CONFLICT (mes_id, dia_numero) DO UPDATE SET lectura_biblica = EXCLUDED.lectura_biblica;
 
 -- Días DOMINGO (NOVIEMBRE 2025)
@@ -1153,8 +1153,8 @@ INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica, versicul
 (35, 2, 'DOMINGO', NULL, 'Reflexión: La Hechura de Dios y las Buenas Obras.'),
 (35, 9, 'DOMINGO', NULL, 'Reflexión: Descubriendo tu Llamado Personal y Ministerial.'),
 (35, 16, 'DOMINGO', NULL, 'Reflexión: La Conexión entre Propósito, Fe y Obediencia.'),
-(35, 23, 'DOMINGO', NULL, 'Reflexión: Terminando la Carrera con Gozo y Perspectiva Eterna.'),
-(35, 30, 'DOMINGO', NULL, 'Reflexión: Revisión del Año: Dones, Frutos y Oportunidades.')
+(35, 23, 'DOMINGO', NULL, 'Juan 2:23-25 Reflexión: Terminando la Carrera con Gozo y Perspectiva Eterna.'),
+(35, 30, 'DOMINGO', NULL, 'Juan 20:11-18 Reflexión: Revisión del Año: Dones, Frutos y Oportunidades.')
 ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versiculo_diario;
 
 
@@ -1167,21 +1167,21 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Días NORMALES (DICIEMBRE 2025)
 INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica) VALUES
-(36, 1, 'NORMAL', 'Mateo 9:37-38'), (36, 2, 'NORMAL', 'Juan 4:35-38'), (36, 3, 'NORMAL', 'Gálatas 6:7-10'), (36, 4, 'NORMAL', '1 Corintios 3:6-9'),
-(36, 5, 'NORMAL', 'Proverbios 11:30'), (36, 6, 'NORMAL', 'Marcos 4:26-29'), (36, 8, 'NORMAL', '2 Timoteo 2:2'), (36, 9, 'NORMAL', 'Efesios 4:11-16'),
-(36, 10, 'NORMAL', 'Hechos 20:24'), (36, 11, 'NORMAL', 'Filipenses 3:13-14'), (36, 12, 'NORMAL', 'Hebreos 11:39-40'), (36, 13, 'NORMAL', '2 Timoteo 4:6-8'),
-(36, 15, 'NORMAL', 'Mateo 25:21'), (36, 16, 'NORMAL', 'Proverbios 13:22'), (36, 17, 'NORMAL', '1 Corintios 15:58'), (36, 18, 'NORMAL', 'Juan 17:20-23'),
-(36, 19, 'NORMAL', 'Romanos 15:1-6'), (36, 20, 'NORMAL', '1 Pedro 5:10'), (36, 22, 'NORMAL', 'Mateo 28:19-20'), (36, 23, 'NORMAL', 'Apocalipsis 22:12-13'),
-(36, 24, 'NORMAL', 'Isaías 60:1-3'), (36, 25, 'NORMAL', 'Juan 3:16'), (36, 26, 'NORMAL', 'Mateo 5:16'), (36, 27, 'NORMAL', '1 Corintios 13:13'),
-(36, 29, 'NORMAL', 'Hechos 1:8'), (36, 30, 'NORMAL', 'Salmos 126:1-6'), (36, 31, 'NORMAL', 'Apocalipsis 22:20-21')
+(36, 1, 'NORMAL', 'Juan 5:19-47'), (36, 2, 'NORMAL', 'Juan 6:25-59'), (36, 3, 'NORMAL', 'Juan 6:60-71'), (36, 4, 'NORMAL', 'Juan 8:12-20'),
+(36, 5, 'NORMAL', 'Juan 8:31-47'), (36, 6, 'NORMAL', 'Juan 8:48-59'), (36, 8, 'NORMAL', 'Juan 14'), (36, 9, 'NORMAL', 'Juan 15'),
+(36, 10, 'NORMAL', 'Juan 16'), (36, 11, 'NORMAL', 'Mateo 5'), (36, 12, 'NORMAL', 'Mateo 6'), (36, 13, 'NORMAL', 'Mateo 7'),
+(36, 15, 'NORMAL', 'Mateo 15:1-20'), (36, 16, 'NORMAL', 'Mateo 20:1-16'), (36, 17, 'NORMAL', 'Mateo 20:20-28'), (36, 18, 'NORMAL', 'Mateo 25:1-13'),
+(36, 19, 'NORMAL', 'Mateo 25:14-30'), (36, 20, 'NORMAL', 'Mateo 25:31-46'), (36, 22, 'NORMAL', 'Marcos 12:28-34'), (36, 23, 'NORMAL', 'Lucas 10:25-37'),
+(36, 24, 'NORMAL', 'Lucas 12:35-48'), (36, 25, 'NORMAL', 'Lucas 15:8-32'), (36, 26, 'NORMAL', 'Lucas 16:1-15'), (36, 27, 'NORMAL', 'Lucas 17:5-10'),
+(36, 29, 'NORMAL', 'Marcos 14'), (36, 30, 'NORMAL', 'Marcos 15'), (36, 31, 'NORMAL', 'Marcos 16')
 ON CONFLICT (mes_id, dia_numero) DO UPDATE SET lectura_biblica = EXCLUDED.lectura_biblica;
 
 -- Días DOMINGO (DICIEMBRE 2025)
 INSERT INTO Dia_Maestro (mes_id, dia_numero, tipo_dia, lectura_biblica, versiculo_diario) VALUES
-(36, 7, 'DOMINGO', NULL, 'Reflexión: La Ley de la Siembra y la Cosecha.'),
-(36, 14, 'DOMINGO', NULL, 'Reflexión: El Discipulado como Única Multiplicación.'),
-(36, 21, 'DOMINGO', NULL, 'Reflexión: Celebrando el Legado y la Influencia.'),
-(36, 28, 'DOMINGO', NULL, 'Reflexión: Planificando 2026: Una Visión de Avivamiento.')
+(36, 7, 'DOMINGO', NULL, 'Juan 10:1-18 Reflexión: La Ley de la Siembra y la Cosecha.'),
+(36, 14, 'DOMINGO', NULL, 'Mateo 13:1-52 Reflexión: El Discipulado como Única Multiplicación.'),
+(36, 21, 'DOMINGO', NULL, 'Marcos 11:1-11 Reflexión: Celebrando el Legado y la Influencia.'),
+(36, 28, 'DOMINGO', NULL, 'Lucas 20:1-8 Reflexión: Planificando 2026: Una Visión de Avivamiento.')
 ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versiculo_diario;
 
 -- Otorgar permisos al usuario diario_user
