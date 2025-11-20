@@ -30,7 +30,7 @@ interface DiarioAnual {
   id: number;
   titulo: string;
   anio: number;
-  logoUrl?: string;
+  nombreLogo?: string;
 }
 
 interface VerseData {
@@ -59,12 +59,13 @@ const DailyEntry: React.FC = () => {
   const [verse1, setVerse1] = useState<VerseData | null>(null);
   const [verse2, setVerse2] = useState<VerseData | null>(null);
   const [translation1, setTranslation1] = useState('rv1960');
-  const [translation2, setTranslation2] = useState('rv1995');
+  const [translation2, setTranslation2] = useState('nvi');
   const [isPlaying1, setIsPlaying1] = useState(false);
   const [isPlaying2, setIsPlaying2] = useState(false);
   const [customVerse, setCustomVerse] = useState('');
   const [showVerseSelector, setShowVerseSelector] = useState(false);
   const [verseError, setVerseError] = useState('');
+  const [showNumbers, setShowNumbers] = useState(false);
 
   useEffect(() => {
     // Establecer el año actual por defecto
@@ -119,24 +120,29 @@ const DailyEntry: React.FC = () => {
     }
   }, [selectedAnio]);
 
-  const fetchVerses = async (reference: string) => {
+  const fetchVerses = async (reference: string, includeNumbers: boolean = true) => {
+    console.log('Frontend: Fetching verses for reference:', reference, 'translations:', translation1, translation2, 'includeNumbers:', includeNumbers);
     setVerseError('');
     try {
       const [response1, response2] = await Promise.all([
         axios.get(`http://localhost:8085/api/bible/verse/${reference}`, {
-          params: { translation: translation1 }
+          params: { translation: translation1, includeNumbers }
         }),
         axios.get(`http://localhost:8085/api/bible/verse/${reference}`, {
-          params: { translation: translation2 }
+          params: { translation: translation2, includeNumbers }
         })
       ]);
+      console.log('Frontend: Verse response1:', response1.data);
+      console.log('Frontend: Verse response2:', response2.data);
       setVerse1(response1.data);
       setVerse2(response2.data);
+      console.log('Frontend: Set verse1 and verse2');
     } catch (error) {
       console.error('Error fetching verses:', error);
       setVerseError('No se pudo cargar el versículo. Por favor, selecciona uno manualmente.');
       setVerse1(null);
       setVerse2(null);
+      console.log('Frontend: Failed to fetch verses, set to null');
     }
   };
 
@@ -195,18 +201,21 @@ const DailyEntry: React.FC = () => {
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>{formatDate(data.fecha).toUpperCase()}</h2>
-          {data.diarioAnual?.logoUrl && <img src={data.diarioAnual.logoUrl} alt="Logo del diario" style={{ width: '30px', height: '30px' }} />}
+          {data.diarioAnual?.nombreLogo && <img src={`http://localhost:8085/uploads/images/${data.diarioAnual.nombreLogo}`} alt="Logo del diario" style={{ width: '160px', height: '160px' }} />}
         </div>
 
-        {data.diarioAnual && (
-          <div>
-            <h3>{data.diarioAnual.titulo} - {data.diarioAnual.anio}</h3>
-          </div>
-        )}
 
         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
             <h3>📖 Versículo Diario</h3>
+            <label style={{ fontSize: '14px' }}>
+              <input
+                type="checkbox"
+                checked={showNumbers}
+                onChange={(e) => setShowNumbers(e.target.checked)}
+              />
+              Mostrar números de versículos
+            </label>
             {(!verse1 || verseError) && (
               <button
                 className="btn"
@@ -233,7 +242,7 @@ const DailyEntry: React.FC = () => {
                 className="btn"
                 onClick={() => {
                   if (customVerse.trim()) {
-                    fetchVerses(customVerse.trim());
+                    fetchVerses(customVerse.trim(), showNumbers);
                     setShowVerseSelector(false);
                   }
                 }}
@@ -245,6 +254,7 @@ const DailyEntry: React.FC = () => {
 
           {(data.versiculoDiario || (verse1 && verse2)) && (
             <>
+              {console.log('Frontend: Rendering verses: verse1:', verse1, 'verse2:', verse2, 'data.versiculoDiario:', data.versiculoDiario)}
               <h4>{data.versiculoDiario || customVerse}</h4>
               <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
                 {/* Versión 1 */}
@@ -278,6 +288,21 @@ const DailyEntry: React.FC = () => {
                       }}
                     >
                       {isPlaying1 ? '⏹️ Detener' : '🔊 Escuchar'}
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => fetchVerses(data.versiculoDiario || customVerse, showNumbers)}
+                      style={{
+                        backgroundColor: '#2196F3',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginLeft: '10px'
+                      }}
+                    >
+                      🔄 Recargar
                     </button>
                   </div>
                   {verse1 && (
@@ -323,6 +348,21 @@ const DailyEntry: React.FC = () => {
                       }}
                     >
                       {isPlaying2 ? '⏹️ Detener' : '🔊 Escuchar'}
+                    </button>
+                    <button
+                      className="btn"
+                      onClick={() => fetchVerses(data.versiculoDiario || customVerse, showNumbers)}
+                      style={{
+                        backgroundColor: '#2196F3',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px 12px',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginLeft: '10px'
+                      }}
+                    >
+                      🔄 Recargar
                     </button>
                   </div>
                   {verse2 && (
