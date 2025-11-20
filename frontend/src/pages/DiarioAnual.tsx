@@ -2,6 +2,8 @@ import React, { useEffect, useState, useContext, ChangeEvent } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { useError } from '../contexts/ErrorContext';
 
+const API_BASE = 'http://backend:8080';
+
 interface DiarioAnual {
   id?: number;
   anio: number;
@@ -37,7 +39,7 @@ const DiarioAnual: React.FC = () => {
   const uploadFile = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch('http://localhost:8085/api/diarios-anuales/upload', {
+    const response = await fetch('http://backend:8080/api/diarios-anuales/upload', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -51,7 +53,7 @@ const DiarioAnual: React.FC = () => {
   const fetchDiarios = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8085/api/diarios-anuales', {
+      const response = await fetch('http://backend:8080/api/diarios-anuales', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -109,7 +111,7 @@ const DiarioAnual: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:8085/api/diarios-anuales', {
+      const response = await fetch(`${API_BASE}/api/diarios-anuales`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -136,7 +138,7 @@ const DiarioAnual: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8085/api/diarios-anuales/${editing.id}`, {
+      const response = await fetch(`${API_BASE}/api/diarios-anuales/${editing.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -162,7 +164,7 @@ const DiarioAnual: React.FC = () => {
     // eslint-disable-next-line no-restricted-globals
     if (!confirm('¿Estás seguro de eliminar este diario anual?')) return;
     try {
-      const response = await fetch(`http://localhost:8085/api/diarios-anuales/${id}`, {
+      const response = await fetch(`${API_BASE}/api/diarios-anuales/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -312,7 +314,7 @@ const DiarioAnual: React.FC = () => {
                 onClick={() => document.getElementById('portada-input')?.click()}
                 >
                   <img
-                    src={form.portadaUrl ? `http://localhost:8085${form.portadaUrl}` : '/images/default-cover.jpg'}
+                    src={form.portadaUrl ? `${API_BASE}${form.portadaUrl}` : '/images/default-cover.jpg'}
                     alt="Carátula"
                     style={{
                       width: '100%',
@@ -365,7 +367,7 @@ const DiarioAnual: React.FC = () => {
                 onClick={() => document.getElementById('logo-input')?.click()}
                 >
                   <img
-                    src={form.logoUrl ? `http://localhost:8085${form.logoUrl}` : '/images/default-logo.jpg'}
+                    src={form.logoUrl ? `${API_BASE}${form.logoUrl}` : '/images/default-logo.jpg'}
                     alt="Logo"
                     style={{
                       width: '100%',
@@ -471,7 +473,7 @@ const DiarioAnual: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
               {diarios.filter((diario: DiarioAnual) => showAll || diario.status === 'Activo').map((diario: DiarioAnual) => (
                 <div key={diario.id} className="diario-card" style={{ border: '1px solid #ccc', padding: '10px', cursor: 'pointer' }} onClick={() => startEdit(diario)}>
-                  <img src={diario.portadaUrl ? `http://localhost:8085${diario.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ width: '100px', height: '150px', objectFit: 'cover' }} />
+                  <img src={diario.portadaUrl ? `${API_BASE}${diario.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ width: '100px', height: '150px', objectFit: 'cover' }} />
                   <h4>{diario.titulo}</h4>
                   <p>Año: {diario.anio}</p>
                   <p>Tema: {diario.temaPrincipal}</p>

@@ -34,8 +34,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
+        final String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/uploads/")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         final String authorizationHeader = request.getHeader("Authorization");
-        logger.info("Request to: {} {}", request.getMethod(), request.getRequestURI());
+        logger.info("Request to: {} {}", request.getMethod(), requestURI);
 
         String email = null;
         String jwt = null;

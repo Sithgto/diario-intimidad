@@ -5,6 +5,7 @@ import com.diario_intimidad.service.DiarioAnualService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/diarios-anuales")
@@ -23,6 +25,9 @@ import java.util.UUID;
 public class DiarioAnualController {
 
     private static final Logger logger = LoggerFactory.getLogger(DiarioAnualController.class);
+
+    @Value("${app.upload.dir}")
+    private String uploadDir;
 
     @Autowired
     private DiarioAnualService diarioAnualService;
@@ -90,6 +95,26 @@ public class DiarioAnualController {
             // Confirmar que se guardó correctamente
             logger.info("Updated diario saved with id {} and status {}", saved.getId(), saved.getStatus());
 
+            // Validar que las imágenes existen en el filesystem
+            try {
+                List<Path> files = Files.list(Paths.get(uploadDir, "images")).filter(Files::isRegularFile).collect(Collectors.toList());
+                logger.info("Files in images directory after update: {}", files.stream().map(Path::getFileName).collect(Collectors.toList()));
+            } catch (Exception e) {
+                logger.error("Error listing files after update", e);
+            }
+            if (saved.getPortadaUrl() != null && saved.getPortadaUrl().startsWith("/uploads/images/")) {
+                String fileName = saved.getPortadaUrl().substring("/uploads/images/".length());
+                Path imagePath = Paths.get(uploadDir, "images", fileName);
+                logger.info("Validating portada image: {} -> exists={}, isRegularFile={}, isReadable={}",
+                    imagePath.toAbsolutePath(), Files.exists(imagePath), Files.isRegularFile(imagePath), Files.isReadable(imagePath));
+            }
+            if (saved.getLogoUrl() != null && saved.getLogoUrl().startsWith("/uploads/images/")) {
+                String fileName = saved.getLogoUrl().substring("/uploads/images/".length());
+                Path imagePath = Paths.get(uploadDir, "images", fileName);
+                logger.info("Validating logo image: {} -> exists={}, isRegularFile={}, isReadable={}",
+                    imagePath.toAbsolutePath(), Files.exists(imagePath), Files.isRegularFile(imagePath), Files.isReadable(imagePath));
+            }
+
             return ResponseEntity.ok(saved);
         } else {
             return ResponseEntity.notFound().build();
@@ -105,24 +130,37 @@ public class DiarioAnualController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file) {
         try {
+            logger.info("Upload request received. Upload dir: {}", uploadDir);
             if (file.isEmpty()) {
+                logger.warn("File is empty");
                 return ResponseEntity.badRequest().body("Archivo vacío");
             }
             String originalFilename = file.getOriginalFilename();
+            logger.info("Original filename: {}", originalFilename);
             String extension = "";
             if (originalFilename != null && originalFilename.contains(".")) {
                 extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             }
             String fileName = UUID.randomUUID().toString() + extension;
-            Path uploadDir = Paths.get("uploads/images/");
-            Files.createDirectories(uploadDir);
-            Path filePath = uploadDir.resolve(fileName);
+            Path uploadDirPath = Paths.get(uploadDir, "images");
+            logger.info("Upload directory path: {}", uploadDirPath.toAbsolutePath());
+            Files.createDirectories(uploadDirPath);
+            logger.info("Directories created: {}", Files.exists(uploadDirPath));
+            Path filePath = uploadDirPath.resolve(fileName);
+            logger.info("File path: {}", filePath.toAbsolutePath());
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            logger.info("File uploaded successfully: {}", fileName);
+            logger.info("File copied successfully. Exists: {}", Files.exists(filePath));
+            try {
+                List<Path> files = Files.list(Paths.get(uploadDir, "images")).filter(Files::isRegularFile).collect(Collectors.toList());
+                logger.info("Files in images directory after upload: {}", files.stream().map(Path::getFileName).collect(Collectors.toList()));
+            } catch (Exception e) {
+                logger.error("Error listing files after upload", e);
+            }
             String relativeUrl = "/uploads/images/" + fileName;
-            logger.info("Returning path: /uploads/images/{}", fileName);
+            logger.info("Returning URL: {}", relativeUrl);
             return ResponseEntity.ok(relativeUrl);
         } catch (Exception e) {
+            logger.error("Error uploading file", e);
             return ResponseEntity.internalServerError().body("Error al subir el archivo");
         }
     }

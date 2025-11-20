@@ -30,6 +30,7 @@ interface DiarioAnual {
   id: number;
   titulo: string;
   anio: number;
+  logoUrl?: string;
 }
 
 interface VerseData {
@@ -38,6 +39,17 @@ interface VerseData {
   translation_id: string;
   translation_name: string;
 }
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const monthNames = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  const month = monthNames[date.getMonth()];
+  return `${day} de ${month}`;
+};
 
 const DailyEntry: React.FC = () => {
   const [data, setData] = useState<DailyEntryData | null>(null);
@@ -181,7 +193,10 @@ const DailyEntry: React.FC = () => {
   return (
     <div className="app-container">
       <div className="card">
-        <h2>Entrada Diaria - {data.fecha}</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2>{formatDate(data.fecha).toUpperCase()}</h2>
+          {data.diarioAnual?.logoUrl && <img src={data.diarioAnual.logoUrl} alt="Logo del diario" style={{ width: '30px', height: '30px' }} />}
+        </div>
 
         {data.diarioAnual && (
           <div>
@@ -327,13 +342,9 @@ const DailyEntry: React.FC = () => {
         </div>
 
         {data.tipoDia === 'NORMAL' && data.lecturaBiblica && (
-          <div>
-            <h3>Lectura Bíblica</h3>
-            <p>{data.lecturaBiblica}</p>
-          </div>
+          <h3>Leer {data.lecturaBiblica}</h3>
         )}
 
-        <h3>Campos a Rellenar</h3>
         {data.camposDiario.map(campo => (
           <div key={campo.id} style={{ marginBottom: '15px' }}>
             <label>{campo.nombreCampo} {campo.esRequerido ? '*' : ''}</label>
