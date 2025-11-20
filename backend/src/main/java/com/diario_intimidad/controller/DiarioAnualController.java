@@ -58,9 +58,9 @@ public class DiarioAnualController {
             DiarioAnual existingDiarioAnual = optionalDiarioAnual.get();
 
             // Log valores antes de la actualización
-            logger.info("Valores antes de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}, status={}",
+            logger.info("Valores antes de la actualización: id={}, anio={}, titulo={}, nombrePortada={}, nombreLogo={}, temaPrincipal={}, status={}",
                 existingDiarioAnual.getId(), existingDiarioAnual.getAnio(), existingDiarioAnual.getTitulo(),
-                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal(), existingDiarioAnual.getStatus());
+                existingDiarioAnual.getNombrePortada(), existingDiarioAnual.getNombreLogo(), existingDiarioAnual.getTemaPrincipal(), existingDiarioAnual.getStatus());
 
             // Actualizar solo campos no nulos
             if (diarioAnualDetails.getAnio() != null) {
@@ -69,11 +69,11 @@ public class DiarioAnualController {
             if (diarioAnualDetails.getTitulo() != null) {
                 existingDiarioAnual.setTitulo(diarioAnualDetails.getTitulo());
             }
-            if (diarioAnualDetails.getPortadaUrl() != null) {
-                existingDiarioAnual.setPortadaUrl(diarioAnualDetails.getPortadaUrl());
+            if (diarioAnualDetails.getNombrePortada() != null) {
+                existingDiarioAnual.setNombrePortada(diarioAnualDetails.getNombrePortada());
             }
-            if (diarioAnualDetails.getLogoUrl() != null) {
-                existingDiarioAnual.setLogoUrl(diarioAnualDetails.getLogoUrl());
+            if (diarioAnualDetails.getNombreLogo() != null) {
+                existingDiarioAnual.setNombreLogo(diarioAnualDetails.getNombreLogo());
             }
             if (diarioAnualDetails.getTemaPrincipal() != null) {
                 existingDiarioAnual.setTemaPrincipal(diarioAnualDetails.getTemaPrincipal());
@@ -86,9 +86,9 @@ public class DiarioAnualController {
             logger.info("Updating diario {} with status {}", id, diarioAnualDetails.getStatus());
 
             // Log valores después de la actualización
-            logger.info("Valores después de la actualización: id={}, anio={}, titulo={}, portadaUrl={}, logoUrl={}, temaPrincipal={}, status={}",
+            logger.info("Valores después de la actualización: id={}, anio={}, titulo={}, nombrePortada={}, nombreLogo={}, temaPrincipal={}, status={}",
                 existingDiarioAnual.getId(), existingDiarioAnual.getAnio(), existingDiarioAnual.getTitulo(),
-                existingDiarioAnual.getPortadaUrl(), existingDiarioAnual.getLogoUrl(), existingDiarioAnual.getTemaPrincipal(), existingDiarioAnual.getStatus());
+                existingDiarioAnual.getNombrePortada(), existingDiarioAnual.getNombreLogo(), existingDiarioAnual.getTemaPrincipal(), existingDiarioAnual.getStatus());
 
             DiarioAnual saved = diarioAnualService.save(existingDiarioAnual);
 
@@ -102,9 +102,8 @@ public class DiarioAnualController {
             } catch (Exception e) {
                 logger.error("Error listing files after update", e);
             }
-            if (saved.getPortadaUrl() != null && saved.getPortadaUrl().startsWith("/uploads/images/")) {
-                String fileName = saved.getPortadaUrl().substring("/uploads/images/".length());
-                Path imagePath = Paths.get(uploadDir, "images", fileName);
+            if (saved.getNombrePortada() != null) {
+                Path imagePath = Paths.get(uploadDir, "images", saved.getNombrePortada());
                 try {
                     long size = Files.size(imagePath);
                     logger.info("Validating portada image: {} -> size={} bytes", imagePath.toAbsolutePath(), size);
@@ -112,9 +111,8 @@ public class DiarioAnualController {
                     logger.error("Error validating portada image: {}", imagePath.toAbsolutePath(), e);
                 }
             }
-            if (saved.getLogoUrl() != null && saved.getLogoUrl().startsWith("/uploads/images/")) {
-                String fileName = saved.getLogoUrl().substring("/uploads/images/".length());
-                Path imagePath = Paths.get(uploadDir, "images", fileName);
+            if (saved.getNombreLogo() != null) {
+                Path imagePath = Paths.get(uploadDir, "images", saved.getNombreLogo());
                 try {
                     long size = Files.size(imagePath);
                     logger.info("Validating logo image: {} -> size={} bytes", imagePath.toAbsolutePath(), size);
@@ -161,9 +159,8 @@ public class DiarioAnualController {
             } catch (Exception e) {
                 logger.error("Error validating file after upload", e);
             }
-            String relativeUrl = "/uploads/images/" + fileName;
-            logger.info("Returning URL: {}", relativeUrl);
-            return ResponseEntity.ok(relativeUrl);
+            logger.info("Returning filename: {}", fileName);
+            return ResponseEntity.ok(fileName);
         } catch (Exception e) {
             logger.error("Error uploading file", e);
             return ResponseEntity.internalServerError().body("Error al subir el archivo");

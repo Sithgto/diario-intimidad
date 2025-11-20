@@ -22,11 +22,11 @@ public class DiarioAnual {
     @NotNull
     private String titulo;
 
-    @Column(name = "portada_url")
-    private String portadaUrl;
+    @Column(name = "nombre_portada")
+    private String nombrePortada;
 
-    @Column(name = "logo_url")
-    private String logoUrl;
+    @Column(name = "nombre_logo")
+    private String nombreLogo;
 
     @Column(name = "tema_principal")
     @NotNull
@@ -58,11 +58,11 @@ public class DiarioAnual {
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public String getPortadaUrl() { return portadaUrl; }
-    public void setPortadaUrl(String portadaUrl) { this.portadaUrl = portadaUrl; }
+    public String getNombrePortada() { return nombrePortada; }
+    public void setNombrePortada(String nombrePortada) { this.nombrePortada = nombrePortada; }
 
-    public String getLogoUrl() { return logoUrl; }
-    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
+    public String getNombreLogo() { return nombreLogo; }
+    public void setNombreLogo(String nombreLogo) { this.nombreLogo = nombreLogo; }
 
     public String getTemaPrincipal() { return temaPrincipal; }
     public void setTemaPrincipal(String temaPrincipal) { this.temaPrincipal = temaPrincipal; }

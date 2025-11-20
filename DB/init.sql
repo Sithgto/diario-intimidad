@@ -19,8 +19,8 @@ CREATE TABLE Diario_Anual (
     id BIGSERIAL PRIMARY KEY,
     anio INTEGER UNIQUE NOT NULL,
     titulo VARCHAR(255) NOT NULL, -- Título principal (ej. "Avivamiento")
-    portada_url VARCHAR(255),
-    logo_url VARCHAR(255),
+    nombre_portada VARCHAR(255),
+    nombre_logo VARCHAR(255),
     tema_principal TEXT, -- Versículo principal del año (ej. Jeremías 32:17)
     status VARCHAR(50) NOT NULL, -- 'Desarrollo', 'Descatalogado', 'Activo'
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
