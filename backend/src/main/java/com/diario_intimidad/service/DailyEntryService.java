@@ -106,9 +106,9 @@ public class DailyEntryService {
         String versiculoReference;
         String tipoDia = diaMaestro.get().getTipoDia().name();
         if (tipoDia.equals("NORMAL")) {
-            versiculoReference = diaMaestro.get().getVersiculoDiario();
-        } else if (tipoDia.equals("DOMINGO")) {
             versiculoReference = diaMaestro.get().getLecturaBiblica();
+        } else if (tipoDia.equals("DOMINGO")) {
+            versiculoReference = diaMaestro.get().getVersiculoDiario();
         } else {
             versiculoReference = diaMaestro.get().getVersiculoDiario();
         }

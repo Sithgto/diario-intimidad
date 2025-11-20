@@ -71,6 +71,9 @@ public class DailyEntryController {
             return ResponseEntity.notFound().build();
         }
 
+        logger.info("Respuesta completa: fecha={}, tipoDia={}, lecturaBiblica={}, versiculoDiario={}, diarioAnual={}",
+            response.getFecha(), response.getTipoDia(), response.getLecturaBiblica(), response.getVersiculoDiario(),
+            response.getDiarioAnual() != null ? response.getDiarioAnual().getTitulo() : "null");
         logger.info("Retornando 200 OK con respuesta");
         return ResponseEntity.ok(response);
     }

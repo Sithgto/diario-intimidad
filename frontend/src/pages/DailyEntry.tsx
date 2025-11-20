@@ -104,8 +104,10 @@ const DailyEntry: React.FC = () => {
 
           // Fetch Bible verses if there's a daily verse defined
           if (response.data.versiculoDiario) {
+            console.log('Frontend: Calling fetchVerses for:', response.data.versiculoDiario);
             await fetchVerses(response.data.versiculoDiario);
           } else {
+            console.log('Frontend: No versiculoDiario, showing selector');
             // If no daily verse, show selector
             setShowVerseSelector(true);
           }
