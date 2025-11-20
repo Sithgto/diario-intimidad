@@ -419,6 +419,7 @@ const DailyEntry: React.FC = () => {
                   [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
                 })}
                 required={campo.esRequerido}
+                style={(campo.nombreCampo.includes('Oración') || campo.nombreCampo.includes('Prioridades')) ? { backgroundColor: '#e0e0e0' } : {}}
               />
             ) : campo.tipoEntrada === 'AUDIO' ? (
               <div>
