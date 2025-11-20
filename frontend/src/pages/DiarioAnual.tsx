@@ -119,9 +119,13 @@ const DiarioAnual: React.FC = () => {
       let nombreLogo = form.nombreLogo;
       if (form.portadaFile) {
         nombrePortada = await uploadFile(form.portadaFile);
+      } else if (form.nombrePortada && form.nombrePortada.startsWith('blob:')) {
+        nombrePortada = undefined; // No guardar blob URLs
       }
       if (form.logoFile) {
         nombreLogo = await uploadFile(form.logoFile);
+      } else if (form.nombreLogo && form.nombreLogo.startsWith('blob:')) {
+        nombreLogo = undefined; // No guardar blob URLs
       }
       const diarioData = { ...form, nombrePortada, nombreLogo };
       const response = await fetch(`${API_BASE}/api/diarios-anuales`, {
@@ -155,9 +159,13 @@ const DiarioAnual: React.FC = () => {
       let nombreLogo = form.nombreLogo;
       if (form.portadaFile) {
         nombrePortada = await uploadFile(form.portadaFile);
+      } else if (form.nombrePortada && form.nombrePortada.startsWith('blob:')) {
+        nombrePortada = undefined; // No guardar blob URLs
       }
       if (form.logoFile) {
         nombreLogo = await uploadFile(form.logoFile);
+      } else if (form.nombreLogo && form.nombreLogo.startsWith('blob:')) {
+        nombreLogo = undefined; // No guardar blob URLs
       }
       const diarioData = { ...form, nombrePortada, nombreLogo };
       const response = await fetch(`${API_BASE}/api/diarios-anuales/${editing.id}`, {
