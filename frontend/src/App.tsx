@@ -13,6 +13,7 @@ import Biblia from './pages/Biblia';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ErrorDisplay from './components/ErrorDisplay';
+import ScrollToTop from './components/ScrollToTop';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useContext(AuthContext)!;
@@ -28,6 +29,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       </div>
       <Footer />
       <ErrorDisplay />
+      <ScrollToTop />
     </div>
   );
 };

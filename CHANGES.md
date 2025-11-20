@@ -1,15 +1,17 @@
 # Registro de Cambios - Diario de Intimidad
 
-### 2025-11-20 - Corrección Completa de API Bíblica, Interfaz de Versículos, Lógica de Días y Mejoras Visuales
-- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/controller/BibleController.java, frontend/src/pages/DailyEntry.tsx, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, backend/src/main/java/com/diario_intimidad/controller/DailyEntryController.java, CHANGES.md
+### 2025-11-20 - Corrección Completa de API Bíblica, Interfaz de Versículos, Lógica de Días, Mejoras Visuales y Botón Scroll to Top
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/controller/BibleController.java, frontend/src/pages/DailyEntry.tsx, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, backend/src/main/java/com/diario_intimidad/controller/DailyEntryController.java, frontend/src/App.tsx, frontend/src/components/ScrollToTop.tsx, CHANGES.md
 - **Cambios específicos realizados:**
   - **BibleController.java**: Unificada API a bible-api.deno.dev para todas las traducciones; corregido parsing de respuesta como List<Map> en lugar de Map; agregado parámetro includeNumbers para incluir/excluir números de versículos; actualizado getBookCode con nombres correctos en español; agregado logs de error.
   - **DailyEntry.tsx**: Cambiado logoUrl a nombreLogo; ajustado tamaño del logo a 120px; eliminado display de título y año del diario; agregado estado showNumbers con checkbox "Mostrar números de versículos" (default false); convertido botones "Escuchar" y "Recargar" a iconos circulares con tooltips; modificado fetchVerses para incluir parámetro includeNumbers; agregado logs detallados para depuración.
   - **DailyEntryService.java**: Corregida lógica para NORMAL/DOMINGO: NORMAL envía lecturaBiblica como versiculoDiario, DOMINGO envía versiculoDiario.
   - **DailyEntryController.java**: Agregados logs detallados de la respuesta enviada al frontend.
+  - **App.tsx**: Agregado componente ScrollToTop para navegación al inicio.
+  - **ScrollToTop.tsx**: Nuevo componente con botón flotante que aparece al hacer scroll vertical, permite volver al inicio con animación suave.
   - Reiniciados servicios para aplicar cambios.
-- **Explicación del porqué se realiza el cambio:** Para resolver problemas de carga de versículos bíblicos, actualizar campos y lógica de días, mejorar la interfaz con opciones de visualización, botones intuitivos y depuración completa.
-- **Resultado esperado:** Versículos se cargan automáticamente según tipo de día, API funciona correctamente con bible-api.deno.dev, interfaz permite controlar números de versículos, botones circulares con tooltips mejoran UX, logs permiten debugging completo.
+- **Explicación del porqué se realiza el cambio:** Para resolver problemas de carga de versículos bíblicos, actualizar campos y lógica de días, mejorar la interfaz con opciones de visualización, botones intuitivos, depuración completa y navegación mejorada en páginas largas.
+- **Resultado esperado:** Versículos se cargan automáticamente según tipo de día, API funciona correctamente con bible-api.deno.dev, interfaz permite controlar números de versículos, botones circulares con tooltips mejoran UX, botón scroll to top facilita navegación, logs permiten debugging completo.
 
 ## Resumen de Desarrollo
 
