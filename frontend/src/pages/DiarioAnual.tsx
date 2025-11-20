@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext, ChangeEvent } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { useError } from '../contexts/ErrorContext';
 
-const API_BASE = 'http://backend:8080';
+const API_BASE = 'http://localhost:8085';
 
 interface DiarioAnual {
   id?: number;
@@ -14,6 +14,8 @@ interface DiarioAnual {
   status: string;
   createdAt?: string;
   updatedAt?: string;
+  portadaFile?: File | null;
+  logoFile?: File | null;
 }
 
 const DiarioAnual: React.FC = () => {
@@ -28,7 +30,9 @@ const DiarioAnual: React.FC = () => {
     portadaUrl: '',
     temaPrincipal: '',
     logoUrl: '',
-    status: 'Activo'
+    status: 'Activo',
+    portadaFile: null,
+    logoFile: null
   });
   const [originalForm, setOriginalForm] = useState<DiarioAnual | null>(null);
   const [showAll, setShowAll] = useState<boolean>(false);
@@ -39,7 +43,7 @@ const DiarioAnual: React.FC = () => {
   const uploadFile = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch('http://backend:8080/api/diarios-anuales/upload', {
+    const response = await fetch(`${API_BASE}/api/diarios-anuales/upload`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -53,7 +57,7 @@ const DiarioAnual: React.FC = () => {
   const fetchDiarios = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://backend:8080/api/diarios-anuales', {
+      const response = await fetch(`${API_BASE}/api/diarios-anuales`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -75,33 +79,33 @@ const DiarioAnual: React.FC = () => {
     fetchDiarios();
   }, [token]);
 
-  const handlePortadaChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const portadaUrl = form.portadaUrl;
+    const logoUrl = form.logoUrl;
+
+    return () => {
+      if (portadaUrl && portadaUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(portadaUrl);
+      }
+      if (logoUrl && logoUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(logoUrl);
+      }
+    };
+  }, [form.portadaUrl, form.logoUrl]);
+
+  const handlePortadaChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadingPortada(true);
-      try {
-        const url = await uploadFile(file);
-        setForm({ ...form, portadaUrl: url });
-      } catch (err) {
-        setError('NETWORK_ERROR');
-      } finally {
-        setUploadingPortada(false);
-      }
+      const previewUrl = URL.createObjectURL(file);
+      setForm({ ...form, portadaFile: file, portadaUrl: previewUrl });
     }
   };
 
-  const handleLogoChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadingLogo(true);
-      try {
-        const url = await uploadFile(file);
-        setForm({ ...form, logoUrl: url });
-      } catch (err) {
-        setError('NETWORK_ERROR');
-      } finally {
-        setUploadingLogo(false);
-      }
+      const previewUrl = URL.createObjectURL(file);
+      setForm({ ...form, logoFile: file, logoUrl: previewUrl });
     }
   };
 
@@ -111,20 +115,29 @@ const DiarioAnual: React.FC = () => {
       return;
     }
     try {
+      let portadaUrl = form.portadaUrl;
+      let logoUrl = form.logoUrl;
+      if (form.portadaFile) {
+        portadaUrl = await uploadFile(form.portadaFile);
+      }
+      if (form.logoFile) {
+        logoUrl = await uploadFile(form.logoFile);
+      }
+      const diarioData = { ...form, portadaUrl, logoUrl };
       const response = await fetch(`${API_BASE}/api/diarios-anuales`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(diarioData)
       });
       if (!response.ok) {
         throw new Error('Error al crear diario anual');
       }
       const newDiario: DiarioAnual = await response.json();
       setDiarios([...diarios, newDiario]);
-      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
+      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo', portadaFile: null, logoFile: null });
       setShowForm(false);
     } catch (err) {
       setError('NETWORK_ERROR');
@@ -138,13 +151,22 @@ const DiarioAnual: React.FC = () => {
       return;
     }
     try {
+      let portadaUrl = form.portadaUrl;
+      let logoUrl = form.logoUrl;
+      if (form.portadaFile) {
+        portadaUrl = await uploadFile(form.portadaFile);
+      }
+      if (form.logoFile) {
+        logoUrl = await uploadFile(form.logoFile);
+      }
+      const diarioData = { ...form, portadaUrl, logoUrl };
       const response = await fetch(`${API_BASE}/api/diarios-anuales/${editing.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify(diarioData)
       });
       if (!response.ok) {
         throw new Error('Error al actualizar diario anual');
@@ -153,7 +175,7 @@ const DiarioAnual: React.FC = () => {
       setDiarios(diarios.map((d: DiarioAnual) => d.id === editing.id ? updatedDiario : d));
       setEditing(null);
       setOriginalForm(null);
-      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo' });
+      setForm({ anio: new Date().getFullYear(), titulo: '', portadaUrl: '', temaPrincipal: '', logoUrl: '', status: 'Activo', portadaFile: null, logoFile: null });
       setShowForm(false);
     } catch (err) {
       setError('NETWORK_ERROR');
@@ -314,7 +336,7 @@ const DiarioAnual: React.FC = () => {
                 onClick={() => document.getElementById('portada-input')?.click()}
                 >
                   <img
-                    src={form.portadaUrl ? `${API_BASE}${form.portadaUrl}` : '/images/default-cover.jpg'}
+                    src={form.portadaUrl ? form.portadaUrl : '/images/default-cover.jpg'}
                     alt="Carátula"
                     style={{
                       width: '100%',
@@ -367,7 +389,7 @@ const DiarioAnual: React.FC = () => {
                 onClick={() => document.getElementById('logo-input')?.click()}
                 >
                   <img
-                    src={form.logoUrl ? `${API_BASE}${form.logoUrl}` : '/images/default-logo.jpg'}
+                    src={form.logoUrl ? form.logoUrl : '/images/default-logo.jpg'}
                     alt="Logo"
                     style={{
                       width: '100%',
@@ -473,7 +495,7 @@ const DiarioAnual: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
               {diarios.filter((diario: DiarioAnual) => showAll || diario.status === 'Activo').map((diario: DiarioAnual) => (
                 <div key={diario.id} className="diario-card" style={{ border: '1px solid #ccc', padding: '10px', cursor: 'pointer' }} onClick={() => startEdit(diario)}>
-                  <img src={diario.portadaUrl ? `${API_BASE}${diario.portadaUrl}` : '/images/default-cover.jpg'} alt="Carátula" style={{ width: '100px', height: '150px', objectFit: 'cover' }} />
+                  <img src={diario.portadaUrl ? diario.portadaUrl : '/images/default-cover.jpg'} alt="Carátula" style={{ width: '100px', height: '150px', objectFit: 'cover' }} />
                   <h4>{diario.titulo}</h4>
                   <p>Año: {diario.anio}</p>
                   <p>Tema: {diario.temaPrincipal}</p>

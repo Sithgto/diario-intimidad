@@ -105,14 +105,22 @@ public class DiarioAnualController {
             if (saved.getPortadaUrl() != null && saved.getPortadaUrl().startsWith("/uploads/images/")) {
                 String fileName = saved.getPortadaUrl().substring("/uploads/images/".length());
                 Path imagePath = Paths.get(uploadDir, "images", fileName);
-                logger.info("Validating portada image: {} -> exists={}, isRegularFile={}, isReadable={}",
-                    imagePath.toAbsolutePath(), Files.exists(imagePath), Files.isRegularFile(imagePath), Files.isReadable(imagePath));
+                try {
+                    long size = Files.size(imagePath);
+                    logger.info("Validating portada image: {} -> size={} bytes", imagePath.toAbsolutePath(), size);
+                } catch (Exception e) {
+                    logger.error("Error validating portada image: {}", imagePath.toAbsolutePath(), e);
+                }
             }
             if (saved.getLogoUrl() != null && saved.getLogoUrl().startsWith("/uploads/images/")) {
                 String fileName = saved.getLogoUrl().substring("/uploads/images/".length());
                 Path imagePath = Paths.get(uploadDir, "images", fileName);
-                logger.info("Validating logo image: {} -> exists={}, isRegularFile={}, isReadable={}",
-                    imagePath.toAbsolutePath(), Files.exists(imagePath), Files.isRegularFile(imagePath), Files.isReadable(imagePath));
+                try {
+                    long size = Files.size(imagePath);
+                    logger.info("Validating logo image: {} -> size={} bytes", imagePath.toAbsolutePath(), size);
+                } catch (Exception e) {
+                    logger.error("Error validating logo image: {}", imagePath.toAbsolutePath(), e);
+                }
             }
 
             return ResponseEntity.ok(saved);
@@ -137,11 +145,7 @@ public class DiarioAnualController {
             }
             String originalFilename = file.getOriginalFilename();
             logger.info("Original filename: {}", originalFilename);
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String fileName = UUID.randomUUID().toString() + extension;
+            String fileName = originalFilename != null ? originalFilename : "unnamed.jpg";
             Path uploadDirPath = Paths.get(uploadDir, "images");
             logger.info("Upload directory path: {}", uploadDirPath.toAbsolutePath());
             Files.createDirectories(uploadDirPath);
@@ -149,12 +153,13 @@ public class DiarioAnualController {
             Path filePath = uploadDirPath.resolve(fileName);
             logger.info("File path: {}", filePath.toAbsolutePath());
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            logger.info("File copied successfully. Exists: {}", Files.exists(filePath));
             try {
+                long size = Files.size(filePath);
+                logger.info("File copied successfully. Size: {} bytes", size);
                 List<Path> files = Files.list(Paths.get(uploadDir, "images")).filter(Files::isRegularFile).collect(Collectors.toList());
                 logger.info("Files in images directory after upload: {}", files.stream().map(Path::getFileName).collect(Collectors.toList()));
             } catch (Exception e) {
-                logger.error("Error listing files after upload", e);
+                logger.error("Error validating file after upload", e);
             }
             String relativeUrl = "/uploads/images/" + fileName;
             logger.info("Returning URL: {}", relativeUrl);
