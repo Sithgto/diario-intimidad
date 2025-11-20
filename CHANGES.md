@@ -1,13 +1,15 @@
 # Registro de Cambios - Diario de Intimidad
 
-### 2025-11-20 - Corrección de API Bíblica, Actualización de Campos Frontend y Mejoras en Interfaz
-- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/controller/BibleController.java, frontend/src/pages/DailyEntry.tsx, CHANGES.md
+### 2025-11-20 - Corrección Completa de API Bíblica, Interfaz de Versículos, Lógica de Días y Mejoras Visuales
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/controller/BibleController.java, frontend/src/pages/DailyEntry.tsx, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, backend/src/main/java/com/diario_intimidad/controller/DailyEntryController.java, CHANGES.md
 - **Cambios específicos realizados:**
-  - Corregido BibleController.java para usar exclusivamente bible-api.deno.dev para todas las traducciones, eliminando consultas a otras APIs; corregida extracción de texto desde el array "vers" en lugar de campo directo.
-  - Actualizado DailyEntry.tsx: cambiado campo logoUrl a nombreLogo en interfaz y renderizado; aumentado tamaño del logo a 160px x 160px; eliminado display del título y año del diario; agregado logs de depuración para carga de versículos.
-  - Reiniciado backend para aplicar cambios en API bíblica.
-- **Explicación del porqué se realiza el cambio:** Para corregir errores en la carga de versículos bíblicos usando la API correcta con el formato de respuesta esperado, actualizar campos frontend para coincidir con backend, mejorar visualización del logo y simplificar interfaz eliminando elementos innecesarios.
-- **Resultado esperado:** Versículos se cargan correctamente desde bible-api.deno.dev, logo se muestra con tamaño adecuado y campos actualizados, interfaz más limpia sin título redundante, logs facilitan debugging.
+  - **BibleController.java**: Unificada API a bible-api.deno.dev para todas las traducciones; corregido parsing de respuesta como List<Map> en lugar de Map; agregado parámetro includeNumbers para incluir/excluir números de versículos; actualizado getBookCode con nombres correctos en español; agregado logs de error.
+  - **DailyEntry.tsx**: Cambiado logoUrl a nombreLogo; ajustado tamaño del logo a 120px; eliminado display de título y año del diario; agregado estado showNumbers con checkbox "Mostrar números de versículos" (default false); convertido botones "Escuchar" y "Recargar" a iconos circulares con tooltips; modificado fetchVerses para incluir parámetro includeNumbers; agregado logs detallados para depuración.
+  - **DailyEntryService.java**: Corregida lógica para NORMAL/DOMINGO: NORMAL envía lecturaBiblica como versiculoDiario, DOMINGO envía versiculoDiario.
+  - **DailyEntryController.java**: Agregados logs detallados de la respuesta enviada al frontend.
+  - Reiniciados servicios para aplicar cambios.
+- **Explicación del porqué se realiza el cambio:** Para resolver problemas de carga de versículos bíblicos, actualizar campos y lógica de días, mejorar la interfaz con opciones de visualización, botones intuitivos y depuración completa.
+- **Resultado esperado:** Versículos se cargan automáticamente según tipo de día, API funciona correctamente con bible-api.deno.dev, interfaz permite controlar números de versículos, botones circulares con tooltips mejoran UX, logs permiten debugging completo.
 
 ## Resumen de Desarrollo
 

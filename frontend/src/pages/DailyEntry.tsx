@@ -203,7 +203,7 @@ const DailyEntry: React.FC = () => {
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>{formatDate(data.fecha).toUpperCase()}</h2>
-          {data.diarioAnual?.nombreLogo && <img src={`http://localhost:8085/uploads/images/${data.diarioAnual.nombreLogo}`} alt="Logo del diario" style={{ width: '160px', height: '160px' }} />}
+          {data.diarioAnual?.nombreLogo && <img src={`http://localhost:8085/uploads/images/${data.diarioAnual.nombreLogo}`} alt="Logo del diario" style={{ width: '120px', height: '120px' }} />}
         </div>
 
 
@@ -278,33 +278,43 @@ const DailyEntry: React.FC = () => {
                       <option value="kjv">King James Version</option>
                     </select>
                     <button
-                      className="btn"
+                      title={isPlaying1 ? 'Detener' : 'Escuchar'}
                       onClick={() => speakVerse(verse1?.text || '', setIsPlaying1)}
                       style={{
                         backgroundColor: isPlaying1 ? '#ff4444' : '#4CAF50',
                         color: 'white',
                         border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px'
                       }}
                     >
-                      {isPlaying1 ? '⏹️ Detener' : '🔊 Escuchar'}
+                      {isPlaying1 ? '⏹️' : '🔊'}
                     </button>
                     <button
-                      className="btn"
+                      title="Recargar"
                       onClick={() => fetchVerses(data.versiculoDiario || customVerse, showNumbers)}
                       style={{
                         backgroundColor: '#2196F3',
                         color: 'white',
                         border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
                         cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px',
                         marginLeft: '10px'
                       }}
                     >
-                      🔄 Recargar
+                      🔄
                     </button>
                   </div>
                   {verse1 && (
@@ -338,33 +348,43 @@ const DailyEntry: React.FC = () => {
                       <option value="kjv">King James Version</option>
                     </select>
                     <button
-                      className="btn"
+                      title={isPlaying2 ? 'Detener' : 'Escuchar'}
                       onClick={() => speakVerse(verse2?.text || '', setIsPlaying2)}
                       style={{
                         backgroundColor: isPlaying2 ? '#ff4444' : '#4CAF50',
                         color: 'white',
                         border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px'
                       }}
                     >
-                      {isPlaying2 ? '⏹️ Detener' : '🔊 Escuchar'}
+                      {isPlaying2 ? '⏹️' : '🔊'}
                     </button>
                     <button
-                      className="btn"
+                      title="Recargar"
                       onClick={() => fetchVerses(data.versiculoDiario || customVerse, showNumbers)}
                       style={{
                         backgroundColor: '#2196F3',
                         color: 'white',
                         border: 'none',
-                        padding: '8px 12px',
-                        borderRadius: '4px',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
                         cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px',
                         marginLeft: '10px'
                       }}
                     >
-                      🔄 Recargar
+                      🔄
                     </button>
                   </div>
                   {verse2 && (
