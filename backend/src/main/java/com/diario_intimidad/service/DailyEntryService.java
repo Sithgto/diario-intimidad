@@ -89,15 +89,22 @@ public class DailyEntryService {
         return entradaDiariaRepository.findByUsuarioIdAndFechaEntradaBetween(usuarioId, start, end);
     }
 
-    public CalendarEntryResponse getTodayData(LocalDate date) {
+    public CalendarEntryResponse getTodayData(LocalDate date, Long userId) {
+        System.out.println("DailyEntryService.getTodayData called with date: " + date + ", userId: " + userId);
+        logger.info("getTodayData called with date: {}, userId: {}", date, userId);
+
         Optional<DiaMaestro> diaMaestro = getDiaMaestroForDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         if (diaMaestro.isEmpty()) {
+            logger.warn("No DiaMaestro found for date: {}", date);
             return null;
         }
+        logger.info("DiaMaestro found: {}", diaMaestro.get().getId());
 
         DiarioAnual diarioAnual = diaMaestro.get().getMesMaestro().getDiarioAnual();
+        logger.info("DiarioAnual: {}", diarioAnual.getTitulo());
 
         List<CamposDiario> camposDiario = getCamposDiarioForDiario(diarioAnual.getId());
+        logger.info("CamposDiario count: {}", camposDiario.size());
 
         CalendarEntryResponse response = new CalendarEntryResponse();
         response.setFecha(date);
@@ -118,8 +125,24 @@ public class DailyEntryService {
         response.setVersiculoDiario(versiculoReference); // Para compatibilidad
         response.setVersiculoReference(versiculoReference);
         response.setDiarioAnual(diarioAnual);
-        response.setCamposDiario(camposDiario);
+        response.setCamposDiario(camposDiarioRepository.findByDiarioAnualIdOrderByOrdenAsc(diarioAnual.getId()));
+        logger.info("CamposDiario set: {}", response.getCamposDiario().size());
 
+        // Load existing valores if any
+        if (userId != null) {
+            Optional<EntradaDiaria> existing = entradaDiariaRepository.findByUsuarioIdAndFechaEntrada(userId, date);
+            if (existing.isPresent()) {
+                List<ValoresCampo> valores = valoresCampoRepository.findByEntradaDiariaId(existing.get().getId());
+                response.setValoresCampo(valores);
+                logger.info("ValoresCampo loaded: {}", valores.size());
+            } else {
+                logger.info("No existing EntradaDiaria for userId: {}, date: {}", userId, date);
+            }
+        } else {
+            logger.warn("userId is null");
+        }
+
+        logger.info("Response ready: camposDiario={}, valoresCampo={}", response.getCamposDiario().size(), response.getValoresCampo() != null ? response.getValoresCampo().size() : 0);
         return response;
     }
 }

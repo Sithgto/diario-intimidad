@@ -37,24 +37,33 @@ const Calendario: React.FC = () => {
   const [data, setData] = useState<CalendarEntryResponse | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [entradas, setEntradas] = useState<EntradaDiaria[]>([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [entradasAnuales, setEntradasAnuales] = useState<{ [mes: number]: EntradaDiaria[] }>({});
   const [existingEntry, setExistingEntry] = useState<EntradaDiaria | null>(null);
 
   useEffect(() => {
-    fetchEntradas();
-  }, [currentYear, currentMonth]);
+    fetchEntradasAnuales();
+  }, [selectedYear]);
 
-  const fetchEntradas = async () => {
+  const fetchEntradasAnuales = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:8085/api/daily-entry/user-entries?anio=${currentYear}&mes=${currentMonth}`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const promises = [];
+      for (let mes = 1; mes <= 12; mes++) {
+        promises.push(
+          axios.get(`http://localhost:8085/api/daily-entry/user-entries?anio=${selectedYear}&mes=${mes}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(response => ({ mes, data: response.data }))
+        );
+      }
+      const results = await Promise.all(promises);
+      const nuevasEntradas: { [mes: number]: EntradaDiaria[] } = {};
+      results.forEach(({ mes, data }) => {
+        nuevasEntradas[mes] = data;
       });
-      setEntradas(response.data);
+      setEntradasAnuales(nuevasEntradas);
     } catch (error) {
-      console.error('Error fetching entradas', error);
+      console.error('Error fetching entradas anuales', error);
     }
   };
 
@@ -97,6 +106,40 @@ const Calendario: React.FC = () => {
     }
   };
 
+  const getCalendarDays = (year: number, month: number) => {
+    const firstDay = new Date(year, month - 1, 1);
+    const lastDay = new Date(year, month, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+    // Adjust for Monday as first day: if startDayOfWeek is 0 (Sunday), set to 6 (last), else subtract 1
+    const adjustedStartDay = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+
+    const days = [];
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < adjustedStartDay; i++) {
+      days.push(null);
+    }
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+    return days;
+  };
+
+  const hasEntry = (year: number, month: number, day: number) => {
+    const entradasMes = entradasAnuales[month] || [];
+    return entradasMes.some(entrada => {
+      const fecha = new Date(entrada.fechaEntrada);
+      return fecha.getFullYear() === year && fecha.getMonth() + 1 === month && fecha.getDate() === day;
+    });
+  };
+
+  const handleDayClick = (year: number, month: number, day: number) => {
+    const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    handleDateChange(dateStr);
+  };
+
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -115,20 +158,77 @@ const Calendario: React.FC = () => {
     }
   };
 
+  const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  const dayNames = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+
   return (
     <div className="app-container">
       <div className="card">
         <h2>Calendario de Entradas</h2>
 
         <div style={{ marginBottom: '20px' }}>
-          <label>Seleccionar Fecha:</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => handleDateChange(e.target.value)}
+          <label>Seleccionar Año:</label>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
             className="input"
-          />
+          >
+            <option value={selectedYear - 1}>{selectedYear - 1}</option>
+            <option value={selectedYear}>{selectedYear}</option>
+            <option value={selectedYear + 1}>{selectedYear + 1}</option>
+          </select>
         </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+          {monthNames.map((monthName, index) => {
+            const month = index + 1;
+            const days = getCalendarDays(selectedYear, month);
+            return (
+              <div key={month} style={{ border: '1px solid #ccc', padding: '10px' }}>
+                <h3 style={{ textAlign: 'center' }}>{monthName} {selectedYear}</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px', marginBottom: '10px' }}>
+                  {dayNames.map(day => (
+                    <div key={day} style={{ textAlign: 'center', fontWeight: 'bold' }}>{day}</div>
+                  ))}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px' }}>
+                  {days.map((day, dayIndex) => (
+                    <div
+                      key={dayIndex}
+                      style={{
+                        textAlign: 'center',
+                        padding: '5px',
+                        cursor: day ? 'pointer' : 'default',
+                        backgroundColor: day && hasEntry(selectedYear, month, day) ? '#d4edda' : 'transparent',
+                        border: day ? '1px solid #ddd' : 'none'
+                      }}
+                      onClick={day ? () => handleDayClick(selectedYear, month, day) : undefined}
+                    >
+                      {day}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {selectedDate && (
+          <>
+            <h3>Seleccionar Fecha: {selectedDate}</h3>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => handleDateChange(e.target.value)}
+              className="input"
+              style={{ marginBottom: '20px' }}
+            />
+          </>
+        )}
 
         {loading && <div>Cargando...</div>}
 

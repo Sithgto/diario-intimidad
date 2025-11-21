@@ -1,5 +1,6 @@
 package com.diario_intimidad.controller;
 
+import com.diario_intimidad.config.JwtUtil;
 import com.diario_intimidad.dto.CalendarEntryResponse;
 import com.diario_intimidad.dto.DailyEntryRequest;
 import com.diario_intimidad.dto.DailyEntryResponse;
@@ -8,6 +9,7 @@ import com.diario_intimidad.repository.CamposDiarioRepository;
 import com.diario_intimidad.repository.DiarioAnualRepository;
 import com.diario_intimidad.repository.MesMaestroRepository;
 import com.diario_intimidad.repository.DiaMaestroRepository;
+import com.diario_intimidad.repository.UsuarioRepository;
 import com.diario_intimidad.service.DailyEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +46,12 @@ public class DailyEntryController {
     private DiaMaestroRepository diaMaestroRepository;
 
     @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
     private CamposDiarioRepository camposDiarioRepository;
 
     @GetMapping("/diarios")
@@ -54,6 +62,7 @@ public class DailyEntryController {
 
     @GetMapping("/today")
     public ResponseEntity<CalendarEntryResponse> getTodayEntry(@RequestParam(required = false) Integer anio, @RequestParam(required = false) Integer mes, @RequestParam(required = false) Integer dia, Authentication authentication) {
+        System.out.println("DailyEntryController.getTodayEntry called");
         logger.info("Parámetros recibidos: anio={}, mes={}, dia={}, usuario={}", anio, mes, dia, authentication != null ? authentication.getName() : "null");
         LocalDate fecha;
         if (anio != null && mes != null && dia != null) {
@@ -62,9 +71,24 @@ public class DailyEntryController {
             fecha = LocalDate.now();
         }
         logger.info("Fecha construida: {}", fecha);
-        logger.info("Llamando al servicio getTodayData con fecha: {}", fecha);
 
-        CalendarEntryResponse response = dailyEntryService.getTodayData(fecha);
+        Long userId = null;
+        if (authentication != null) {
+            String username = authentication.getName();
+            logger.info("Authentication name (email): {}", username);
+            Usuario usuario = usuarioRepository.findByEmail(username).orElse(null);
+            if (usuario != null) {
+                userId = usuario.getId();
+                logger.info("Usuario found: {}", userId);
+            } else {
+                logger.warn("Usuario not found for email: {}", username);
+            }
+        } else {
+            logger.warn("Authentication is null");
+        }
+        logger.info("Llamando al servicio getTodayData con fecha: {} y userId: {}", fecha, userId);
+
+        CalendarEntryResponse response = dailyEntryService.getTodayData(fecha, userId);
         logger.info("Resultado del servicio getTodayData: {}", response != null ? "encontrado" : "null");
         if (response == null) {
             logger.info("Retornando 404 Not Found");

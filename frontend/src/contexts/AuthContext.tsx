@@ -15,15 +15,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<{ email: string; rol: string } | null>(null);
 
   useEffect(() => {
+    console.log('AuthContext: Checking stored token');
     const storedToken = localStorage.getItem('token');
+    console.log('AuthContext: Stored token present:', storedToken ? 'yes' : 'no');
     if (storedToken) {
       try {
         const decoded: any = jwtDecode(storedToken);
+        console.log('AuthContext: Decoded token:', decoded);
         setUser({ email: decoded.email, rol: decoded.rol });
+        console.log('AuthContext: User set:', { email: decoded.email, rol: decoded.rol });
       } catch (error) {
-        console.error('Token inválido:', error);
+        console.error('AuthContext: Token inválido:', error);
         logout();
       }
+    } else {
+      console.log('AuthContext: No token, user not set');
     }
   }, []);
 

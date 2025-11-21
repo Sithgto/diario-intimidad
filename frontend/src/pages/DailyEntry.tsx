@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface DailyEntryData {
   fecha: string;
@@ -11,6 +12,7 @@ interface DailyEntryData {
     anio: number;
   };
   camposDiario: CampoDiario[];
+  valoresCampo?: CampoValor[];
 }
 
 interface CampoDiario {
@@ -52,6 +54,7 @@ const formatDate = (dateString: string) => {
 };
 
 const DailyEntry: React.FC = () => {
+  console.log('DailyEntry component rendered');
   const [data, setData] = useState<DailyEntryData | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(true);
@@ -66,16 +69,19 @@ const DailyEntry: React.FC = () => {
   const [showVerseSelector, setShowVerseSelector] = useState(false);
   const [verseError, setVerseError] = useState('');
   const [showNumbers, setShowNumbers] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     // Establecer el año actual por defecto
     const currentYear = new Date().getFullYear();
+    console.log('DailyEntry: Setting selectedAnio to', currentYear);
     setSelectedAnio(currentYear);
   }, []);
 
   useEffect(() => {
-    if (selectedAnio !== null) {
-      const fetchData = async () => {
+    console.log('DailyEntry: useEffect fetch triggered');
+    const fetchData = async () => {
         const currentDate = new Date();
         const mes = currentDate.getMonth() + 1; // getMonth() es 0-based
         const dia = currentDate.getDate();
@@ -83,13 +89,17 @@ const DailyEntry: React.FC = () => {
         setLoading(true);
         try {
           const token = localStorage.getItem('token');
+          console.log('Frontend: Token from localStorage:', token ? 'present' : 'null');
           const url = `http://localhost:8085/api/daily-entry/today?anio=${selectedAnio}&mes=${mes}&dia=${dia}`;
           console.log('Frontend: Request URL:', url);
           const response = await axios.get(url, {
             headers: { Authorization: `Bearer ${token}` }
           });
-          console.log('Frontend: Daily entry response:', response.data);
-          console.log('versiculoDiario:', response.data.versiculoDiario);
+          console.log('Frontend: Daily entry response received');
+          console.log('Frontend: Response data:', response.data);
+          console.log('Frontend: versiculoDiario:', response.data.versiculoDiario);
+          console.log('Frontend: camposDiario length:', response.data.camposDiario ? response.data.camposDiario.length : 'null');
+          console.log('Frontend: valoresCampo:', response.data.valoresCampo);
           setData(response.data);
           // Inicializar valores
           const initialValores: { [key: number]: CampoValor } = {};
@@ -100,6 +110,17 @@ const DailyEntry: React.FC = () => {
               valorAudioUrl: campo.tipoEntrada === 'AUDIO' ? '' : undefined
             };
           });
+          // Load existing valores if present
+          if (response.data.valoresCampo) {
+            response.data.valoresCampo.forEach((valor: CampoValor) => {
+              initialValores[valor.campoDiarioId] = {
+                campoDiarioId: valor.campoDiarioId,
+                valorTexto: valor.valorTexto,
+                valorAudioUrl: valor.valorAudioUrl
+              };
+            });
+            setIsSaved(true);
+          }
           setValores(initialValores);
 
           // Fetch Bible verses if there's a daily verse defined
@@ -119,8 +140,13 @@ const DailyEntry: React.FC = () => {
         }
       };
       fetchData();
-    }
   }, [selectedAnio]);
+
+  // useEffect(() => {
+  //   if (!loading && data && isSaved) {
+  //     navigate('/');
+  //   }
+  // }, [loading, data, isSaved, navigate]);
 
   const fetchVerses = async (reference: string, includeNumbers: boolean = true) => {
     console.log('Frontend: Fetching verses for reference:', reference, 'translations:', translation1, translation2, 'includeNumbers:', includeNumbers);
@@ -189,9 +215,23 @@ const DailyEntry: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Entrada guardada exitosamente');
+      setIsSaved(true);
+      setHasChanges(false);
     } catch (error) {
       console.error('Error saving entry', error);
       alert('Error al guardar la entrada');
+    }
+  };
+
+  const handleFieldChange = (campoId: number, value: string, isAudioUrl?: boolean) => {
+    setValores({
+      ...valores,
+      [campoId]: isAudioUrl
+        ? { ...valores[campoId], valorAudioUrl: value }
+        : { ...valores[campoId], valorTexto: value }
+    });
+    if (isSaved) {
+      setHasChanges(true);
     }
   };
 
@@ -414,10 +454,7 @@ const DailyEntry: React.FC = () => {
               <textarea
                 className="input"
                 value={valores[campo.id]?.valorTexto || ''}
-                onChange={(e) => setValores({
-                  ...valores,
-                  [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
-                })}
+                onChange={(e) => handleFieldChange(campo.id, e.target.value)}
                 required={campo.esRequerido}
                 style={(campo.nombreCampo.includes('Oración') || campo.nombreCampo.includes('Prioridades')) ? { backgroundColor: '#e0e0e0' } : {}}
               />
@@ -428,30 +465,21 @@ const DailyEntry: React.FC = () => {
                   type="text"
                   placeholder="URL del audio"
                   value={valores[campo.id]?.valorAudioUrl || ''}
-                  onChange={(e) => setValores({
-                    ...valores,
-                    [campo.id]: { ...valores[campo.id], valorAudioUrl: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange(campo.id, e.target.value, true)}
                 />
                 <input
                   className="input"
                   type="text"
                   placeholder="Transcripción"
                   value={valores[campo.id]?.valorTexto || ''}
-                  onChange={(e) => setValores({
-                    ...valores,
-                    [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
-                  })}
+                  onChange={(e) => handleFieldChange(campo.id, e.target.value)}
                 />
               </div>
             ) : (
               <textarea
                 className="input"
                 value={valores[campo.id]?.valorTexto || ''}
-                onChange={(e) => setValores({
-                  ...valores,
-                  [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
-                })}
+                onChange={(e) => handleFieldChange(campo.id, e.target.value)}
                 required={campo.esRequerido}
                 rows={4}
               />
@@ -459,7 +487,15 @@ const DailyEntry: React.FC = () => {
           </div>
         ))}
 
-        <button className="btn" onClick={handleSave}>Guardar Entrada</button>
+        {!isSaved && (
+          <button className="btn" onClick={handleSave}>Guardar Entrada</button>
+        )}
+        {isSaved && !hasChanges && (
+          <button className="btn" onClick={() => navigate('/')}>Cerrar</button>
+        )}
+        {isSaved && hasChanges && (
+          <button className="btn" onClick={handleSave}>Actualizar</button>
+        )}
       </div>
     </div>
   );

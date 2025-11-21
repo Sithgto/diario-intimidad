@@ -2,6 +2,7 @@ package com.diario_intimidad.dto;
 
 import com.diario_intimidad.entity.CamposDiario;
 import com.diario_intimidad.entity.DiarioAnual;
+import com.diario_intimidad.entity.ValoresCampo;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,6 +15,7 @@ public class CalendarEntryResponse {
     private String versiculoReference;
     private DiarioAnual diarioAnual;
     private List<CamposDiario> camposDiario;
+    private List<ValoresCampo> valoresCampo;
 
     // Getters and setters
     public LocalDate getFecha() { return fecha; }
@@ -36,4 +38,7 @@ public class CalendarEntryResponse {
 
     public String getVersiculoReference() { return versiculoReference; }
     public void setVersiculoReference(String versiculoReference) { this.versiculoReference = versiculoReference; }
+
+    public List<ValoresCampo> getValoresCampo() { return valoresCampo; }
+    public void setValoresCampo(List<ValoresCampo> valoresCampo) { this.valoresCampo = valoresCampo; }
 }

@@ -14,11 +14,15 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Login: Attempting login with email:', email);
     try {
       const response = await axios.post('http://localhost:8085/api/auth/login', { email, password });
+      console.log('Login: Response received:', response.data);
       login(response.data.token, response.data.email, response.data.rol);
+      console.log('Login: AuthContext login called, navigating to /daily-entry');
       navigate('/daily-entry');
     } catch (error) {
+      console.error('Login: Error during login:', error);
       alert(getErrorMessage('AUTH_INVALID_CREDENTIALS'));
     }
   };
