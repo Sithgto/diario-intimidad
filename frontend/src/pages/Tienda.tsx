@@ -27,7 +27,9 @@ const Tienda: React.FC = () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/diarios-anuales`);
       const data = await response.json();
-      setDiarios(data);
+      // Ordenar por año ascendente
+      const sortedData = data.sort((a: DiarioAnual, b: DiarioAnual) => a.anio - b.anio);
+      setDiarios(sortedData);
     } catch (error) {
       console.error('Error fetching diarios:', error);
     } finally {
@@ -72,13 +74,15 @@ const Tienda: React.FC = () => {
       <div className="diarios-grid">
         {diarios.map((diario) => (
           <div key={diario.id} className="diario-card">
-            {diario.nombrePortada && (
-              <img
-                src={`/uploads/images/${diario.nombrePortada}`}
-                alt={`Portada de ${diario.titulo}`}
-                className="diario-imagen"
-              />
-            )}
+            <img
+              src={diario.nombrePortada ? `/uploads/images/${diario.nombrePortada}` : '/images/default-cover.jpg'}
+              alt={`Portada de ${diario.titulo}`}
+              className="diario-imagen"
+              onError={(e) => {
+                console.log('Image failed to load:', e.currentTarget.src);
+                e.currentTarget.src = '/images/default-cover.jpg';
+              }}
+            />
             <div className="diario-info">
               <h3>{diario.titulo}</h3>
               <p className="diario-anio">{diario.anio}</p>

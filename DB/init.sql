@@ -23,16 +23,11 @@ CREATE TABLE Diario_Anual (
     nombre_logo VARCHAR(255),
     tema_principal TEXT, -- Versículo principal del año (ej. Jeremías 32:17)
     status VARCHAR(50) NOT NULL, -- 'Desarrollo', 'Descatalogado', 'Activo'
+    precio NUMERIC(10, 2), -- Precio del diario
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Agregar columnas nuevas si no existen (para migración de esquema)
-ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS nombre_portada VARCHAR(255);
-ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS nombre_logo VARCHAR(255);
-ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Activo';
-ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE Diario_Anual ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 -- Almacena los temas y versículos por mes para un año específico
 CREATE TABLE Mes_Maestro (
     id BIGSERIAL PRIMARY KEY,
@@ -128,7 +123,18 @@ CREATE TABLE Pago (
     fecha_pago TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(50) NOT NULL, -- 'COMPLETADO', 'FALLIDO', 'PENDIENTE'
     metodo_pago VARCHAR(50)
- );
+);
+
+-- Tabla de pedidos para compras simuladas
+CREATE TABLE Pedido (
+    id BIGSERIAL PRIMARY KEY,
+    diario_id BIGINT NOT NULL REFERENCES Diario_Anual(id),
+    email VARCHAR(255) NOT NULL,
+    estado VARCHAR(50) NOT NULL, -- 'PENDIENTE', 'CONFIRMADO', 'CANCELADO'
+    token_validacion VARCHAR(255),
+    usuario_id BIGINT REFERENCES Usuario(id),
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Insertar datos de prueba
 -- Password: 'password' encriptado con BCrypt
@@ -153,7 +159,7 @@ TRUNCATE TABLE Diario_Anual CASCADE;
 
 -- 1. Asegurar la inserción del Diario Anual (Se asume ID=1)
 INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status, precio) VALUES
-(1, 2026, 'Avivamiento', '\"¡Oh Señor Jehová! He aquí que tú hiciste el cielo y la tierra con tu gran poder, y con tu brazo extendido, ni hay nada que sea dificil para ti\". Jeremías 32:17', 'Activo', 25.00)
+(1, 2026, 'Avivamiento', '\"¡Oh Señor Jehová! He aquí que tú hiciste el cielo y la tierra con tu gran poder, y con tu brazo extendido, ni hay nada que sea dificil para ti\". Jeremías 32:17', 'Activo', 12.00)
 ON CONFLICT (id) DO UPDATE SET precio = EXCLUDED.precio;
 
 -- =======================================================
@@ -846,8 +852,9 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 
 -- 1. Inserción del nuevo Diario Anual (ID = 3)
 INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status, precio) VALUES
-(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960', 'Activo', 20.00)
+(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960', 'Activo', 10.00)
 ON CONFLICT (id) DO UPDATE SET precio = EXCLUDED.precio;
+
 SELECT setval('diario_anual_id_seq', (SELECT MAX(id) FROM diario_anual));
 
 -- 2. Estructura de Campos_Diario para 2025
