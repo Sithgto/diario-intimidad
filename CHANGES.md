@@ -1,5 +1,11 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-21 - Configuración CORS para Permitir Orígenes Temporales en el Backend
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/config/SecurityConfig.java
+- **Cambios específicos realizados:** Agregadas importaciones para CorsConfiguration, CorsConfigurationSource y UrlBasedCorsConfigurationSource; modificado filterChain para incluir configuración CORS con cors().configurationSource(corsConfigurationSource()); agregado método corsConfigurationSource() que configura patrones de origen "*", métodos permitidos (GET, POST, PUT, DELETE, OPTIONS), headers "*" y allowCredentials true.
+- **Explicación del porqué se realiza el cambio:** Para resolver problemas de CORS que impiden el acceso desde el frontend al backend, permitiendo temporalmente todos los orígenes hasta configurar orígenes específicos.
+- **Resultado esperado:** Las solicitudes CORS desde el frontend al backend en puerto 3005 se permiten sin errores, facilitando el desarrollo y pruebas.
+
 ### 2025-11-20 - Corrección Completa de API Bíblica, Interfaz de Versículos, Lógica de Días, Mejoras Visuales, Botón Scroll to Top, Estilos de Campos, Gestión CRUD de Entradas Diarias y Redirección si Ya Rellenada
 - **Archivos afectados:** backend/src/main/java/com/diario_intimidad/controller/BibleController.java, frontend/src/pages/DailyEntry.tsx, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, backend/src/main/java/com/diario_intimidad/controller/DailyEntryController.java, backend/src/main/java/com/diario_intimidad/dto/CalendarEntryResponse.java, backend/src/main/java/com/diario_intimidad/repository/EntradaDiariaRepository.java, frontend/src/App.tsx, frontend/src/components/ScrollToTop.tsx, CHANGES.md
 - **Cambios específicos realizados:**

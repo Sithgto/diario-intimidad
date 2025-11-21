@@ -40,13 +40,11 @@ const Calendario: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [entradasAnuales, setEntradasAnuales] = useState<{ [mes: number]: EntradaDiaria[] }>({});
   const [existingEntry, setExistingEntry] = useState<EntradaDiaria | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
-    handleDateChange(dateStr);
     fetchEntradasAnuales();
-  }, []);
+  }, [selectedYear]);
 
   const fetchEntradasAnuales = async () => {
     try {
@@ -141,6 +139,7 @@ const Calendario: React.FC = () => {
   const handleDayClick = (year: number, month: number, day: number) => {
     const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     handleDateChange(dateStr);
+    setShowDetails(true);
   };
 
   const handleSave = async () => {
@@ -186,7 +185,7 @@ const Calendario: React.FC = () => {
           </select>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '20px' }}>
           {monthNames.map((monthName, index) => {
             const month = index + 1;
             const days = getCalendarDays(selectedYear, month);
@@ -226,96 +225,102 @@ const Calendario: React.FC = () => {
           })}
         </div>
 
-        {selectedDate && (
+        {showDetails && (
           <>
-            <h3>Seleccionar Fecha: {selectedDate}</h3>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => handleDateChange(e.target.value)}
-              className="input"
-              style={{ marginBottom: '20px' }}
-            />
-          </>
-        )}
-
-        {loading && <div>Cargando...</div>}
-
-        {data && (
-          <>
-            <h3>Entrada para {data.fecha}</h3>
-
-            {data.tipoDia === 'DOMINGO' && data.diarioAnual && (
-              <div>
-                <h4>{data.diarioAnual.titulo} - {data.diarioAnual.anio}</h4>
-                <p><strong>Versículo Diario:</strong> {data.versiculoDiario}</p>
-              </div>
+            {selectedDate && (
+              <>
+                <h3>Seleccionar Fecha: {selectedDate}</h3>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="input"
+                  style={{ marginBottom: '20px' }}
+                />
+              </>
             )}
 
-            {data.tipoDia === 'NORMAL' && data.lecturaBiblica && (
-              <div>
-                <h4>Lectura Bíblica</h4>
-                <p>{data.lecturaBiblica}</p>
-              </div>
-            )}
+            {loading && <div>Cargando...</div>}
 
-            <h4>Campos a Rellenar</h4>
-            {data.camposDiario.map(campo => (
-              <div key={campo.id} style={{ marginBottom: '15px' }}>
-                <label>{campo.nombreCampo} {campo.esRequerido ? '*' : ''}</label>
-                {campo.tipoEntrada === 'TEXTAREA' ? (
-                  <textarea
-                    className="input"
-                    value={valores[campo.id]?.valorTexto || ''}
-                    onChange={(e) => setValores({
-                      ...valores,
-                      [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
-                    })}
-                    required={campo.esRequerido}
-                  />
-                ) : campo.tipoEntrada === 'AUDIO' ? (
+            {data && (
+              <>
+                <h3>Entrada para {data.fecha}</h3>
+
+                {data.tipoDia === 'DOMINGO' && data.diarioAnual && (
                   <div>
-                    <input
-                      className="input"
-                      type="text"
-                      placeholder="URL del audio"
-                      value={valores[campo.id]?.valorAudioUrl || ''}
-                      onChange={(e) => setValores({
-                        ...valores,
-                        [campo.id]: { ...valores[campo.id], valorAudioUrl: e.target.value }
-                      })}
-                    />
-                    <input
-                      className="input"
-                      type="text"
-                      placeholder="Transcripción"
-                      value={valores[campo.id]?.valorTexto || ''}
-                      onChange={(e) => setValores({
-                        ...valores,
-                        [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
-                      })}
-                    />
+                    <h4>{data.diarioAnual.titulo} - {data.diarioAnual.anio}</h4>
+                    <p><strong>Versículo Diario:</strong> {data.versiculoDiario}</p>
                   </div>
-                ) : (
-                  <input
-                    className="input"
-                    type="text"
-                    value={valores[campo.id]?.valorTexto || ''}
-                    onChange={(e) => setValores({
-                      ...valores,
-                      [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
-                    })}
-                    required={campo.esRequerido}
-                  />
                 )}
-              </div>
-            ))}
 
-            <button className="btn" onClick={handleSave}>Guardar Entrada</button>
+                {data.tipoDia === 'NORMAL' && data.lecturaBiblica && (
+                  <div>
+                    <h4>Lectura Bíblica</h4>
+                    <p>{data.lecturaBiblica}</p>
+                  </div>
+                )}
+
+                <h4>Campos a Rellenar</h4>
+                {data.camposDiario.map(campo => (
+                  <div key={campo.id} style={{ marginBottom: '15px' }}>
+                    <label>{campo.nombreCampo} {campo.esRequerido ? '*' : ''}</label>
+                    {campo.tipoEntrada === 'TEXTAREA' ? (
+                      <textarea
+                        className="input"
+                        value={valores[campo.id]?.valorTexto || ''}
+                        onChange={(e) => setValores({
+                          ...valores,
+                          [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
+                        })}
+                        required={campo.esRequerido}
+                      />
+                    ) : campo.tipoEntrada === 'AUDIO' ? (
+                      <div>
+                        <input
+                          className="input"
+                          type="text"
+                          placeholder="URL del audio"
+                          value={valores[campo.id]?.valorAudioUrl || ''}
+                          onChange={(e) => setValores({
+                            ...valores,
+                            [campo.id]: { ...valores[campo.id], valorAudioUrl: e.target.value }
+                          })}
+                        />
+                        <input
+                          className="input"
+                          type="text"
+                          placeholder="Transcripción"
+                          value={valores[campo.id]?.valorTexto || ''}
+                          onChange={(e) => setValores({
+                            ...valores,
+                            [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
+                          })}
+                        />
+                      </div>
+                    ) : (
+                      <input
+                        className="input"
+                        type="text"
+                        value={valores[campo.id]?.valorTexto || ''}
+                        onChange={(e) => setValores({
+                          ...valores,
+                          [campo.id]: { ...valores[campo.id], valorTexto: e.target.value }
+                        })}
+                        required={campo.esRequerido}
+                      />
+                    )}
+                  </div>
+                ))}
+
+                <button className="btn" onClick={handleSave}>Guardar Entrada</button>
+              </>
+            )}
+
+            {!data && !loading && selectedDate && <div>No hay datos para la fecha seleccionada</div>}
+
+            <button className="btn" onClick={() => { setShowDetails(false); setSelectedDate(''); setData(null); }}>Ocultar Detalles</button>
           </>
         )}
-
-        {!data && !loading && selectedDate && <div>No hay datos para la fecha seleccionada</div>}
       </div>
     </div>
   );
