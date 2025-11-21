@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../constants/api';
 
 interface DailyEntryData {
   fecha: string;
@@ -91,7 +92,7 @@ const DailyEntry: React.FC = () => {
         try {
           const token = localStorage.getItem('token');
           console.log('Frontend: Token from localStorage:', token ? 'present' : 'null');
-          const url = `http://localhost:8085/api/daily-entry/today?anio=${selectedAnio}&mes=${mes}&dia=${dia}`;
+          const url = `${API_BASE_URL}/api/daily-entry/today?anio=${selectedAnio}&mes=${mes}&dia=${dia}`;
           console.log('Frontend: Request URL:', url);
           const response = await axios.get(url, {
             headers: { Authorization: `Bearer ${token}` }
@@ -161,10 +162,10 @@ const DailyEntry: React.FC = () => {
     setVerseError('');
     try {
       const [response1, response2] = await Promise.all([
-        axios.get(`http://localhost:8085/api/bible/verse/${reference}`, {
+        axios.get(`${API_BASE_URL}/api/bible/verse/${reference}`, {
           params: { translation: translation1, includeNumbers }
         }),
-        axios.get(`http://localhost:8085/api/bible/verse/${reference}`, {
+        axios.get(`${API_BASE_URL}/api/bible/verse/${reference}`, {
           params: { translation: translation2, includeNumbers }
         })
       ]);
@@ -219,7 +220,7 @@ const DailyEntry: React.FC = () => {
       const requestData = {
         valoresCampo: Object.values(valores)
       };
-      await axios.post('http://localhost:8085/api/daily-entry/save', requestData, {
+      await axios.post(`${API_BASE_URL}/api/daily-entry/save`, requestData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Entrada guardada exitosamente');
@@ -251,7 +252,7 @@ const DailyEntry: React.FC = () => {
       <div className="card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2>{formatDate(data.fecha).toUpperCase()}</h2>
-          {data.diarioAnual?.nombreLogo && <img src={`http://localhost:8085/uploads/images/${data.diarioAnual.nombreLogo}`} alt="Logo del diario" style={{ width: '120px', height: '120px' }} />}
+          {data.diarioAnual?.nombreLogo && <img src={`${API_BASE_URL}/uploads/images/${data.diarioAnual.nombreLogo}`} alt="Logo del diario" style={{ width: '120px', height: '120px' }} />}
         </div>
 
 

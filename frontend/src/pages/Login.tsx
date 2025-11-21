@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getErrorMessage } from '../constants/errors';
+import { API_BASE_URL } from '../constants/api';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login: React.FC = () => {
@@ -16,7 +17,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     console.log('Login: Attempting login with email:', email);
     try {
-      const response = await axios.post('http://localhost:8085/api/auth/login', { email, password });
+      const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
       console.log('Login: Response received:', response.data);
       login(response.data.token, response.data.email, response.data.rol);
       console.log('Login: AuthContext login called, navigating to /daily-entry');

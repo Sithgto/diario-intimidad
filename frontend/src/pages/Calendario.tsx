@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../constants/api';
 
 interface CalendarEntryResponse {
   fecha: string; // Asumiendo que se serializa como string
@@ -52,7 +53,7 @@ const Calendario: React.FC = () => {
       const promises = [];
       for (let mes = 1; mes <= 12; mes++) {
         promises.push(
-          axios.get(`http://localhost:8085/api/daily-entry/user-entries?anio=${selectedYear}&mes=${mes}`, {
+          axios.get(`${API_BASE_URL}/api/daily-entry/user-entries?anio=${selectedYear}&mes=${mes}`, {
             headers: { Authorization: `Bearer ${token}` }
           }).then(response => ({ mes, data: response.data }))
         );
@@ -80,7 +81,7 @@ const Calendario: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       console.log('Token obtenido de localStorage:', token);
-      const url = `http://localhost:8085/api/daily-entry/today?dia=${dia}&mes=${mes}&anio=${anio}`;
+      const url = `${API_BASE_URL}/api/daily-entry/today?dia=${dia}&mes=${mes}&anio=${anio}`;
       console.log('Enviando petición GET con token:', token);
       console.log('URL completa de la petición:', url);
       console.log('Headers de la petición:', { Authorization: `Bearer ${token}` });
@@ -150,7 +151,7 @@ const Calendario: React.FC = () => {
         valoresCampo: Object.values(valores)
       };
       console.log('Enviando petición POST con token:', token);
-      await axios.post('http://localhost:8085/api/daily-entry/save', requestData, {
+      await axios.post(`${API_BASE_URL}/api/daily-entry/save`, requestData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Entrada guardada exitosamente');

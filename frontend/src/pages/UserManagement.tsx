@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../contexts/AuthContext';
 import { getErrorMessage } from '../constants/errors';
+import { API_BASE_URL } from '../constants/api';
 
 interface Usuario {
   id?: number;
@@ -58,7 +59,7 @@ const UserManagement: React.FC = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await axios.get('http://localhost:8085/api/usuarios', {
+      const response = await axios.get(`${API_BASE_URL}/api/usuarios`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsuarios(response.data);
@@ -141,7 +142,7 @@ const UserManagement: React.FC = () => {
           alert('Email y contraseña son obligatorios');
           return;
         }
-        await axios.post('http://localhost:8085/api/usuarios', currentUser, {
+        await axios.post(`${API_BASE_URL}/api/usuarios`, currentUser, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else if (modalType === 'edit' || modalType === 'profile') {
@@ -153,7 +154,7 @@ const UserManagement: React.FC = () => {
         const { password, ...userToUpdate } = currentUser;
         if (password) userToUpdate.password = password; // Include password if provided
         console.log('userToUpdate:', userToUpdate);
-        await axios.put(`http://localhost:8085/api/usuarios/${currentUser.id}`, userToUpdate, {
+        await axios.put(`${API_BASE_URL}/api/usuarios/${currentUser.id}`, userToUpdate, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -169,7 +170,7 @@ const UserManagement: React.FC = () => {
     // eslint-disable-next-line no-restricted-globals
     if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
     try {
-      await axios.delete(`http://localhost:8085/api/usuarios/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/usuarios/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchUsuarios();

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE_URL } from '../constants/api';
 
 interface VerseData {
   reference: string;
@@ -29,7 +30,7 @@ const Biblia: React.FC = () => {
 
   const fetchTranslations = async () => {
     try {
-      const response = await axios.get('http://localhost:8085/api/bible/translations');
+      const response = await axios.get(`${API_BASE_URL}/api/bible/translations`);
       setTranslations(response.data);
     } catch (error) {
       console.error('Error fetching translations:', error);
@@ -51,7 +52,7 @@ const Biblia: React.FC = () => {
     setLoading(true);
     setErrorMessage('');
     try {
-      const response = await axios.get(`http://localhost:8085/api/bible/verse/${searchQuery}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/bible/verse/${searchQuery}`, {
         params: { translation: selectedTranslation }
       });
       setVerse(response.data);

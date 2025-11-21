@@ -2,7 +2,8 @@ import React, { useEffect, useState, useContext, ChangeEvent } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { useError } from '../contexts/ErrorContext';
 
-const API_BASE = 'http://localhost:8085';
+import { API_BASE_URL } from '../constants/api';
+const API_BASE = API_BASE_URL;
 
 interface DiarioAnual {
   id?: number;
