@@ -6,6 +6,7 @@ import com.diario_intimidad.entity.DiarioAnual;
 import com.diario_intimidad.entity.Pedido;
 import com.diario_intimidad.entity.Usuario;
 import com.diario_intimidad.service.DiarioAnualService;
+import com.diario_intimidad.service.EmailService;
 import com.diario_intimidad.service.PedidoService;
 import com.diario_intimidad.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class PedidoController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private EmailService emailService;
+
     @PostMapping
     public ResponseEntity<PedidoResponse> crearPedido(@RequestBody PedidoRequest request) {
         Optional<DiarioAnual> diarioOpt = diarioAnualService.findById(request.getDiarioId());
@@ -46,8 +50,13 @@ public class PedidoController {
 
         Pedido saved = pedidoService.save(pedido);
 
-        // Simular envío de email (log por ahora)
-        System.out.println("Email enviado a " + request.getEmail() + " con token: " + pedido.getTokenValidacion());
+        // Enviar email de validación
+        try {
+            emailService.enviarEmailValidacion(saved.getEmail(), saved.getTokenValidacion(), saved.getDiarioAnual().getTitulo());
+        } catch (Exception e) {
+            // Log error but don't fail the request
+            System.err.println("Error sending email: " + e.getMessage());
+        }
 
         PedidoResponse response = new PedidoResponse();
         response.setId(saved.getId());

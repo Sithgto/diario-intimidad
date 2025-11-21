@@ -10,6 +10,7 @@ import DailyEntry from './pages/DailyEntry';
 import Calendario from './pages/Calendario';
 import DiarioAnual from './pages/DiarioAnual';
 import Biblia from './pages/Biblia';
+import ValidarPedido from './pages/ValidarPedido';
 import Tienda from './pages/Tienda';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -43,6 +44,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/validar-pedido" element={<ValidarPedido />} />
             <Route path="/tienda" element={<Layout><Tienda /></Layout>} />
             <Route path="/" element={<Home />} />
             <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
