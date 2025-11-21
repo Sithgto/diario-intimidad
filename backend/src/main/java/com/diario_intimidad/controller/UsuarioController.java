@@ -37,7 +37,8 @@ public class UsuarioController {
         Optional<Usuario> usuario = usuarioService.findById(id);
         if (usuario.isPresent()) {
             // Allow if own user or admin
-            if (!authentication.getName().equals(usuario.get().getEmail()) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            Optional<Usuario> currentUser = usuarioService.findByEmail(authentication.getName());
+            if (currentUser.isEmpty() || (!currentUser.get().getId().equals(id) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))) {
                 return ResponseEntity.status(403).build();
             }
             return ResponseEntity.ok(usuario.get());
@@ -48,7 +49,13 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<?> createUsuario(@RequestBody Usuario usuario, Authentication authentication) {
-        logger.info("Attempting to create user with email: {}, authorities: {}", usuario.getEmail(), authentication.getAuthorities());
+        logger.info("Authentication in createUsuario: {}", authentication);
+        if (authentication == null) {
+            logger.warn("No authentication");
+            return ResponseEntity.status(403).body("No autenticado");
+        }
+        logger.info("Authorities: {}", authentication.getAuthorities());
+        logger.info("Attempting to create user with email: {}, by: {}, authorities: {}", usuario.getEmail(), authentication.getName(), authentication.getAuthorities());
         if (!authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             logger.warn("User creation failed: user is not admin");
             return ResponseEntity.status(403).body("No autorizado");
@@ -58,6 +65,7 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body("Email ya existe");
         }
         logger.info("Email is unique, proceeding to save user");
+        logger.info("Received user: email={}, password='{}', rol={}", usuario.getEmail(), usuario.getPassword() != null ? usuario.getPassword() : "null", usuario.getRol());
         Usuario saved = usuarioService.save(usuario);
         logger.info("User created successfully with id: {}", saved.getId());
         return ResponseEntity.ok(saved);
@@ -65,10 +73,14 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id, @RequestBody Usuario usuarioDetails, Authentication authentication) {
+        logger.info("Update request for user id: {}, by: {}, authorities: {}", id, authentication.getName(), authentication.getAuthorities());
         Optional<Usuario> usuario = usuarioService.findById(id);
         if (usuario.isPresent()) {
-            // Check if user can edit
-            if (!authentication.getName().equals(usuario.get().getEmail()) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            // Check if user can edit: own user or admin
+            Optional<Usuario> currentUser = usuarioService.findByEmail(authentication.getName());
+            logger.info("Current user found: {}, id: {}, rol: {}", currentUser.isPresent(), currentUser.map(Usuario::getId).orElse(null), currentUser.map(Usuario::getRol).orElse(null));
+            if (currentUser.isEmpty() || (!currentUser.get().getId().equals(id) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))) {
+                logger.warn("Access denied for user update");
                 return ResponseEntity.status(403).build();
             }
             usuarioDetails.setId(id);

@@ -22,8 +22,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         const decoded: any = jwtDecode(storedToken);
         console.log('AuthContext: Decoded token:', decoded);
-        setUser({ email: decoded.email, rol: decoded.rol });
-        console.log('AuthContext: User set:', { email: decoded.email, rol: decoded.rol });
+        setUser({ email: decoded.sub, rol: decoded.rol });
+        console.log('AuthContext: User set:', { email: decoded.sub, rol: decoded.rol });
       } catch (error) {
         console.error('AuthContext: Token inválido:', error);
         logout();

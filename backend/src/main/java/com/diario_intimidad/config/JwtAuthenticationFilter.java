@@ -41,32 +41,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String authorizationHeader = request.getHeader("Authorization");
-        logger.info("Request to: {} {}", request.getMethod(), requestURI);
+        logger.info("Processing request: {} {}", request.getMethod(), requestURI);
 
         String email = null;
         String jwt = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            logger.info("Authorization header present");
             jwt = authorizationHeader.substring(7);
             email = jwtUtil.extractEmail(jwt);
             logger.info("Extracted email from token: {}", email);
         } else {
-            logger.warn("No Bearer token found in Authorization header");
+            logger.info("No Authorization header");
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            logger.info("Attempting to authenticate user: {}", email);
             Optional<Usuario> usuario = usuarioService.findByEmail(email);
             if (usuario.isPresent() && jwtUtil.validateToken(jwt, email)) {
-                logger.info("User authenticated: {} with role: {}", email, usuario.get().getRol());
+                String rol = jwtUtil.extractRol(jwt);
+                logger.info("Authentication successful for: {} with role: {}", email, rol);
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        usuario.get(), null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.get().getRol())));
+                        usuario.get(), null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + rol)));
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+                logger.info("Authentication set in SecurityContext");
             } else {
-                logger.warn("User not found or token invalid for email: {}", email);
+                logger.info("Authentication failed for: {} - user present: {}, token valid: {}", email, usuario.isPresent(), jwtUtil.validateToken(jwt, email));
             }
         } else if (email == null) {
             logger.info("No email extracted, proceeding without authentication");
+        } else {
+            logger.info("Authentication already set or email null");
         }
         chain.doFilter(request, response);
     }

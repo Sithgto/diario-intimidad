@@ -76,7 +76,7 @@ public class DailyEntryController {
         if (authentication != null) {
             String username = authentication.getName();
             logger.info("Authentication name (email): {}", username);
-            Usuario usuario = usuarioRepository.findByEmail(username).orElse(null);
+            Usuario usuario = usuarioRepository.findByEmailIgnoreCase(username).orElse(null);
             if (usuario != null) {
                 userId = usuario.getId();
                 logger.info("Usuario found: {}", userId);

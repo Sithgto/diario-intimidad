@@ -31,6 +31,9 @@ public class UsuarioService {
 
     public Usuario save(Usuario usuario) {
         logger.info("Saving user with email: {}, rol: {}", usuario.getEmail(), usuario.getRol());
+        if (usuario.getPassword() == null || usuario.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         logger.info("Password encoded, saving to repository");
         Usuario saved = usuarioRepository.save(usuario);
@@ -43,7 +46,7 @@ public class UsuarioService {
     }
 
     public Optional<Usuario> findByEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+        return usuarioRepository.findByEmailIgnoreCase(email);
     }
 
     public Optional<Usuario> authenticate(LoginRequest loginRequest) {
