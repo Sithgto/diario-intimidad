@@ -71,6 +71,7 @@ const DailyEntry: React.FC = () => {
   const [showNumbers, setShowNumbers] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [currentReference, setCurrentReference] = useState<string>('');
 
   useEffect(() => {
     // Establecer el año actual por defecto
@@ -126,7 +127,8 @@ const DailyEntry: React.FC = () => {
           // Fetch Bible verses if there's a daily verse defined
           if (response.data.versiculoDiario) {
             console.log('Frontend: Calling fetchVerses for:', response.data.versiculoDiario);
-            await fetchVerses(response.data.versiculoDiario);
+            setCurrentReference(response.data.versiculoDiario);
+            await fetchVerses(response.data.versiculoDiario, showNumbers);
           } else {
             console.log('Frontend: No versiculoDiario, showing selector');
             // If no daily verse, show selector
@@ -141,6 +143,12 @@ const DailyEntry: React.FC = () => {
       };
       fetchData();
   }, [selectedAnio]);
+
+  useEffect(() => {
+    if (currentReference) {
+      fetchVerses(currentReference, showNumbers);
+    }
+  }, [showNumbers]);
 
   // useEffect(() => {
   //   if (!loading && data && isSaved) {
@@ -250,14 +258,6 @@ const DailyEntry: React.FC = () => {
         <div style={{ marginTop: '20px', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
             <h3>📖 Versículo Diario</h3>
-            <label style={{ fontSize: '14px' }}>
-              <input
-                type="checkbox"
-                checked={showNumbers}
-                onChange={(e) => setShowNumbers(e.target.checked)}
-              />
-              Mostrar números de versículos
-            </label>
             {(!verse1 || verseError) && (
               <button
                 className="btn"
@@ -297,7 +297,7 @@ const DailyEntry: React.FC = () => {
           {(data.versiculoDiario || (verse1 && verse2)) && (
             <>
               {console.log('Frontend: Rendering verses: verse1:', verse1, 'verse2:', verse2, 'data.versiculoDiario:', data.versiculoDiario)}
-              <h4>{data.versiculoDiario || customVerse}</h4>
+              <h4>{currentReference}</h4>
               <div style={{ display: 'flex', gap: '20px', marginTop: '15px' }}>
                 {/* Versión 1 */}
                 <div style={{ flex: 1, padding: '15px', border: '1px solid #ddd', borderRadius: '8px', backgroundColor: '#f9f9f9' }}>
@@ -306,7 +306,7 @@ const DailyEntry: React.FC = () => {
                       value={translation1}
                       onChange={(e) => {
                         setTranslation1(e.target.value);
-                        if (data.versiculoDiario) fetchVerses(data.versiculoDiario);
+                        fetchVerses(currentReference, showNumbers);
                       }}
                       style={{ padding: '5px', borderRadius: '4px' }}
                     >
@@ -317,45 +317,65 @@ const DailyEntry: React.FC = () => {
                       <option value="pdt">Palabra de Dios para todos</option>
                       <option value="kjv">King James Version</option>
                     </select>
-                    <button
-                      title={isPlaying1 ? 'Detener' : 'Escuchar'}
-                      onClick={() => speakVerse(verse1?.text || '', setIsPlaying1)}
-                      style={{
-                        backgroundColor: isPlaying1 ? '#ff4444' : '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px'
-                      }}
-                    >
-                      {isPlaying1 ? '⏹️' : '🔊'}
-                    </button>
-                    <button
-                      title="Recargar"
-                      onClick={() => fetchVerses(data.versiculoDiario || customVerse, showNumbers)}
-                      style={{
-                        backgroundColor: '#2196F3',
-                        color: 'white',
-                        border: 'none',
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '18px',
-                        marginLeft: '10px'
-                      }}
-                    >
-                      🔄
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button
+                        title="Mostrar/ocultar números de versículos"
+                        onClick={() => setShowNumbers(!showNumbers)}
+                        style={{
+                          backgroundColor: showNumbers ? '#4CAF50' : '#f44336',
+                          color: 'white',
+                          border: 'none',
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px'
+                        }}
+                      >
+                        {showNumbers ? '🔢' : '📄'}
+                      </button>
+                      <button
+                        title={isPlaying1 ? 'Detener' : 'Escuchar'}
+                        onClick={() => speakVerse(verse1?.text || '', setIsPlaying1)}
+                        style={{
+                          backgroundColor: isPlaying1 ? '#ff4444' : '#4CAF50',
+                          color: 'white',
+                          border: 'none',
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px'
+                        }}
+                      >
+                        {isPlaying1 ? '⏹️' : '🔊'}
+                      </button>
+                      <button
+                        title="Recargar"
+                        onClick={() => fetchVerses(currentReference, showNumbers)}
+                        style={{
+                          backgroundColor: '#2196F3',
+                          color: 'white',
+                          border: 'none',
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px'
+                        }}
+                      >
+                        🔄
+                      </button>
+                    </div>
                   </div>
                   {verse1 && (
                     <div>
@@ -376,7 +396,7 @@ const DailyEntry: React.FC = () => {
                       value={translation2}
                       onChange={(e) => {
                         setTranslation2(e.target.value);
-                        if (data.versiculoDiario) fetchVerses(data.versiculoDiario);
+                        fetchVerses(currentReference, showNumbers);
                       }}
                       style={{ padding: '5px', borderRadius: '4px' }}
                     >
@@ -408,7 +428,7 @@ const DailyEntry: React.FC = () => {
                     </button>
                     <button
                       title="Recargar"
-                      onClick={() => fetchVerses(data.versiculoDiario || customVerse, showNumbers)}
+                      onClick={() => fetchVerses(currentReference, showNumbers)}
                       style={{
                         backgroundColor: '#2196F3',
                         color: 'white',
