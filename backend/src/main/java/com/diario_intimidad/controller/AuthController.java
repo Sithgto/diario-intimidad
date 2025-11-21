@@ -33,7 +33,7 @@ public class AuthController {
         if (usuario.isPresent()) {
             logger.info("Login successful for email: {}", loginRequest.getEmail());
             String token = jwtUtil.generateToken(usuario.get().getEmail(), usuario.get().getRol().name());
-            LoginResponse response = new LoginResponse(token, usuario.get().getEmail(), usuario.get().getRol().name());
+            LoginResponse response = new LoginResponse(token, usuario.get().getEmail(), usuario.get().getRol().name(), usuario.get().getId());
             return ResponseEntity.ok(response);
         } else {
             logger.warn("Login failed for email: {}", loginRequest.getEmail());

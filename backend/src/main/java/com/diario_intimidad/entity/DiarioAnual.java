@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +36,9 @@ public class DiarioAnual {
     @Column(nullable = false)
     @NotNull
     private String status;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precio;
 
     @Column(name = "created_at")
     @CreationTimestamp
@@ -78,4 +82,7 @@ public class DiarioAnual {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public BigDecimal getPrecio() { return precio; }
+    public void setPrecio(BigDecimal precio) { this.precio = precio; }
 }

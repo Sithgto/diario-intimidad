@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
       console.log('Login: Response received:', response.data);
-      login(response.data.token, response.data.email, response.data.rol);
+      login(response.data.token, response.data.email, response.data.rol, response.data.userId);
       console.log('Login: AuthContext login called, navigating to /daily-entry');
       navigate('/daily-entry');
     } catch (error) {

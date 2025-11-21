@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/usuarios").hasRole("ADMIN")
                 .requestMatchers("/api/bible/**").permitAll()
+                .requestMatchers("/api/diarios-anuales").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/pedidos").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .anyRequest().authenticated()
             )

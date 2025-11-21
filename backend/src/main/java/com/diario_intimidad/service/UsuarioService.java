@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
@@ -47,6 +48,18 @@ public class UsuarioService {
 
     public Optional<Usuario> findByEmail(String email) {
         return usuarioRepository.findByEmailIgnoreCase(email);
+    }
+
+    public Usuario createUserFromPurchase(String email) {
+        String tempPassword = UUID.randomUUID().toString().substring(0, 8); // Password temporal
+        Usuario usuario = new Usuario();
+        usuario.setEmail(email);
+        usuario.setPassword(tempPassword);
+        usuario.setRol(Usuario.Rol.USER);
+        Usuario saved = save(usuario);
+        // Simular envío de email con password
+        System.out.println("Usuario creado: " + email + " Password temporal: " + tempPassword);
+        return saved;
     }
 
     public Optional<Usuario> authenticate(LoginRequest loginRequest) {

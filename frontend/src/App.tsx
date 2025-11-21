@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
 import { ErrorProvider } from './contexts/ErrorContext';
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaShoppingCart } from 'react-icons/fa';
 import Login from './pages/Login';
 import UserManagement from './pages/UserManagement';
 import ApiDocs from './pages/ApiDocs';
@@ -10,6 +10,7 @@ import DailyEntry from './pages/DailyEntry';
 import Calendario from './pages/Calendario';
 import DiarioAnual from './pages/DiarioAnual';
 import Biblia from './pages/Biblia';
+import Tienda from './pages/Tienda';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ErrorDisplay from './components/ErrorDisplay';
@@ -42,6 +43,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/tienda" element={<Layout><Tienda /></Layout>} />
             <Route path="/" element={<Home />} />
             <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
             <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
@@ -72,11 +74,14 @@ const Home: React.FC = () => {
           <li>Mejorar tu bienestar mental mediante la práctica regular de la escritura.</li>
         </ul>
         <p>Únete a miles de personas que han transformado sus vidas a través de la escritura diaria. ¡Comienza hoy mismo!</p>
-        {token ? (
-          <button className="btn" onClick={() => navigate('/daily-entry')}>Ir al Diario</button>
-        ) : (
-          <button className="btn" onClick={() => navigate('/login')}>Iniciar Sesión</button>
-        )}
+        <div>
+          <button className="btn" onClick={() => navigate('/tienda')}>Comprar Diario Anual</button>
+          {token ? (
+            <button className="btn" onClick={() => navigate('/daily-entry')}>Ir al Diario</button>
+          ) : (
+            <button className="btn" onClick={() => navigate('/login')}>Iniciar Sesión</button>
+          )}
+        </div>
       </div>
       <div className="hero-image">
         <div className="diary-cover">
@@ -96,6 +101,7 @@ const Home: React.FC = () => {
           <header className="header">
             <div className="header-title">Diario de Intimidad</div>
             <nav className="header-nav">
+              <Link to="/tienda" className="nav-icon"><FaShoppingCart /> Tienda</Link>
               <Link to="/login" className="nav-icon"><FaUser /> Login</Link>
             </nav>
           </header>

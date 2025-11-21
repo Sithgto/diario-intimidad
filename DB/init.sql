@@ -152,9 +152,9 @@ TRUNCATE TABLE Campos_Diario CASCADE;
 TRUNCATE TABLE Diario_Anual CASCADE;
 
 -- 1. Asegurar la inserción del Diario Anual (Se asume ID=1)
-INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status) VALUES
-(1, 2026, 'Avivamiento', '\"¡Oh Señor Jehová! He aquí que tú hiciste el cielo y la tierra con tu gran poder, y con tu brazo extendido, ni hay nada que sea dificil para ti\". Jeremías 32:17', 'Activo')
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status, precio) VALUES
+(1, 2026, 'Avivamiento', '\"¡Oh Señor Jehová! He aquí que tú hiciste el cielo y la tierra con tu gran poder, y con tu brazo extendido, ni hay nada que sea dificil para ti\". Jeremías 32:17', 'Activo', 25.00)
+ON CONFLICT (id) DO UPDATE SET precio = EXCLUDED.precio;
 
 -- =======================================================
 -- DATOS PARA ENERO (mes_id = 1)
@@ -496,9 +496,9 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 -- =======================================================
 
 -- 1. Inserción del nuevo Diario Anual (ID = 2)
-INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status) VALUES
-(2, 2027, 'Crecimiento y Multiplicación', '\"He aquí, yo hago cosa nueva; pronto saldrá a luz; ¿no la conoceréis? Otra vez abriré camino en el desierto, y ríos en la soledad.\" Isaías 43:19', 'Activo')
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status, precio) VALUES
+(2, 2027, 'Crecimiento y Multiplicación', '\"He aquí, yo hago cosa nueva; pronto saldrá a luz; ¿no la conoceréis? Otra vez abriré camino en el desierto, y ríos en la soledad.\" Isaías 43:19', 'Activo', 30.00)
+ON CONFLICT (id) DO UPDATE SET precio = EXCLUDED.precio;
 
 -- 2. Estructura de Campos_Diario para 2027 (Copiada del ID=1 y modificada)
 
@@ -845,9 +845,9 @@ ON CONFLICT (mes_id, dia_numero) DO UPDATE SET versiculo_diario = EXCLUDED.versi
 -- =======================================================
 
 -- 1. Inserción del nuevo Diario Anual (ID = 3)
-INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status) VALUES
-(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960', 'Activo')
-ON CONFLICT (id) DO NOTHING;
+INSERT INTO Diario_Anual (id, anio, titulo, tema_principal, status, precio) VALUES
+(3, 2025, 'Héroes de la Fe', '\"Prepárate para obtener tu gálardon.\" 2 Corintios 12:18b NTV, 1 Pedro 2:21 RVR 1960', 'Activo', 20.00)
+ON CONFLICT (id) DO UPDATE SET precio = EXCLUDED.precio;
 SELECT setval('diario_anual_id_seq', (SELECT MAX(id) FROM diario_anual));
 
 -- 2. Estructura de Campos_Diario para 2025
