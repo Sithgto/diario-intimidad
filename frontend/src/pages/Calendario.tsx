@@ -42,8 +42,11 @@ const Calendario: React.FC = () => {
   const [existingEntry, setExistingEntry] = useState<EntradaDiaria | null>(null);
 
   useEffect(() => {
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    handleDateChange(dateStr);
     fetchEntradasAnuales();
-  }, [selectedYear]);
+  }, []);
 
   const fetchEntradasAnuales = async () => {
     try {
@@ -183,34 +186,40 @@ const Calendario: React.FC = () => {
           </select>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
           {monthNames.map((monthName, index) => {
             const month = index + 1;
             const days = getCalendarDays(selectedYear, month);
+            const today = new Date();
+            const isCurrentMonth = selectedYear === today.getFullYear() && month === today.getMonth() + 1;
             return (
-              <div key={month} style={{ border: '1px solid #ccc', padding: '10px' }}>
+              <div key={month} style={{ border: '1px solid #ccc', padding: '5px' }}>
                 <h3 style={{ textAlign: 'center' }}>{monthName} {selectedYear}</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px', marginBottom: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', marginBottom: '5px' }}>
                   {dayNames.map(day => (
-                    <div key={day} style={{ textAlign: 'center', fontWeight: 'bold' }}>{day}</div>
+                    <div key={day} style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '12px' }}>{day}</div>
                   ))}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '5px' }}>
-                  {days.map((day, dayIndex) => (
-                    <div
-                      key={dayIndex}
-                      style={{
-                        textAlign: 'center',
-                        padding: '5px',
-                        cursor: day ? 'pointer' : 'default',
-                        backgroundColor: day && hasEntry(selectedYear, month, day) ? '#d4edda' : 'transparent',
-                        border: day ? '1px solid #ddd' : 'none'
-                      }}
-                      onClick={day ? () => handleDayClick(selectedYear, month, day) : undefined}
-                    >
-                      {day}
-                    </div>
-                  ))}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
+                  {days.map((day, dayIndex) => {
+                    const isToday = day && isCurrentMonth && day === today.getDate();
+                    return (
+                      <div
+                        key={dayIndex}
+                        style={{
+                          textAlign: 'center',
+                          padding: '3px',
+                          cursor: day ? 'pointer' : 'default',
+                          backgroundColor: isToday ? '#add8e6' : day && hasEntry(selectedYear, month, day) ? '#d4edda' : 'transparent',
+                          border: isToday ? '2px solid #007bff' : day ? '1px solid #ddd' : 'none',
+                          fontWeight: isToday ? 'bold' : 'normal'
+                        }}
+                        onClick={day ? () => handleDayClick(selectedYear, month, day) : undefined}
+                      >
+                        {day}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
