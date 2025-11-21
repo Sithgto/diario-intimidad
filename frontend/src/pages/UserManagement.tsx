@@ -8,6 +8,7 @@ interface Usuario {
   email: string;
   password?: string;
   rol: string;
+  fechaRegistro?: string;
 }
 
 const UserManagement: React.FC = () => {
@@ -18,8 +19,38 @@ const UserManagement: React.FC = () => {
   const [originalUser, setOriginalUser] = useState<Usuario | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [searchEmail, setSearchEmail] = useState('');
+  const [filterRol, setFilterRol] = useState('');
+  const [sortField, setSortField] = useState<'id' | 'email' | 'rol' | 'fechaRegistro'>('id');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const { token, user } = useContext(AuthContext)!;
   const isAdmin = user?.rol === 'ADMIN';
+
+  const handleSort = (field: 'id' | 'email' | 'rol' | 'fechaRegistro') => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const filteredUsuarios = usuarios
+    .filter(u =>
+      u.email.toLowerCase().includes(searchEmail.toLowerCase()) &&
+      (!filterRol || u.rol === filterRol)
+    )
+    .sort((a, b) => {
+      let aVal: any = a[sortField];
+      let bVal: any = b[sortField];
+      if (sortField === 'fechaRegistro') {
+        aVal = aVal ? new Date(aVal).getTime() : 0;
+        bVal = bVal ? new Date(bVal).getTime() : 0;
+      }
+      if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
 
   useEffect(() => {
     fetchUsuarios();
@@ -158,6 +189,27 @@ const UserManagement: React.FC = () => {
           </div>
         )}
 
+        {isAdmin && (
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="Buscar por email..."
+              value={searchEmail}
+              onChange={(e) => setSearchEmail(e.target.value)}
+              style={{ padding: '8px', width: '200px' }}
+            />
+            <select
+              value={filterRol}
+              onChange={(e) => setFilterRol(e.target.value)}
+              style={{ padding: '8px' }}
+            >
+              <option value="">Todos los roles</option>
+              <option value="USER">USER</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+        )}
+
         {!isAdmin && usuarios.length > 0 && (
           <div className="user-card" style={{ marginBottom: '20px' }}>
             <h3>Mi Perfil</h3>
@@ -168,20 +220,26 @@ const UserManagement: React.FC = () => {
         )}
 
         {isAdmin && (
-          <div className="user-list">
-            {usuarios.map(u => (
-              <div key={u.id} className="user-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '10px' }}>
-                <div>
-                  <p><strong>Email:</strong> {u.email}</p>
-                  <p><strong>Rol:</strong> {u.rol}</p>
-                </div>
-                <div>
-                  <button className="btn" onClick={() => openModal('edit', u)} style={{ marginRight: '10px' }}>Editar</button>
-                  <button className="btn" onClick={() => handleDelete(u.id!)} style={{ backgroundColor: 'red', color: 'white' }}>Eliminar</button>
-                </div>
-              </div>
-            ))}
-          </div>
+          <table className="user-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#f4f4f4' }}>
+                <th onClick={() => handleSort('id')} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', cursor: 'pointer' }}>ID {sortField === 'id' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+                <th onClick={() => handleSort('email')} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', cursor: 'pointer' }}>Email {sortField === 'email' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+                <th onClick={() => handleSort('rol')} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', cursor: 'pointer' }}>Rol {sortField === 'rol' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+                <th onClick={() => handleSort('fechaRegistro')} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left', cursor: 'pointer' }}>Fecha de Creación {sortField === 'fechaRegistro' && (sortDirection === 'asc' ? '↑' : '↓')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsuarios.map(u => (
+                <tr key={u.id} onClick={() => openModal('edit', u)} style={{ cursor: 'pointer', borderBottom: '1px solid #eee' }}>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{u.id}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{u.email}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{u.rol}</td>
+                  <td style={{ border: '1px solid #ddd', padding: '8px' }}>{u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString() : ''}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
 
         {showModal && (
@@ -247,6 +305,9 @@ const UserManagement: React.FC = () => {
                   </button>
                 </div>
                 <div style={{ marginTop: '20px', textAlign: 'right' }}>
+                  {modalType === 'edit' && (
+                    <button type="button" className="btn" onClick={() => { handleDelete(currentUser!.id!); closeModal(); }} style={{ backgroundColor: 'red', color: 'white', marginRight: '10px' }}>Eliminar</button>
+                  )}
                   <button type="button" className="btn" onClick={closeModal} style={{ marginRight: '10px' }}>Cancelar</button>
                   {isFormValid() && (
                     <button type="submit" className="btn">
