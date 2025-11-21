@@ -27,7 +27,13 @@ public class UsuarioController {
             return ResponseEntity.ok(usuarioService.findAll());
         } else {
             // For non-admin, return only their own user
-            Optional<Usuario> usuario = usuarioService.findByEmail(authentication.getName());
+            String currentUserEmail;
+            if (authentication.getPrincipal() instanceof Usuario) {
+                currentUserEmail = ((Usuario) authentication.getPrincipal()).getEmail();
+            } else {
+                currentUserEmail = authentication.getName();
+            }
+            Optional<Usuario> usuario = usuarioService.findByEmail(currentUserEmail);
             return usuario.map(u -> ResponseEntity.ok(List.of(u))).orElseGet(() -> ResponseEntity.ok(List.of()));
         }
     }
@@ -37,7 +43,13 @@ public class UsuarioController {
         Optional<Usuario> usuario = usuarioService.findById(id);
         if (usuario.isPresent()) {
             // Allow if own user or admin
-            Optional<Usuario> currentUser = usuarioService.findByEmail(authentication.getName());
+            String currentUserEmail;
+            if (authentication.getPrincipal() instanceof Usuario) {
+                currentUserEmail = ((Usuario) authentication.getPrincipal()).getEmail();
+            } else {
+                currentUserEmail = authentication.getName();
+            }
+            Optional<Usuario> currentUser = usuarioService.findByEmail(currentUserEmail);
             if (currentUser.isEmpty() || (!currentUser.get().getId().equals(id) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))) {
                 return ResponseEntity.status(403).build();
             }
@@ -73,11 +85,17 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Usuario> updateUsuario(@PathVariable Long id, @RequestBody Usuario usuarioDetails, Authentication authentication) {
-        logger.info("Update request for user id: {}, by: {}, authorities: {}", id, authentication.getName(), authentication.getAuthorities());
+        logger.info("Update request for user id: {}, by: {}, authorities: {}", id, authentication.getPrincipal(), authentication.getAuthorities());
         Optional<Usuario> usuario = usuarioService.findById(id);
         if (usuario.isPresent()) {
             // Check if user can edit: own user or admin
-            Optional<Usuario> currentUser = usuarioService.findByEmail(authentication.getName());
+            String currentUserEmail;
+            if (authentication.getPrincipal() instanceof Usuario) {
+                currentUserEmail = ((Usuario) authentication.getPrincipal()).getEmail();
+            } else {
+                currentUserEmail = authentication.getName();
+            }
+            Optional<Usuario> currentUser = usuarioService.findByEmail(currentUserEmail);
             logger.info("Current user found: {}, id: {}, rol: {}", currentUser.isPresent(), currentUser.map(Usuario::getId).orElse(null), currentUser.map(Usuario::getRol).orElse(null));
             if (currentUser.isEmpty() || (!currentUser.get().getId().equals(id) && !authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))) {
                 logger.warn("Access denied for user update");

@@ -534,3 +534,16 @@ docker-compose down
 
 ## Estado Final
 Proyecto completamente funcional con esquema DB completo, entidades JPA sincronizadas, gestión de usuarios por roles, logs de depuración, formulario diario diario con campos dinámicos, tema visual azul oscuro, repositorio Git en GitHub y documentación actualizada. Listo para desarrollo adicional de funcionalidades avanzadas como STT, PDFs y pagos.
+
+### 2025-11-21 - Mejoras Completas en Gestión de Usuarios: Botón Ver Contraseña, Validaciones, Aspecto Visual y Debugging de Autenticación
+- **Archivos afectados:** frontend/src/pages/UserManagement.tsx, frontend/src/contexts/AuthContext.tsx, backend/src/main/java/com/diario_intimidad/config/JwtAuthenticationFilter.java, backend/src/main/java/com/diario_intimidad/controller/UsuarioController.java, backend/src/main/java/com/diario_intimidad/service/UsuarioService.java, backend/src/main/java/com/diario_intimidad/repository/UsuarioRepository.java, backend/src/main/java/com/diario_intimidad/entity/Usuario.java
+- **Cambios específicos realizados:**
+  - **UserManagement.tsx**: Agregado estado showPassword para toggle de visibilidad de contraseña con íconos 👁️/🙈; implementada función hasChanges() para detectar modificaciones comparando campos específicos; mejorado layout del formulario con <form>, márgenes consistentes, ancho fijo sin scrollbar horizontal, campo rol redimensionado a 150px; agregado botón "Actualizar" condicional solo si hay cambios y validaciones pasan; validaciones de email (formato regex y unicidad), contraseña mínima 6 caracteres; mensajes de error para email inválido/duplicado; redimensionado modal a 400px con overflow auto.
+  - **AuthContext.tsx**: Corregido acceso a token decodificado de decoded.sub en lugar de decoded.email.
+  - **JwtAuthenticationFilter.java**: Cambiado uso de rol del token JWT en lugar del de DB para authorities; agregado logs detallados para procesamiento de requests, autenticación y errores.
+  - **UsuarioController.java**: Cambiada comparación de usuarios por ID en lugar de email para permitir actualizaciones; agregado logs en createUsuario para authorities y errores.
+  - **UsuarioService.java**: Agregada validación de password no null/vacío en save(); agregado logs en save().
+  - **UsuarioRepository.java**: Cambiado a findByEmailIgnoreCase para búsqueda case-insensitive.
+  - **Usuario.java**: Cambiado @JsonIgnore a @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) para permitir deserialización de password.
+- **Explicación del porqué se realiza el cambio:** Para resolver errores 403 en operaciones de usuarios, mejorar la UX con validaciones en tiempo real, toggle de contraseña, aspecto visual moderno, y debugging completo de autenticación.
+- **Resultado esperado:** Gestión de usuarios completamente funcional con validaciones robustas, interfaz intuitiva, operaciones CRUD seguras, logs para troubleshooting, y experiencia de usuario mejorada con feedback visual inmediato.
