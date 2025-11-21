@@ -20,7 +20,7 @@ const Header: React.FC = () => {
             <Link to="/daily-entry" className="nav-icon" title="el pasage/versiculo para leer hoy"><FaBookOpen /> Hoy</Link>
             <Link to="/users" className="nav-icon"><FaUsers /> Usuarios</Link>
             <Link to="/users" className="nav-icon"><FaUser /> {user.email}</Link>
-            <button className="nav-icon logout-btn" onClick={logout}><FaSignOutAlt /> Logout</button>
+            <button className="nav-icon logout-btn" onClick={() => { logout(); window.location.href = 'http://localhost:3005'; }}><FaSignOutAlt /> Logout</button>
           </>
         )}
         {!user && (
