@@ -68,32 +68,62 @@ const Tienda: React.FC = () => {
   return (
     <div className="tienda">
       <h1>Tienda de Diarios Anuales</h1>
+      <p>Descubre nuestros diarios espirituales para guiar tu caminar con Dios a lo largo del año.</p>
       <div className="diarios-grid">
         {diarios.map((diario) => (
           <div key={diario.id} className="diario-card">
-            <h3>{diario.titulo} - {diario.anio}</h3>
-            <p>{diario.temaPrincipal}</p>
-            <p>Precio: ${diario.precio || 'N/A'}</p>
-            <button onClick={() => setSelectedDiario(diario)}>Comprar</button>
+            {diario.nombrePortada && (
+              <img
+                src={`/uploads/images/${diario.nombrePortada}`}
+                alt={`Portada de ${diario.titulo}`}
+                className="diario-imagen"
+              />
+            )}
+            <div className="diario-info">
+              <h3>{diario.titulo}</h3>
+              <p className="diario-anio">{diario.anio}</p>
+              <p className="diario-tema">{diario.temaPrincipal}</p>
+              <p className="diario-precio">
+                Precio: {diario.precio ? `$${diario.precio}` : 'Precio no disponible'}
+              </p>
+              <button className="btn-comprar" onClick={() => setSelectedDiario(diario)}>
+                Comprar Ahora
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
       {selectedDiario && (
-        <div className="compra-form">
-          <h2>Comprar {selectedDiario.titulo}</h2>
-          <input
-            type="email"
-            placeholder="Tu email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button onClick={handleCompra}>Confirmar Compra</button>
-          <button onClick={() => setSelectedDiario(null)}>Cancelar</button>
+        <div className="compra-modal">
+          <div className="compra-content">
+            <h2>Comprar {selectedDiario.titulo}</h2>
+            {selectedDiario.nombrePortada && (
+              <img
+                src={`/uploads/images/${selectedDiario.nombrePortada}`}
+                alt={`Portada de ${selectedDiario.titulo}`}
+                className="compra-imagen"
+              />
+            )}
+            <p><strong>Año:</strong> {selectedDiario.anio}</p>
+            <p><strong>Tema:</strong> {selectedDiario.temaPrincipal}</p>
+            <p><strong>Precio:</strong> {selectedDiario.precio ? `$${selectedDiario.precio}` : 'Precio no disponible'}</p>
+            <input
+              type="email"
+              placeholder="Ingresa tu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="email-input"
+            />
+            <div className="compra-buttons">
+              <button className="btn-confirmar" onClick={handleCompra}>Confirmar Compra</button>
+              <button className="btn-cancelar" onClick={() => setSelectedDiario(null)}>Cancelar</button>
+            </div>
+          </div>
         </div>
       )}
 
-      {message && <p>{message}</p>}
+      {message && <div className="mensaje">{message}</div>}
     </div>
   );
 };
