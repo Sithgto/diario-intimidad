@@ -73,12 +73,37 @@ const DailyEntry: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [currentReference, setCurrentReference] = useState<string>('');
+  // TTS configuration states
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<string>('');
+  const [ttsRate, setTtsRate] = useState<number>(1);
+  const [ttsPitch, setTtsPitch] = useState<number>(1);
+  const [ttsVolume, setTtsVolume] = useState<number>(1);
+  const [showTtsSettings, setShowTtsSettings] = useState(false);
 
   useEffect(() => {
     // Establecer el año actual por defecto
     const currentYear = new Date().getFullYear();
     console.log('DailyEntry: Setting selectedAnio to', currentYear);
     setSelectedAnio(currentYear);
+  }, []);
+
+  useEffect(() => {
+    // Load available voices for TTS
+    const loadVoices = () => {
+      const availableVoices = speechSynthesis.getVoices();
+      setVoices(availableVoices);
+      // Set default voice to first Spanish voice if available
+      const spanishVoice = availableVoices.find(voice => voice.lang.startsWith('es'));
+      if (spanishVoice) {
+        setSelectedVoice(spanishVoice.name);
+      }
+    };
+
+    loadVoices();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
   }, []);
 
   useEffect(() => {
@@ -194,7 +219,21 @@ const DailyEntry: React.FC = () => {
       }
 
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES'; // Spanish by default
+      // Set voice if selected
+      if (selectedVoice) {
+        const voice = voices.find(v => v.name === selectedVoice);
+        if (voice) {
+          utterance.voice = voice;
+        } else {
+          utterance.lang = 'es-ES'; // Fallback to Spanish
+        }
+      } else {
+        utterance.lang = 'es-ES'; // Default Spanish
+      }
+      // Apply TTS settings
+      utterance.rate = ttsRate;
+      utterance.pitch = ttsPitch;
+      utterance.volume = ttsVolume;
 
       utterance.onend = () => {
         setPlaying(false);
@@ -268,8 +307,44 @@ const DailyEntry: React.FC = () => {
                 {showVerseSelector ? 'Ocultar' : 'Seleccionar Versículo'}
               </button>
             )}
+            <button
+              className="btn"
+              onClick={() => setShowTtsSettings(!showTtsSettings)}
+              style={{ fontSize: '14px', padding: '5px 10px' }}
+            >
+              {showTtsSettings ? 'Ocultar Voz' : 'Configurar Voz'}
+            </button>
           </div>
           {verseError && <p style={{color: 'red', marginBottom: '10px'}}>{verseError}</p>}
+
+          {showTtsSettings && (
+            <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e7f3ff', borderRadius: '5px' }}>
+              <h4>Configuración de Voz</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div>
+                  <label>Voz: </label>
+                  <select value={selectedVoice} onChange={(e) => setSelectedVoice(e.target.value)}>
+                    <option value="">Predeterminada</option>
+                    {voices.filter(v => v.lang.startsWith('es')).map(voice => (
+                      <option key={voice.name} value={voice.name}>{voice.name} ({voice.lang})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label>Velocidad: {ttsRate.toFixed(1)}</label>
+                  <input type="range" min="0.5" max="2" step="0.1" value={ttsRate} onChange={(e) => setTtsRate(parseFloat(e.target.value))} />
+                </div>
+                <div>
+                  <label>Tono: {ttsPitch.toFixed(1)}</label>
+                  <input type="range" min="0" max="2" step="0.1" value={ttsPitch} onChange={(e) => setTtsPitch(parseFloat(e.target.value))} />
+                </div>
+                <div>
+                  <label>Volumen: {ttsVolume.toFixed(1)}</label>
+                  <input type="range" min="0" max="1" step="0.1" value={ttsVolume} onChange={(e) => setTtsVolume(parseFloat(e.target.value))} />
+                </div>
+              </div>
+            </div>
+          )}
 
           {showVerseSelector && (
             <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#fff3cd', borderRadius: '5px' }}>
