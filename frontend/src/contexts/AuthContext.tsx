@@ -42,7 +42,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('userId', userId.toString());
     // Obtener diarios comprados
     try {
-      const response = await fetch(`${API_BASE_URL}/api/pedidos/usuario/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/pedidos/usuario/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const pedidos = await response.json();
       const diariosComprados = pedidos.map((p: any) => p.diarioAnual.id);
       setUser({ email, rol, userId, diariosComprados });

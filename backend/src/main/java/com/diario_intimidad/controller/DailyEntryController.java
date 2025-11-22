@@ -7,14 +7,17 @@ import com.diario_intimidad.dto.DailyEntryResponse;
 import com.diario_intimidad.entity.*;
 import com.diario_intimidad.repository.CamposDiarioRepository;
 import com.diario_intimidad.repository.DiarioAnualRepository;
+import com.diario_intimidad.repository.EntradaDiariaRepository;
 import com.diario_intimidad.repository.MesMaestroRepository;
 import com.diario_intimidad.repository.DiaMaestroRepository;
 import com.diario_intimidad.repository.UsuarioRepository;
+import com.diario_intimidad.repository.ValoresCampoRepository;
 import com.diario_intimidad.service.DailyEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -54,6 +57,12 @@ public class DailyEntryController {
     @Autowired
     private CamposDiarioRepository camposDiarioRepository;
 
+    @Autowired
+    private EntradaDiariaRepository entradaDiariaRepository;
+
+    @Autowired
+    private ValoresCampoRepository valoresCampoRepository;
+
     @GetMapping("/diarios")
     public ResponseEntity<List<DiarioAnual>> getDiariosDisponibles() {
         List<DiarioAnual> diarios = diarioAnualRepository.findAll();
@@ -74,15 +83,10 @@ public class DailyEntryController {
 
         Long userId = null;
         if (authentication != null) {
-            String username = authentication.getName();
-            logger.info("Authentication name (email): {}", username);
-            Usuario usuario = usuarioRepository.findByEmailIgnoreCase(username).orElse(null);
-            if (usuario != null) {
-                userId = usuario.getId();
-                logger.info("Usuario found: {}", userId);
-            } else {
-                logger.warn("Usuario not found for email: {}", username);
-            }
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            logger.info("Usuario autenticado: {}", usuario.getEmail());
+            userId = usuario.getId();
+            logger.info("UserId obtenido: {}", userId);
         } else {
             logger.warn("Authentication is null");
         }
@@ -103,15 +107,19 @@ public class DailyEntryController {
     }
 
     @GetMapping("/user-entries")
-    public ResponseEntity<List<EntradaDiaria>> getUserEntries(@RequestParam Integer anio, @RequestParam Integer mes, Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+    public ResponseEntity<List<EntradaDiaria>> getUserEntries(@RequestParam Integer anio, @RequestParam Integer mes, @AuthenticationPrincipal Usuario usuario) {
+        if (usuario == null) {
+            return ResponseEntity.status(401).build();
+        }
         List<EntradaDiaria> entradas = dailyEntryService.getEntradasByUsuarioAndMes(usuario.getId(), anio, mes);
         return ResponseEntity.ok(entradas);
     }
 
     @GetMapping("/entry-values/{entryId}")
-    public ResponseEntity<List<ValoresCampo>> getEntryValues(@PathVariable Long entryId, Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+    public ResponseEntity<List<ValoresCampo>> getEntryValues(@PathVariable Long entryId, @AuthenticationPrincipal Usuario usuario) {
+        if (usuario == null) {
+            return ResponseEntity.status(401).build();
+        }
         // Verificar que la entrada pertenece al usuario
         EntradaDiaria entrada = dailyEntryService.findEntradaById(entryId);
         if (entrada == null || !entrada.getUsuario().getId().equals(usuario.getId())) {
@@ -122,61 +130,108 @@ public class DailyEntryController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveEntry(@RequestBody DailyEntryRequest request, Authentication authentication) {
-        Usuario usuario = (Usuario) authentication.getPrincipal();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> saveEntry(@RequestBody DailyEntryRequest request, @AuthenticationPrincipal Usuario usuario) {
+        logger.info("saveEntry called for user: {}", usuario != null ? usuario.getEmail() : "null");
+        if (usuario == null) {
+            logger.warn("Usuario no autenticado");
+            return ResponseEntity.status(401).body("No autenticado");
+        }
 
-        // Crear EntradaDiaria
-        EntradaDiaria entrada = new EntradaDiaria();
-        entrada.setUsuario(usuario);
         LocalDate fecha = LocalDate.now();
-        entrada.setFechaEntrada(fecha);
+        logger.info("Procesando guardado para usuario {} en fecha {}", usuario.getEmail(), fecha);
 
-        // Obtener DiaMaestro para la fecha actual
-        int anio = fecha.getYear();
-        int mes = fecha.getMonthValue();
-        int dia = fecha.getDayOfMonth();
+        try {
+            // Obtener DiaMaestro para la fecha actual
+            int anio = fecha.getYear();
+            int mes = fecha.getMonthValue();
+            int dia = fecha.getDayOfMonth();
 
-        Optional<DiarioAnual> diarioOpt = diarioAnualRepository.findByAnio(anio);
-        if (diarioOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Diario anual no encontrado para el año " + anio);
-        }
-        DiarioAnual diario = diarioOpt.get();
-
-        Optional<MesMaestro> mesOpt = mesMaestroRepository.findByDiarioAnualIdAndMesNumero(diario.getId(), mes);
-        if (mesOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Mes maestro no encontrado para el mes " + mes);
-        }
-        MesMaestro mesMaestro = mesOpt.get();
-
-        Optional<DiaMaestro> diaOpt = diaMaestroRepository.findByMesMaestroIdAndDiaNumero(mesMaestro.getId(), dia);
-        if (diaOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Dia maestro no encontrado para el día " + dia);
-        }
-        DiaMaestro diaMaestro = diaOpt.get();
-
-        entrada.setDiario(diaMaestro.getMesMaestro().getDiarioAnual());
-        entrada.setDiaMaestro(diaMaestro);
-
-        entrada.setEstadoLlenado(BigDecimal.valueOf(100.0)); // Calcular basado en campos
-        entrada.setCompletado(true);
-
-        EntradaDiaria savedEntrada = dailyEntryService.saveEntradaDiaria(entrada);
-
-        // Guardar ValoresCampo
-        for (DailyEntryRequest.CampoValor cv : request.getValoresCampo()) {
-            ValoresCampo vc = new ValoresCampo();
-            vc.setEntradaDiaria(savedEntrada);
-            Optional<CamposDiario> campoOpt = camposDiarioRepository.findById(cv.getCampoDiarioId());
-            if (campoOpt.isPresent()) {
-                vc.setCamposDiario(campoOpt.get());
-            } else {
-                return ResponseEntity.badRequest().body("Campo diario no encontrado: " + cv.getCampoDiarioId());
+            Optional<DiarioAnual> diarioOpt = diarioAnualRepository.findByAnio(anio);
+            if (diarioOpt.isEmpty()) {
+                logger.warn("Diario anual no encontrado para el año {}", anio);
+                return ResponseEntity.badRequest().body("Diario anual no encontrado para el año " + anio);
             }
-            vc.setValorTexto(cv.getValorTexto());
-            vc.setValorAudioUrl(cv.getValorAudioUrl());
-            dailyEntryService.saveValoresCampo(vc);
-        }
+            DiarioAnual diario = diarioOpt.get();
+            logger.info("Diario encontrado: {} (id: {})", diario.getTitulo(), diario.getId());
 
-        return ResponseEntity.ok().build();
+            Optional<MesMaestro> mesOpt = mesMaestroRepository.findByDiarioAnualIdAndMesNumero(diario.getId(), mes);
+            if (mesOpt.isEmpty()) {
+                logger.warn("Mes maestro no encontrado para diario {} mes {}", diario.getId(), mes);
+                return ResponseEntity.badRequest().body("Mes maestro no encontrado para el mes " + mes);
+            }
+            MesMaestro mesMaestro = mesOpt.get();
+            logger.info("MesMaestro encontrado: id {}", mesMaestro.getId());
+
+            Optional<DiaMaestro> diaOpt = diaMaestroRepository.findByMesMaestroIdAndDiaNumero(mesMaestro.getId(), dia);
+            if (diaOpt.isEmpty()) {
+                logger.warn("Dia maestro no encontrado para mesMaestro {} dia {}", mesMaestro.getId(), dia);
+                return ResponseEntity.badRequest().body("Dia maestro no encontrado para el día " + dia);
+            }
+            DiaMaestro diaMaestro = diaOpt.get();
+            logger.info("DiaMaestro encontrado: id {}", diaMaestro.getId());
+
+            // Verificar si ya existe una entrada para este usuario y diaMaestro
+            logger.info("Validando existencia de EntradaDiaria: usuario={}, diaMaestro={}", usuario.getEmail(), diaMaestro.getId());
+            Optional<EntradaDiaria> existingEntrada = entradaDiariaRepository.findByUsuarioAndDiaMaestro(usuario, diaMaestro);
+            logger.info("Resultado de validación: entrada existente={}", existingEntrada.isPresent() ? "sí (id: " + existingEntrada.get().getId() + ")" : "no");
+
+            EntradaDiaria entrada;
+
+            if (existingEntrada.isPresent()) {
+                logger.info("EntradaDiaria ya existe para usuario {} y diaMaestro {}, actualizando", usuario.getEmail(), diaMaestro.getId());
+                entrada = existingEntrada.get();
+                // Eliminar valores existentes para reemplazarlos
+                List<ValoresCampo> existingValores = valoresCampoRepository.findByEntradaDiariaId(entrada.getId());
+                logger.info("Encontrados {} ValoresCampo existentes para eliminar", existingValores.size());
+                for (ValoresCampo vc : existingValores) {
+                    valoresCampoRepository.delete(vc);
+                    logger.info("Eliminado ValoresCampo id: {}", vc.getId());
+                }
+            } else {
+                logger.info("Creando nueva EntradaDiaria para usuario {} y diaMaestro {}", usuario.getEmail(), diaMaestro.getId());
+                entrada = new EntradaDiaria();
+                entrada.setUsuario(usuario);
+                entrada.setFechaEntrada(fecha);
+                entrada.setDiario(diaMaestro.getMesMaestro().getDiarioAnual());
+                entrada.setDiaMaestro(diaMaestro);
+                logger.info("DiaMaestro asignado con id: {}", diaMaestro.getId());
+            }
+
+            entrada.setEstadoLlenado(BigDecimal.valueOf(100.0)); // Calcular basado en campos
+            entrada.setCompletado(true);
+
+            logger.info("Guardando EntradaDiaria en tabla entrada_diaria");
+            EntradaDiaria savedEntrada = dailyEntryService.saveEntradaDiaria(entrada);
+            logger.info("EntradaDiaria guardada/actualizada con id: {}", savedEntrada.getId());
+
+            // Guardar ValoresCampo
+            logger.info("Guardando {} ValoresCampo en tabla valores_campo", request.getValoresCampo().size());
+            for (DailyEntryRequest.CampoValor cv : request.getValoresCampo()) {
+                logger.info("Procesando CampoValor: campoDiarioId={}, valorTexto={}, valorAudioUrl={}",
+                    cv.getCampoDiarioId(), cv.getValorTexto(), cv.getValorAudioUrl());
+                ValoresCampo vc = new ValoresCampo();
+                vc.setEntradaDiaria(savedEntrada);
+                Optional<CamposDiario> campoOpt = camposDiarioRepository.findById(cv.getCampoDiarioId());
+                if (campoOpt.isPresent()) {
+                    vc.setCamposDiario(campoOpt.get());
+                    logger.info("CampoDiario encontrado: {} (id: {})", campoOpt.get().getNombreCampo(), campoOpt.get().getId());
+                } else {
+                    logger.warn("Campo diario no encontrado: {}", cv.getCampoDiarioId());
+                    return ResponseEntity.badRequest().body("Campo diario no encontrado: " + cv.getCampoDiarioId());
+                }
+                vc.setValorTexto(cv.getValorTexto());
+                vc.setValorAudioUrl(cv.getValorAudioUrl());
+                ValoresCampo savedVc = dailyEntryService.saveValoresCampo(vc);
+                logger.info("ValoresCampo guardado con id: {}", savedVc.getId());
+            }
+
+            logger.info("saveEntry completado exitosamente para usuario {}", usuario.getEmail());
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            logger.error("Error al guardar entrada diaria para usuario {}: {}", usuario.getEmail(), e.getMessage(), e);
+            return ResponseEntity.status(500).body("Error interno del servidor al guardar la entrada diaria");
+        }
     }
 }

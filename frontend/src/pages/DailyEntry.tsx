@@ -59,7 +59,7 @@ const DailyEntry: React.FC = () => {
   const [data, setData] = useState<DailyEntryData | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(true);
-  const [selectedAnio, setSelectedAnio] = useState<number | null>(null);
+  const [selectedAnio, setSelectedAnio] = useState<number | null>(new Date().getFullYear());
   const [verse1, setVerse1] = useState<VerseData | null>(null);
   const [verse2, setVerse2] = useState<VerseData | null>(null);
   const [translation1, setTranslation1] = useState('rv1960');
@@ -139,9 +139,9 @@ const DailyEntry: React.FC = () => {
           });
           // Load existing valores if present
           if (response.data.valoresCampo) {
-            response.data.valoresCampo.forEach((valor: CampoValor) => {
-              initialValores[valor.campoDiarioId] = {
-                campoDiarioId: valor.campoDiarioId,
+            response.data.valoresCampo.forEach((valor: any) => {
+              initialValores[valor.camposDiario.id] = {
+                campoDiarioId: valor.camposDiario.id,
                 valorTexto: valor.valorTexto,
                 valorAudioUrl: valor.valorAudioUrl
               };
@@ -254,6 +254,19 @@ const DailyEntry: React.FC = () => {
   };
 
   const handleSave = async () => {
+    // Validar campos requeridos
+    const requiredFields = data.camposDiario.filter(campo => campo.esRequerido);
+    const missingFields = requiredFields.filter(campo => {
+      const valor = valores[campo.id];
+      return !valor || (!valor.valorTexto && !valor.valorAudioUrl);
+    });
+
+    if (missingFields.length > 0) {
+      const fieldNames = missingFields.map(campo => campo.nombreCampo).join(', ');
+      alert(`Por favor, complete los siguientes campos obligatorios: ${fieldNames}`);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
       const requestData = {

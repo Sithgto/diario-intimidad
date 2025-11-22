@@ -1,6 +1,8 @@
 package com.diario_intimidad.repository;
 
+import com.diario_intimidad.entity.DiaMaestro;
 import com.diario_intimidad.entity.EntradaDiaria;
+import com.diario_intimidad.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
@@ -15,5 +17,7 @@ public interface EntradaDiariaRepository extends JpaRepository<EntradaDiaria, Lo
     List<EntradaDiaria> findByUsuarioIdAndFechaEntradaBetween(Long usuarioId, java.time.LocalDate start, java.time.LocalDate end);
 
     Optional<EntradaDiaria> findByUsuarioIdAndFechaEntrada(Long usuarioId, LocalDate fechaEntrada);
+
+    Optional<EntradaDiaria> findByUsuarioAndDiaMaestro(Usuario usuario, DiaMaestro diaMaestro);
 
 }

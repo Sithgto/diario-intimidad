@@ -33,6 +33,9 @@ public class DailyEntryService {
     private ValoresCampoRepository valoresCampoRepository;
 
     @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
     private MesMaestroRepository mesMaestroRepository;
 
     public Optional<DiaMaestro> getDiaMaestroForToday() {
@@ -129,17 +132,23 @@ public class DailyEntryService {
         logger.info("CamposDiario set: {}", response.getCamposDiario().size());
 
         // Load existing valores if any
-        if (userId != null) {
-            Optional<EntradaDiaria> existing = entradaDiariaRepository.findByUsuarioIdAndFechaEntrada(userId, date);
-            if (existing.isPresent()) {
-                List<ValoresCampo> valores = valoresCampoRepository.findByEntradaDiariaId(existing.get().getId());
-                response.setValoresCampo(valores);
-                logger.info("ValoresCampo loaded: {}", valores.size());
+        if (userId != null && diaMaestro.isPresent()) {
+            // Find existing entry by usuario and diaMaestro to ensure uniqueness
+            Usuario usuario = usuarioRepository.findById(userId).orElse(null);
+            if (usuario != null) {
+                Optional<EntradaDiaria> existing = entradaDiariaRepository.findByUsuarioAndDiaMaestro(usuario, diaMaestro.get());
+                if (existing.isPresent()) {
+                    List<ValoresCampo> valores = valoresCampoRepository.findByEntradaDiariaId(existing.get().getId());
+                    response.setValoresCampo(valores);
+                    logger.info("ValoresCampo loaded: {}", valores.size());
+                } else {
+                    logger.info("No existing EntradaDiaria for userId: {}, diaMaestro: {}", userId, diaMaestro.get().getId());
+                }
             } else {
-                logger.info("No existing EntradaDiaria for userId: {}, date: {}", userId, date);
+                logger.warn("Usuario not found for userId: {}", userId);
             }
         } else {
-            logger.warn("userId is null");
+            logger.warn("userId is null or diaMaestro not present");
         }
 
         logger.info("Response ready: camposDiario={}, valoresCampo={}", response.getCamposDiario().size(), response.getValoresCampo() != null ? response.getValoresCampo().size() : 0);
