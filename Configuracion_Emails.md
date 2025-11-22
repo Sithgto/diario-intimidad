@@ -4,53 +4,99 @@
 
 Este documento proporciona una guía completa para configurar, probar y documentar el sistema de envío de correos de validación en la tienda de diarios anuales del proyecto "Diario de Intimidad".
 
+## 🚀 INICIO RÁPIDO
+
+```bash
+# 1. Copiar template de variables
+cp .env.example .env
+
+# 2. Configurar Mailjet (ya está activado por defecto)
+# - Ve a https://www.mailjet.com/ y crea cuenta gratuita
+# - Ve a Account > SMTP Settings
+# - Copia API Key y Secret Key
+# - Reemplaza en .env: MAIL_USERNAME=tu_api_key, MAIL_PASSWORD=tu_secret_key
+
+# 3. Levantar aplicación
+docker-compose up --build
+
+# 4. Verificar configuración
+docker-compose exec backend env | findstr MAIL
+
+# 5. Probar envío de email (opción rápida)
+./test_email.sh tu_email@ejemplo.com
+
+# O manualmente:
+curl -X POST "http://localhost:8085/api/pedidos" \
+  -H "Content-Type: application/json" \
+  -d '{"diarioId": 1, "email": "tu_email@ejemplo.com"}'
+
+# 6. Verificar logs
+docker-compose logs backend | findstr "Error sending email"
+# Si no hay errores, el email se envió correctamente
+```
+
 ## 📋 PASO A PASO: CONFIGURACIÓN, PRUEBA Y DOCUMENTACIÓN
 
 ### 1. **CONFIGURACIÓN DEL SERVIDOR DE EMAIL**
 
-#### Opción A: Mailtrap (Recomendado para desarrollo)
+#### Opción A: Mailjet (Recomendado - envío real)
+```bash
+# 1. Ve a https://www.mailjet.com/ y crea cuenta gratuita
+# 2. Ve a Account > SMTP Settings
+# 3. Copia API Key y Secret Key
+# 4. Configura en .env:
+#    MAIL_USERNAME=tu_api_key
+#    MAIL_PASSWORD=tu_secret_key
+```
+
+#### Opción B: Mailtrap (Para testing - emails no se envían realmente)
 ```bash
 # 1. Ve a https://mailtrap.io y crea cuenta gratuita
 # 2. Crea un inbox de prueba
 # 3. Ve a Settings > SMTP Settings
-# 4. Copia las credenciales
+# 4. Copia USERNAME y PASSWORD
 ```
 
-#### Opción B: Gmail (Para producción)
+#### Opción C: Gmail (Para producción)
 ```bash
-# 1. Habilita "Acceso de aplicaciones menos seguras" en Gmail
-# 2. O usa "Contraseñas de aplicación" si tienes 2FA
+# 1. Genera "Contraseña de aplicación" en Gmail
+# 2. Configura MAIL_HOST=smtp.gmail.com
 ```
 
 ### 2. **CONFIGURACIÓN DE VARIABLES DE ENTORNO**
 
-#### Para Docker Compose:
-Edita tu `docker-compose.yml` y agrega las variables:
-
-```yaml
-services:
-  backend:
-    environment:
-      - MAIL_HOST=smtp.mailtrap.io
-      - MAIL_PORT=2525
-      - MAIL_USERNAME=tu_usuario_mailtrap
-      - MAIL_PASSWORD=tu_password_mailtrap
-      # O para Gmail:
-      # - MAIL_HOST=smtp.gmail.com
-      # - MAIL_PORT=587
-      # - MAIL_USERNAME=tu_email@gmail.com
-      # - MAIL_PASSWORD=tu_password_o_app_password
-```
-
-#### Para desarrollo local:
-Crea un archivo `.env` en la raíz del proyecto backend:
+#### Archivo .env (Recomendado):
+Ya está creado el archivo `.env` en la raíz del proyecto con toda la configuración:
 
 ```env
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=tu_usuario
-MAIL_PASSWORD=tu_password
+# Configuración de Email (desarrollo/producción con Mailjet)
+MAIL_HOST=in-v3.mailjet.com
+MAIL_PORT=587
+MAIL_USERNAME=tu_api_key_mailjet
+MAIL_PASSWORD=tu_secret_key_mailjet
+
+# Para Gmail (descomenta y configura):
+# MAIL_HOST=smtp.gmail.com
+# MAIL_PORT=587
+# MAIL_USERNAME=tu_email@gmail.com
+# MAIL_PASSWORD=tu_app_password
 ```
+
+#### Docker Compose:
+El `docker-compose.yml` ya está configurado para usar las variables del `.env`:
+
+```yaml
+backend:
+  environment:
+    # ... otras variables ...
+    MAIL_HOST: ${MAIL_HOST}
+    MAIL_PORT: ${MAIL_PORT}
+    MAIL_USERNAME: ${MAIL_USERNAME}
+    MAIL_PASSWORD: ${MAIL_PASSWORD}
+```
+
+#### Para desarrollo local (sin Docker):
+Si ejecutas el backend directamente con Maven/Gradle, crea `.env` en `backend/` o configura las variables del sistema.
 
 ### 3. **LEVANTAR LA APLICACIÓN**
 
@@ -70,9 +116,11 @@ docker-compose up --build
 # Ver logs del backend
 docker-compose logs backend
 
-# Busca líneas como:
-# "JavaMail version 1.6.2"
-# "Mail server connection successful"
+# Verificar variables de entorno
+docker-compose exec backend env | findstr MAIL
+
+# Buscar errores de email en logs
+docker-compose logs backend | findstr "mail\|email\|Error sending"
 ```
 
 #### Prueba 2: Simular una compra
@@ -251,6 +299,44 @@ telnet smtp.mailtrap.io 2525
 docker-compose exec backend env | grep MAIL
 ```
 
+#### Problema: Error de dependencias Maven (mailjet-rest)
+```bash
+# Solución: Limpiar cache de Maven y reconstruir
+./clean_maven_cache.sh
+./rebuild_and_test.sh
+
+# O manualmente:
+docker-compose down
+docker system prune -f
+docker volume prune -f
+docker-compose build --no-cache --pull
+docker-compose up -d
+```
+
+#### Problema: "Authentication failed" con Mailjet
+```bash
+# Verificar credenciales:
+# 1. Ve a https://app.mailjet.com/account/api_keys
+# 2. Confirma que API Key y Secret Key son correctos
+# 3. Verifica que la cuenta esté activada (no suspendida)
+# 4. Revisa límites de envío (Mailjet tiene límites gratuitos)
+```
+
+#### Problema: "Authentication failed" con Gmail
+```bash
+# Solución para Gmail con 2FA:
+# 1. Ve a https://myaccount.google.com/security
+# 2. Activa "Verificación en 2 pasos"
+# 3. Ve a "Contraseñas de aplicaciones"
+# 4. Genera una contraseña para "Correo"
+# 5. Usa esa contraseña (16 caracteres) en MAIL_PASSWORD
+
+# Solución para Gmail sin 2FA:
+# 1. Ve a https://myaccount.google.com/security
+# 2. Activa "Acceso de aplicaciones menos seguras"
+# 3. Usa tu contraseña normal de Gmail
+```
+
 #### Problema: Emails llegan a spam
 - Configura SPF records
 - Usa dominio personalizado
@@ -264,7 +350,11 @@ docker-compose exec backend env | grep MAIL
 
 ## 📁 Estructura de Archivos Modificados
 
+.env                                # Variables de entorno (NO subir a git)
+.env.example                        # Template de variables (sí subir a git)
+docker-compose.yml                  # Configurado para usar variables de .env
 ```
+
 backend/
 ├── pom.xml                           # Agregada dependencia spring-boot-starter-mail
 ├── src/main/resources/
@@ -291,6 +381,9 @@ frontend/
 DB/
 └── init.sql                         # Tabla pedido y campo precio
 
+test_email.sh                        # Script para probar envío de emails
+rebuild_and_test.sh                  # Script para reconstruir con Mailjet
+clean_maven_cache.sh                 # Script para limpiar cache de Maven
 Configuracion_Emails.md              # Este documento
 ```
 
@@ -298,20 +391,23 @@ Configuracion_Emails.md              # Este documento
 
 - **Spring Boot Mail:** `spring-boot-starter-mail`
 - **JavaMail:** Incluido en spring-boot-starter-mail
+- **Proveedor:** Mailjet SMTP
 - **Protocolo:** SMTP con STARTTLS
-- **Plantillas:** Texto plano (se puede mejorar a HTML)
+- **Plantillas:** HTML profesional + texto plano
+- **Características:** Envío real, deliverability alta, dashboard
 
 ## ✅ Checklist de Implementación
 
-- [x] Dependencia de email agregada
-- [x] Configuración SMTP implementada
-- [x] Servicio de email creado
-- [x] Integración en controlador de pedidos
+- [x] Configuración Mailjet SMTP implementada
+- [x] Servicio de email actualizado con HTML profesional
+- [x] Emails de validación con diseño responsive
+- [x] Integración JavaMail con Mailjet
+- [x] Variables de entorno configuradas
 - [x] Página de validación frontend
 - [x] Ruta de validación agregada
-- [x] Documentación completa
-- [x] Guía de testing detallada
-- [x] Troubleshooting incluido
+- [x] Scripts de testing y reconstrucción
+- [x] Documentación completa actualizada
+- [x] Guía de troubleshooting para Mailjet
 
 ---
 

@@ -9,6 +9,7 @@ import com.diario_intimidad.service.DiarioAnualService;
 import com.diario_intimidad.service.EmailService;
 import com.diario_intimidad.service.PedidoService;
 import com.diario_intimidad.service.UsuarioService;
+// import com.mailjet.client.errors.MailjetException; // Se activará cuando las dependencias se descarguen
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +56,7 @@ public class PedidoController {
             emailService.enviarEmailValidacion(saved.getEmail(), saved.getTokenValidacion(), saved.getDiarioAnual().getTitulo());
         } catch (Exception e) {
             // Log error but don't fail the request
-            System.err.println("Error sending email: " + e.getMessage());
+            System.err.println("Error sending email via Mailjet: " + e.getMessage());
         }
 
         PedidoResponse response = new PedidoResponse();
