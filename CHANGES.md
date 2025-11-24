@@ -1,5 +1,15 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-24 - Actualización de PostgreSQL a Versión 17, Driver JDBC Compatible y Revisión de Dependencias Futuras
+- **Archivos afectados:** docker-compose.yml, backend/pom.xml, backend/src/main/resources/application.properties, CHANGES.md
+- **Cambios específicos realizados:**
+  - **docker-compose.yml**: Actualizada imagen de PostgreSQL de `postgres:13` a `postgres:17` para usar la versión más reciente con mejoras de rendimiento y seguridad.
+  - **backend/pom.xml**: Actualizada dependencia del driver JDBC de PostgreSQL de versión implícita (42.6.0) a `42.7.3` para compatibilidad completa con PostgreSQL 17.
+  - **backend/src/main/resources/application.properties**: Verificado dialecto de Hibernate (mantenido como `PostgreSQLDialect` ya que es compatible con PostgreSQL 17).
+  - **CHANGES.md**: Documentados todos los cambios realizados y recomendaciones para futuras actualizaciones de dependencias.
+- **Explicación del porqué se realiza el cambio:** Para actualizar la base de datos a PostgreSQL 17 aprovechando sus mejoras de rendimiento, seguridad y nuevas características, asegurando compatibilidad completa con el driver JDBC actualizado y preparando el proyecto para futuras mejoras de dependencias.
+- **Resultado esperado:** Base de datos PostgreSQL 17 funcionando correctamente con el driver JDBC compatible, mejor rendimiento y estabilidad, y documentación completa de cambios realizados y recomendaciones futuras.
+
 ### 2025-11-21 - Configuración CORS para Permitir Orígenes Temporales en el Backend y Actualización de URLs de API en el Frontend
 - **Archivos afectados:** backend/src/main/java/com/diario_intimidad/config/SecurityConfig.java, frontend/src/constants/api.ts, frontend/src/pages/Login.tsx, frontend/src/pages/UserManagement.tsx, frontend/src/pages/DiarioAnual.tsx, frontend/src/pages/DailyEntry.tsx, frontend/src/pages/Calendario.tsx, frontend/src/pages/Biblia.tsx
 - **Cambios específicos realizados:**
