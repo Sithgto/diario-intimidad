@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API_BASE_URL } from '../constants/api';
 
 interface CalendarEntryResponse {
@@ -36,11 +36,15 @@ interface EntradaDiaria {
 
 const Calendario: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [data, setData] = useState<CalendarEntryResponse | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState(() => {
+    const yearParam = searchParams.get('year');
+    return yearParam ? parseInt(yearParam) : new Date().getFullYear();
+  });
   const [entradasAnuales, setEntradasAnuales] = useState<{ [mes: number]: EntradaDiaria[] }>({});
   const [existingEntry, setExistingEntry] = useState<EntradaDiaria | null>(null);
   const [showDetails, setShowDetails] = useState(false);
