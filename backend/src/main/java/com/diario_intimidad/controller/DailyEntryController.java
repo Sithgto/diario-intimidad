@@ -138,7 +138,7 @@ public class DailyEntryController {
             return ResponseEntity.status(401).body("No autenticado");
         }
 
-        LocalDate fecha = LocalDate.now();
+        LocalDate fecha = request.getFecha() != null ? LocalDate.parse(request.getFecha()) : LocalDate.now();
         logger.info("Procesando guardado para usuario {} en fecha {}", usuario.getEmail(), fecha);
 
         try {

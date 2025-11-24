@@ -3,6 +3,7 @@ package com.diario_intimidad.dto;
 import java.util.List;
 
 public class DailyEntryRequest {
+    private String fecha;
     private List<CampoValor> valoresCampo;
 
     public static class CampoValor {
@@ -22,6 +23,9 @@ public class DailyEntryRequest {
     }
 
     // Getters and setters
+    public String getFecha() { return fecha; }
+    public void setFecha(String fecha) { this.fecha = fecha; }
+
     public List<CampoValor> getValoresCampo() { return valoresCampo; }
     public void setValoresCampo(List<CampoValor> valoresCampo) { this.valoresCampo = valoresCampo; }
 }

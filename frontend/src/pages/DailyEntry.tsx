@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API_BASE_URL } from '../constants/api';
 
 interface DailyEntryData {
@@ -56,6 +56,8 @@ const formatDate = (dateString: string) => {
 
 const DailyEntry: React.FC = () => {
   console.log('DailyEntry component rendered');
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
   const [data, setData] = useState<DailyEntryData | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
   const [loading, setLoading] = useState(true);
@@ -109,15 +111,25 @@ const DailyEntry: React.FC = () => {
   useEffect(() => {
     console.log('DailyEntry: useEffect fetch triggered');
     const fetchData = async () => {
-        const currentDate = new Date();
-        const mes = currentDate.getMonth() + 1; // getMonth() es 0-based
-        const dia = currentDate.getDate();
-        console.log('Frontend: Fetching daily entry for anio:', selectedAnio, 'mes:', mes, 'dia:', dia);
+        let anio: number, mes: number, dia: number;
+        if (dateParam) {
+          const [y, m, d] = dateParam.split('-').map(Number);
+          anio = y;
+          mes = m;
+          dia = d;
+          setSelectedAnio(anio);
+        } else {
+          const currentDate = new Date();
+          anio = selectedAnio || currentDate.getFullYear();
+          mes = currentDate.getMonth() + 1; // getMonth() es 0-based
+          dia = currentDate.getDate();
+        }
+        console.log('Frontend: Fetching daily entry for anio:', anio, 'mes:', mes, 'dia:', dia);
         setLoading(true);
         try {
           const token = localStorage.getItem('token');
           console.log('Frontend: Token from localStorage:', token ? 'present' : 'null');
-          const url = `${API_BASE_URL}/api/daily-entry/today?anio=${selectedAnio}&mes=${mes}&dia=${dia}`;
+          const url = `${API_BASE_URL}/api/daily-entry/today?anio=${anio}&mes=${mes}&dia=${dia}`;
           console.log('Frontend: Request URL:', url);
           const response = await axios.get(url, {
             headers: { Authorization: `Bearer ${token}` }
@@ -168,7 +180,7 @@ const DailyEntry: React.FC = () => {
         }
       };
       fetchData();
-  }, [selectedAnio]);
+  }, [selectedAnio, dateParam]);
 
   useEffect(() => {
     if (currentReference) {
@@ -270,6 +282,7 @@ const DailyEntry: React.FC = () => {
     try {
       const token = localStorage.getItem('token');
       const requestData = {
+        fecha: data.fecha,
         valoresCampo: Object.values(valores)
       };
       await axios.post(`${API_BASE_URL}/api/daily-entry/save`, requestData, {
@@ -297,7 +310,7 @@ const DailyEntry: React.FC = () => {
   };
 
   if (loading) return <div>Cargando...</div>;
-  if (!data) return <div>No hay datos para hoy. Verifica que haya un diario configurado para el año {selectedAnio}.</div>;
+  if (!data) return <div>No hay datos para la fecha seleccionada. Verifica que haya un diario configurado para el año {selectedAnio}.</div>;
 
   return (
     <div className="app-container">
@@ -600,7 +613,7 @@ const DailyEntry: React.FC = () => {
           <button className="btn" onClick={handleSave}>Guardar Entrada</button>
         )}
         {isSaved && !hasChanges && (
-          <button className="btn" onClick={() => navigate('/')}>Cerrar</button>
+          <button className="btn" onClick={() => navigate('/calendario')}>Cerrar</button>
         )}
         {isSaved && hasChanges && (
           <button className="btn" onClick={handleSave}>Actualizar</button>

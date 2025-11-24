@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,8 +99,18 @@ public class DailyEntryService {
 
         Optional<DiaMaestro> diaMaestro = getDiaMaestroForDate(date.getYear(), date.getMonthValue(), date.getDayOfMonth());
         if (diaMaestro.isEmpty()) {
-            logger.warn("No DiaMaestro found for date: {}", date);
-            return null;
+            logger.warn("No DiaMaestro found for date: {}, showing default verse", date);
+            // Para fechas sin DiaMaestro, devolver response con versículo por defecto
+            CalendarEntryResponse response = new CalendarEntryResponse();
+            response.setFecha(date);
+            response.setTipoDia("NORMAL");
+            response.setLecturaBiblica(null);
+            response.setVersiculoDiario("Juan 3:16");
+            response.setVersiculoReference("Juan 3:16");
+            response.setDiarioAnual(null);
+            response.setCamposDiario(new ArrayList<>()); // vacío
+            response.setValoresCampo(null);
+            return response;
         }
         logger.info("DiaMaestro found: {}", diaMaestro.get().getId());
 
@@ -122,8 +133,8 @@ public class DailyEntryService {
         } else {
             versiculoReference = diaMaestro.get().getVersiculoDiario();
         }
-        if (versiculoReference == null) {
-            versiculoReference = "";
+        if (versiculoReference == null || versiculoReference.isEmpty()) {
+            versiculoReference = "Juan 3:16";
         }
         response.setVersiculoDiario(versiculoReference); // Para compatibilidad
         response.setVersiculoReference(versiculoReference);

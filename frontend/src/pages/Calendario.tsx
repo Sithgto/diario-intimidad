@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../constants/api';
 
 interface CalendarEntryResponse {
@@ -34,6 +35,7 @@ interface EntradaDiaria {
 }
 
 const Calendario: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [data, setData] = useState<CalendarEntryResponse | null>(null);
   const [valores, setValores] = useState<{ [key: number]: CampoValor }>({});
@@ -139,8 +141,7 @@ const Calendario: React.FC = () => {
 
   const handleDayClick = (year: number, month: number, day: number) => {
     const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    handleDateChange(dateStr);
-    setShowDetails(true);
+    navigate(`/daily-entry?date=${dateStr}`);
   };
 
   const handleSave = async () => {
