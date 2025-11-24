@@ -23,7 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -181,13 +183,6 @@ public class DailyEntryController {
             if (existingEntrada.isPresent()) {
                 logger.info("EntradaDiaria ya existe para usuario {} y diaMaestro {}, actualizando", usuario.getEmail(), diaMaestro.getId());
                 entrada = existingEntrada.get();
-                // Eliminar valores existentes para reemplazarlos
-                List<ValoresCampo> existingValores = valoresCampoRepository.findByEntradaDiariaId(entrada.getId());
-                logger.info("Encontrados {} ValoresCampo existentes para eliminar", existingValores.size());
-                for (ValoresCampo vc : existingValores) {
-                    valoresCampoRepository.delete(vc);
-                    logger.info("Eliminado ValoresCampo id: {}", vc.getId());
-                }
             } else {
                 logger.info("Creando nueva EntradaDiaria para usuario {} y diaMaestro {}", usuario.getEmail(), diaMaestro.getId());
                 entrada = new EntradaDiaria();
@@ -205,25 +200,53 @@ public class DailyEntryController {
             EntradaDiaria savedEntrada = dailyEntryService.saveEntradaDiaria(entrada);
             logger.info("EntradaDiaria guardada/actualizada con id: {}", savedEntrada.getId());
 
-            // Guardar ValoresCampo
-            logger.info("Guardando {} ValoresCampo en tabla valores_campo", request.getValoresCampo().size());
+            // Actualizar ValoresCampo de manera eficiente
+            logger.info("Actualizando {} ValoresCampo para entrada {}", request.getValoresCampo().size(), savedEntrada.getId());
+            List<ValoresCampo> existingValores = valoresCampoRepository.findByEntradaDiariaId(savedEntrada.getId());
+            logger.info("Encontrados {} ValoresCampo existentes", existingValores.size());
+
+            // Mapa de existentes por campoDiarioId
+            Map<Long, ValoresCampo> existingMap = new HashMap<>();
+            for (ValoresCampo vc : existingValores) {
+                existingMap.put(vc.getCamposDiario().getId(), vc);
+            }
+
+            // Procesar cada campo del request
             for (DailyEntryRequest.CampoValor cv : request.getValoresCampo()) {
                 logger.info("Procesando CampoValor: campoDiarioId={}, valorTexto={}, valorAudioUrl={}",
                     cv.getCampoDiarioId(), cv.getValorTexto(), cv.getValorAudioUrl());
-                ValoresCampo vc = new ValoresCampo();
-                vc.setEntradaDiaria(savedEntrada);
-                Optional<CamposDiario> campoOpt = camposDiarioRepository.findById(cv.getCampoDiarioId());
-                if (campoOpt.isPresent()) {
-                    vc.setCamposDiario(campoOpt.get());
-                    logger.info("CampoDiario encontrado: {} (id: {})", campoOpt.get().getNombreCampo(), campoOpt.get().getId());
+                ValoresCampo vc = existingMap.get(cv.getCampoDiarioId());
+                if (vc != null) {
+                    // Actualizar existente
+                    logger.info("Actualizando ValoresCampo existente id: {}", vc.getId());
+                    vc.setValorTexto(cv.getValorTexto());
+                    vc.setValorAudioUrl(cv.getValorAudioUrl());
+                    dailyEntryService.saveValoresCampo(vc);
+                    existingMap.remove(cv.getCampoDiarioId()); // Remover del mapa para no eliminar después
                 } else {
-                    logger.warn("Campo diario no encontrado: {}", cv.getCampoDiarioId());
-                    return ResponseEntity.badRequest().body("Campo diario no encontrado: " + cv.getCampoDiarioId());
+                    // Crear nuevo
+                    logger.info("Creando nuevo ValoresCampo para campoDiarioId: {}", cv.getCampoDiarioId());
+                    vc = new ValoresCampo();
+                    vc.setEntradaDiaria(savedEntrada);
+                    Optional<CamposDiario> campoOpt = camposDiarioRepository.findById(cv.getCampoDiarioId());
+                    if (campoOpt.isPresent()) {
+                        vc.setCamposDiario(campoOpt.get());
+                        logger.info("CampoDiario encontrado: {} (id: {})", campoOpt.get().getNombreCampo(), campoOpt.get().getId());
+                    } else {
+                        logger.warn("Campo diario no encontrado: {}", cv.getCampoDiarioId());
+                        return ResponseEntity.badRequest().body("Campo diario no encontrado: " + cv.getCampoDiarioId());
+                    }
+                    vc.setValorTexto(cv.getValorTexto());
+                    vc.setValorAudioUrl(cv.getValorAudioUrl());
+                    ValoresCampo savedVc = dailyEntryService.saveValoresCampo(vc);
+                    logger.info("ValoresCampo creado con id: {}", savedVc.getId());
                 }
-                vc.setValorTexto(cv.getValorTexto());
-                vc.setValorAudioUrl(cv.getValorAudioUrl());
-                ValoresCampo savedVc = dailyEntryService.saveValoresCampo(vc);
-                logger.info("ValoresCampo guardado con id: {}", savedVc.getId());
+            }
+
+            // Eliminar los existentes que ya no están en el request
+            for (ValoresCampo vc : existingMap.values()) {
+                logger.info("Eliminando ValoresCampo obsoleto id: {}", vc.getId());
+                valoresCampoRepository.delete(vc);
             }
 
             logger.info("saveEntry completado exitosamente para usuario {}", usuario.getEmail());

@@ -612,9 +612,7 @@ const DailyEntry: React.FC = () => {
         {!isSaved && (
           <button className="btn" onClick={handleSave}>Guardar Entrada</button>
         )}
-        {isSaved && !hasChanges && (
-          <button className="btn" onClick={() => navigate('/calendario')}>Cerrar</button>
-        )}
+        <button className="btn" onClick={() => navigate('/calendario')}>Cerrar</button>
         {isSaved && hasChanges && (
           <button className="btn" onClick={handleSave}>Actualizar</button>
         )}

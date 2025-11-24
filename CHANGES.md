@@ -1,5 +1,17 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-24 - Implementación de Navegación por Fecha desde Calendario a Entrada Diaria
+- **Archivos afectados:** frontend/src/pages/DailyEntry.tsx, frontend/src/pages/Calendario.tsx, backend/src/main/java/com/diario_intimidad/dto/DailyEntryRequest.java, backend/src/main/java/com/diario_intimidad/controller/DailyEntryController.java, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, CHANGES.md
+- **Cambios específicos realizados:**
+  - **DailyEntry.tsx**: Agregado `useSearchParams` para obtener parámetro `date` de la URL; modificada lógica de carga para usar fecha del parámetro o actual; agregado envío de fecha en request de guardado; cambiado botón "Cerrar" para navegar a `/calendario`.
+  - **Calendario.tsx**: Agregado `useNavigate`; modificado `handleDayClick` para navegar a `/daily-entry?date=YYYY-MM-DD` en lugar de mostrar detalles en el mismo componente.
+  - **DailyEntryRequest.java**: Agregado campo `fecha` (String) con getter/setter.
+  - **DailyEntryController.java**: Modificado `saveEntry` para usar fecha del request o `LocalDate.now()`.
+  - **DailyEntryService.java**: Modificado `getTodayData` para devolver versículo por defecto ("Juan 3:16") cuando no hay `DiaMaestro` o `versiculoReference` vacío, asegurando siempre se muestre texto del versículo.
+  - **CHANGES.md**: Documentados todos los cambios realizados.
+- **Explicación del porqué se realiza el cambio:** Para permitir que los usuarios accedan directamente a la entrada diaria de cualquier fecha desde el calendario, guardando con la fecha correcta y mostrando siempre el texto del versículo.
+- **Resultado esperado:** Navegación fluida desde calendario a entrada diaria con fecha específica, guardado correcto por fecha, y visualización consistente del versículo bíblico.
+
 ### 2025-11-24 - Mejoras Críticas de Seguridad: Secreto JWT Externalizado, Configuración DDL Segura y Validaciones de Entrada
 - **Archivos afectados:** backend/src/main/java/com/diario_intimidad/config/JwtUtil.java, backend/src/main/resources/application.properties, backend/src/main/java/com/diario_intimidad/dto/LoginRequest.java, backend/src/main/java/com/diario_intimidad/controller/AuthController.java, docker-compose.yml, .env.example, .env, CHANGES.md
 - **Cambios específicos realizados:**
