@@ -3,6 +3,7 @@ package com.diario_intimidad.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
@@ -11,8 +12,11 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private final String secret = "miClaveSecretamiClaveSecretamiClaveSecretamiClaveSecreta"; // 256 bits
-    private final Key key = Keys.hmacShaKeyFor(secret.getBytes());
+    private final Key key;
+
+    public JwtUtil(@Value("${jwt.secret:defaultSecretKeyForDevelopmentOnly123456789012345678901234567890}") String secret) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    }
 
     public String generateToken(String email, String rol) {
         return Jwts.builder()

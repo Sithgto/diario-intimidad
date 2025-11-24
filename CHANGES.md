@@ -1,5 +1,19 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-24 - Mejoras Críticas de Seguridad: Secreto JWT Externalizado, Configuración DDL Segura y Validaciones de Entrada
+- **Archivos afectados:** backend/src/main/java/com/diario_intimidad/config/JwtUtil.java, backend/src/main/resources/application.properties, backend/src/main/java/com/diario_intimidad/dto/LoginRequest.java, backend/src/main/java/com/diario_intimidad/controller/AuthController.java, docker-compose.yml, .env.example, .env, CHANGES.md
+- **Cambios específicos realizados:**
+  - **JwtUtil.java**: Movido secreto JWT hardcodeado a variable de entorno `@Value("${jwt.secret:...}")` con constructor para inyección segura.
+  - **application.properties**: Cambiado `ddl-auto=create-drop` a `update` para evitar pérdida de datos en producción; desactivado `show-sql` para no exponer queries en logs; agregado configuración JWT_SECRET.
+  - **LoginRequest.java**: Agregadas validaciones `@NotBlank`, `@Email` y `@Size(min=6)` para email y contraseña.
+  - **AuthController.java**: Agregado `@Valid` al endpoint de login para activar validaciones automáticas.
+  - **docker-compose.yml**: Agregada variable de entorno `JWT_SECRET` para el contenedor backend.
+  - **.env.example**: Documentada nueva variable `JWT_SECRET` con instrucciones de generación segura.
+  - **.env**: Creado archivo de configuración con JWT_SECRET generado criptográficamente (`zgTDOWmLbnV3uY388cqql/hF22CHIssSGrR3/B/K1Oc=`) y contraseña de BD segura (`2356fcba96acdde9b74eb9b4b062928f`).
+  - **CHANGES.md**: Documentadas todas las mejoras de seguridad implementadas.
+- **Explicación del porqué se realiza el cambio:** Para corregir vulnerabilidades críticas identificadas en la auditoría de seguridad: secreto JWT expuesto, configuración de BD insegura que borra datos automáticamente, falta de validaciones que permiten inyección de datos maliciosos, y exposición de información sensible en logs.
+- **Resultado esperado:** Secreto JWT seguro y configurable, base de datos protegida contra pérdida accidental de datos, validaciones robustas que previenen ataques de entrada, y configuración preparada para entornos de producción seguros.
+
 ### 2025-11-24 - Actualización de PostgreSQL a Versión 17, Driver JDBC Compatible y Revisión de Dependencias Futuras
 - **Archivos afectados:** docker-compose.yml, backend/pom.xml, backend/src/main/resources/application.properties, CHANGES.md
 - **Cambios específicos realizados:**
