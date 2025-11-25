@@ -1,5 +1,15 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-25 - Corrección del Botón Cerrar en DailyEntry y Mejoras Visuales en Calendario con Diseño Responsivo
+- **Archivos afectados:** frontend/src/pages/DailyEntry.tsx, frontend/src/pages/Calendario.tsx, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java, backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, CHANGES.md
+- **Cambios específicos realizados:**
+  - **DailyEntry.tsx**: Agregada declaración faltante de `navigate` usando `useNavigate()` para que el botón "Cerrar" funcione correctamente y navegue a la página del calendario.
+  - **Calendario.tsx**: Implementado diseño responsivo con columnas dinámicas (4 desktop ≥1200px, 3 laptop ≥992px, 2 tablet ≥768px, 1 móvil); agregado fondo difuminado con imagen de carátula del diario; reposicionado logo dentro del formulario alineado a la derecha con tamaños responsivos aumentados (150px desktop, 130px laptop, 110px tablet, 90px móvil); aplicado transparencia al formulario (0.6 opacidad); cambiado color de días rellenados a verde intenso (#4CAF50); agregado efecto hover en días del calendario con fondo azul oscuro (#0900D2); reducido ancho del selector de año a 120px para dar más espacio al logo.
+  - **DiarioAnualController.java**: Modificado endpoint de obtención de diarios para usar `/api/diarios-anuales` en lugar de endpoint inexistente.
+  - **DiarioAnual.java**: Corregido nombre del campo de `nombreCaratula` a `nombrePortada` para coincidir con la entidad backend.
+- **Explicación del porqué se realiza el cambio:** Para corregir el error del botón cerrar que no funcionaba debido a la falta de declaración de `navigate`, y mejorar significativamente la interfaz del calendario con diseño moderno, responsivo, integración visual del diario (fondo difuminado, logo prominente), mejor feedback visual (hover en días, colores intensos) y experiencia de usuario optimizada.
+- **Resultado esperado:** Botón cerrar funcional en entradas diarias; calendario con apariencia atractiva, fondo integrado del diario, logo visible y responsivo, formulario semi-transparente, colores vibrantes para días completados, y efecto hover intuitivo en días del calendario.
+
 ### 2025-11-25 - Ocultación de Menús por Rol de Usuario y Centralización de Menú
 - **Archivos afectados:** frontend/src/components/Menu.tsx, frontend/src/components/Header.tsx, CHANGES.md
 - **Cambios específicos realizados:**

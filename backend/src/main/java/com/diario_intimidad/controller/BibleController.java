@@ -27,30 +27,52 @@ public class BibleController {
             @RequestParam(defaultValue = "rv1960") String translation,
             @RequestParam(defaultValue = "true") boolean includeNumbers) {
 
-        System.out.println("Received reference: " + reference + ", translation: " + translation);
+        System.out.println("Received reference: " + reference + ", translation: " + translation + ", includeNumbers: " + includeNumbers);
 
-        // If reference contains ":", it's a Bible reference
-        if (reference.contains(":")) {
+        // Parse reference
+        String[] parts = parseReference(reference);
+        if (parts != null) {
             // Use bible-api.deno.dev API for all translations
-            String[] parts = parseReference(reference);
-            if (parts != null) {
                 String bookCode = getBookCode(parts[0]);
-                String url = "https://bible-api.deno.dev/api/read/" + translation + "/" + bookCode + "/" + parts[1] + "/" + parts[2];
-                System.out.println("Calling Bible API: " + url);
+                String url;
+                if (parts[2].isEmpty()) {
+                    // Chapter only
+                    url = "https://bible-api.deno.dev/api/read/" + translation + "/" + bookCode + "/" + parts[1];
+                } else {
+                    url = "https://bible-api.deno.dev/api/read/" + translation + "/" + bookCode + "/" + parts[1] + "/" + parts[2];
+                }
+                System.out.println("Calling Bible API for reference '" + reference + "': " + url);
+                System.out.println("Parsed: book='" + parts[0] + "', chapter='" + parts[1] + "', verse='" + (parts[2].isEmpty() ? "all (chapter)" : parts[2]) + "'");
                 return webClient.get()
                         .uri(url)
                         .retrieve()
-                        .bodyToMono(List.class)
+                        .bodyToMono(Object.class)
                         .map(response -> {
                              // Debug: print response
                              System.out.println("API Response: " + response);
-                             // Response is a list of verse objects
-                             List<Map<String, Object>> verses = (List<Map<String, Object>>) response;
+                             List<Map<String, Object>> verses = null;
+                             if (response instanceof List) {
+                                 // Response is a list of verse objects (for specific verses)
+                                 verses = (List<Map<String, Object>>) response;
+                             } else if (response instanceof Map) {
+                                 // Response is a map, check for "vers" key (for chapter)
+                                 Map<String, Object> map = (Map<String, Object>) response;
+                                 if (map.containsKey("vers")) {
+                                     verses = (List<Map<String, Object>>) map.get("vers");
+                                 } else if (map.containsKey("verses")) {
+                                     verses = (List<Map<String, Object>>) map.get("verses");
+                                 } else {
+                                     // Fallback, assume it's a single verse map
+                                     verses = List.of(map);
+                                 }
+                             }
+                             System.out.println("Extracted verses list size: " + (verses != null ? verses.size() : "null"));
                              StringBuilder textBuilder = new StringBuilder();
                              if (verses != null) {
                                  for (Map<String, Object> verse : verses) {
                                      Integer number = (Integer) verse.get("number");
                                      String verseText = (String) verse.get("verse");
+                                     System.out.println("Processing verse " + number + ": " + (verseText != null ? verseText.substring(0, Math.min(50, verseText.length())) + "..." : "null"));
                                      if (verseText != null) {
                                          if (includeNumbers && number != null) {
                                              textBuilder.append(number).append(" ").append(verseText).append(" ");
@@ -61,6 +83,7 @@ public class BibleController {
                                  }
                              }
                              String text = textBuilder.toString().trim();
+                             System.out.println("Final text length: " + text.length() + ", starts with: " + (text.length() > 50 ? text.substring(0, 50) + "..." : text));
                              Map transformed = Map.of(
                                  "reference", reference,
                                  "text", !text.isEmpty() ? text : "Texto no encontrado",
@@ -72,6 +95,7 @@ public class BibleController {
                          .onErrorResume(e -> {
                              // Log the error
                              System.err.println("Error calling Bible API: " + e.getMessage());
+                             System.out.println("API call failed for reference '" + reference + "', using fallback. Error: " + e.getMessage());
                              // Fallback to mock
                              String fallbackText = getBibleText(reference, translation);
                              Map mockResponse = Map.of(
@@ -82,27 +106,17 @@ public class BibleController {
                              );
                              return Mono.just(ResponseEntity.ok(mockResponse));
                          });
-            } else {
-                // Fallback to mock
-                String text = getBibleText(reference, translation);
-                Map mockResponse = Map.of(
-                    "reference", reference,
-                    "text", text,
-                    "translation_id", translation,
-                    "translation_name", getTranslationName(translation)
-                );
-                return Mono.just(ResponseEntity.ok(mockResponse));
-            }
-        } else {
-            // If no ":", it's reading text, return as mock
-            Map<String, Object> mockResponse = Map.of(
-                "reference", "Lectura Bíblica",
-                "text", reference,
-                "translation_id", "es",
-                "translation_name", "Lectura Diaria"
-            );
-            return Mono.just(ResponseEntity.ok(mockResponse));
-        }
+       } else {
+           // If cannot parse, it's reading text, return as mock
+           System.out.println("Cannot parse reference '" + reference + "', returning as reading text.");
+           Map<String, Object> mockResponse = Map.of(
+               "reference", "Lectura Bíblica",
+               "text", reference,
+               "translation_id", "es",
+               "translation_name", "Lectura Diaria"
+           );
+           return Mono.just(ResponseEntity.ok(mockResponse));
+       }
     }
 
     private String getTranslationName(String id) {
@@ -118,7 +132,7 @@ public class BibleController {
     }
 
     private String[] parseReference(String reference) {
-        // Parse "Book Chapter:Verse" or "Book Chapter:Verse-Verse" to ["Book", "Chapter", "Verse"]
+        // Parse "Book Chapter:Verse" or "Book Chapter:Verse-Verse" or "Book Chapter" to ["Book", "Chapter", "Verse"]
         int lastSpace = reference.lastIndexOf(" ");
         if (lastSpace == -1) return null;
         String book = reference.substring(0, lastSpace);
@@ -127,6 +141,9 @@ public class BibleController {
         if (cv.length == 2) {
             String verse = cv[1]; // Include range if present, e.g., "24-27"
             return new String[]{book, cv[0], verse};
+        } else if (cv.length == 1) {
+            // Chapter only, e.g., "Juan 3"
+            return new String[]{book, cv[0], ""}; // Empty verse for chapter
         }
         return null;
     }
