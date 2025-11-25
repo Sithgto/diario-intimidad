@@ -34,6 +34,14 @@ interface EntradaDiaria {
   completado: boolean;
 }
 
+interface DiarioAnual {
+  id: number;
+  titulo: string;
+  anio: number;
+  nombreLogo?: string;
+  nombrePortada?: string;
+}
+
 const Calendario: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -48,10 +56,27 @@ const Calendario: React.FC = () => {
   const [entradasAnuales, setEntradasAnuales] = useState<{ [mes: number]: EntradaDiaria[] }>({});
   const [existingEntry, setExistingEntry] = useState<EntradaDiaria | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+  const [diary, setDiary] = useState<DiarioAnual | null>(null);
+  const [columns, setColumns] = useState(4);
 
   useEffect(() => {
     fetchEntradasAnuales();
+    fetchDiary(selectedYear);
   }, [selectedYear]);
+
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1200) setColumns(4); // desktop
+      else if (width >= 992) setColumns(3); // laptop
+      else if (width >= 768) setColumns(2); // tablet
+      else setColumns(1); // mobile
+    };
+    updateColumns();
+    window.addEventListener('resize', updateColumns);
+    return () => window.removeEventListener('resize', updateColumns);
+  }, []);
 
   const fetchEntradasAnuales = async () => {
     try {
@@ -72,6 +97,20 @@ const Calendario: React.FC = () => {
       setEntradasAnuales(nuevasEntradas);
     } catch (error) {
       console.error('Error fetching entradas anuales', error);
+    }
+  };
+
+  const fetchDiary = async (year: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_BASE_URL}/api/diarios-anuales`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const diary = response.data.find((d: any) => d.anio === year);
+      setDiary(diary || null);
+    } catch (error) {
+      console.error('Error fetching diary', error);
+      setDiary(null);
     }
   };
 
@@ -174,9 +213,37 @@ const Calendario: React.FC = () => {
   const dayNames = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
 
   return (
-    <div className="app-container">
-      <div className="card">
-        <h2>Calendario de Entradas</h2>
+    <div className="app-container" style={{ position: 'relative' }}>
+      {diary?.nombrePortada && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${API_BASE_URL}/uploads/images/${diary.nombrePortada})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(10px)',
+            zIndex: -1
+          }}
+        />
+      )}
+      <div className="card" style={{ position: 'relative', zIndex: 2, backgroundColor: 'rgba(255, 255, 255, 0.6)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2>Calendario de Entradas</h2>
+          {diary?.nombreLogo && (
+            <img
+              src={`${API_BASE_URL}/uploads/images/${diary.nombreLogo}`}
+              alt="Logo"
+              style={{
+                width: columns === 4 ? '150px' : columns === 3 ? '130px' : columns === 2 ? '110px' : '90px',
+                height: 'auto'
+              }}
+            />
+          )}
+        </div>
 
         <div style={{ marginBottom: '20px' }}>
           <label>Seleccionar Año:</label>
@@ -184,6 +251,7 @@ const Calendario: React.FC = () => {
             value={selectedYear}
             onChange={(e) => setSelectedYear(parseInt(e.target.value))}
             className="input"
+            style={{ width: '120px', marginLeft: '10px' }}
           >
             <option value={selectedYear - 1}>{selectedYear - 1}</option>
             <option value={selectedYear}>{selectedYear}</option>
@@ -191,7 +259,7 @@ const Calendario: React.FC = () => {
           </select>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${columns}, 1fr)`, gap: '20px' }}>
           {monthNames.map((monthName, index) => {
             const month = index + 1;
             const days = getCalendarDays(selectedYear, month);
@@ -215,10 +283,12 @@ const Calendario: React.FC = () => {
                           textAlign: 'center',
                           padding: '3px',
                           cursor: day ? 'pointer' : 'default',
-                          backgroundColor: isToday ? '#add8e6' : day && hasEntry(selectedYear, month, day) ? '#d4edda' : 'transparent',
+                          backgroundColor: isToday ? '#add8e6' : day && hasEntry(selectedYear, month, day) ? '#4CAF50' : hoveredDay === `${month}-${day}` ? '#0900D2' : 'transparent',
                           border: isToday ? '2px solid #007bff' : day ? '1px solid #ddd' : 'none',
                           fontWeight: isToday ? 'bold' : 'normal'
                         }}
+                        onMouseEnter={day ? () => setHoveredDay(`${month}-${day}`) : undefined}
+                        onMouseLeave={day ? () => setHoveredDay(null) : undefined}
                         onClick={day ? () => handleDayClick(selectedYear, month, day) : undefined}
                       >
                         {day}
