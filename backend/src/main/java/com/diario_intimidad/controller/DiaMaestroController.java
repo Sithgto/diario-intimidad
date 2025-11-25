@@ -21,6 +21,11 @@ public class DiaMaestroController {
         return diaMaestroService.findAll();
     }
 
+    @GetMapping("/diario/{diarioId}")
+    public List<DiaMaestro> getDiasMaestroByDiarioAnual(@PathVariable Long diarioId) {
+        return diaMaestroService.findByDiarioAnualId(diarioId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<DiaMaestro> getDiaMaestroById(@PathVariable Long id) {
         Optional<DiaMaestro> diaMaestro = diaMaestroService.findById(id);

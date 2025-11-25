@@ -9,6 +9,7 @@ import ApiDocs from './pages/ApiDocs';
 import DailyEntry from './pages/DailyEntry';
 import Calendario from './pages/Calendario';
 import DiarioAnual from './pages/DiarioAnual';
+import DiaMaestro from './pages/DiaMaestro';
 import Biblia from './pages/Biblia';
 import ValidarPedido from './pages/ValidarPedido';
 import Tienda from './pages/Tienda';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/daily-entry" element={<PrivateRoute><DailyEntry /></PrivateRoute>} />
             <Route path="/calendario" element={<PrivateRoute><Calendario /></PrivateRoute>} />
             <Route path="/diario-anual" element={<PrivateRoute><DiarioAnual /></PrivateRoute>} />
+            <Route path="/dia-maestro" element={<PrivateRoute><DiaMaestro /></PrivateRoute>} />
             <Route path="/biblia" element={<PrivateRoute><Biblia /></PrivateRoute>} />
             <Route path="/users" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
             <Route path="/api-docs" element={<PrivateRoute><ApiDocs /></PrivateRoute>} />

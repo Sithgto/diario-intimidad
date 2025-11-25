@@ -17,6 +17,10 @@ public class DiaMaestroService {
         return diaMaestroRepository.findAll();
     }
 
+    public List<DiaMaestro> findByDiarioAnualId(Long diarioId) {
+        return diaMaestroRepository.findByMesMaestro_DiarioAnual_Id(diarioId);
+    }
+
     public Optional<DiaMaestro> findById(Long id) {
         return diaMaestroRepository.findById(id);
     }
