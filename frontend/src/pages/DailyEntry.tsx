@@ -56,6 +56,7 @@ const formatDate = (dateString: string) => {
 
 const DailyEntry: React.FC = () => {
   console.log('DailyEntry component rendered');
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dateParam = searchParams.get('date');
   const [data, setData] = useState<DailyEntryData | null>(null);

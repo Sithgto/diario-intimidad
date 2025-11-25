@@ -1,5 +1,23 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-25 - Ocultación de Menús por Rol de Usuario y Centralización de Menú
+- **Archivos afectados:** frontend/src/components/Menu.tsx, frontend/src/components/Header.tsx, CHANGES.md
+- **Cambios específicos realizados:**
+  - **Menu.tsx**: Agregadas condiciones para ocultar "Diario Anual" y "Días Maestro" solo para usuarios con rol 'USER'; centralizado el menú con todos los enlaces (Inicio, Tienda, Calendario, Diario Anual, Días Maestro, Biblia, Hoy, Usuarios); agregados logs de depuración para validar el rol del usuario.
+  - **Header.tsx**: Simplificado para usar el componente Menu centralizado, eliminando duplicación de código y facilitando mantenimiento futuro.
+  - **CHANGES.md**: Documentados todos los cambios realizados para ocultar menús por rol y centralizar lógica de menú.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la seguridad ocultando funcionalidades administrativas a usuarios regulares y centralizar la lógica de menú en un único componente para facilitar modificaciones futuras.
+- **Resultado esperado:** Usuarios con rol 'USER' no ven opciones de "Diario Anual" y "Días Maestro"; el menú es mantenible desde un solo archivo.
+
+### 2025-11-25 - Documentación de la Estructura de Base de Datos y Carga de Datos desde CSV
+- **Archivos afectados:** DB/init.sql, DB/data_2025/dia_maestro.csv, DB/data_2025/mes_maestro.csv, DB/data_2026/dia_maestro.csv, DB/data_2026/mes_maestro.csv, DB/data_2027/dia_maestro.csv, DB/data_2027/mes_maestro.csv, CHANGES.md
+- **Cambios específicos realizados:**
+  - **init.sql**: Implementada estructura completa de base de datos con 11 tablas (Usuario, Diario_Anual, Mes_Maestro, Dia_Maestro, Campos_Diario, Entrada_Diaria, Valores_Campo, Meta_Anual, Meta_Mensual, Pago, Pedido); creada función stored procedure `load_diario_anual` para carga modular por año desde archivos CSV; configuración de permisos para usuario diario_user; inserción de usuarios administrador y de prueba con contraseñas encriptadas.
+  - **Archivos CSV**: Estructurados datos maestros para diarios 2025, 2026 y 2027 con lecturas bíblicas diarias, versículos dominicales, temas mensuales y estructura de campos dinámicos; formato CSV con headers, delimitador coma y manejo de comillas para textos largos.
+  - **CHANGES.md**: Documentada la arquitectura de carga de datos, estructura de tablas, función de carga y formato de archivos CSV.
+- **Explicación del porqué se realiza el cambio:** Para documentar la nueva estructura de inicialización de base de datos que permite carga automática de datos maestros desde archivos CSV organizados por año, facilitando mantenimiento y expansión del sistema con nuevos diarios anuales.
+- **Resultado esperado:** Base de datos se inicializa completamente con datos maestros cargados desde CSV de manera modular; estructura preparada para agregar nuevos años sin modificar código; documentación completa para desarrolladores sobre arquitectura de datos.
+
 ### 2025-11-24 - Implementación de Navegación por Fecha desde Calendario a Entrada Diaria
 - **Archivos afectados:** frontend/src/pages/DailyEntry.tsx, frontend/src/pages/Calendario.tsx, backend/src/main/java/com/diario_intimidad/dto/DailyEntryRequest.java, backend/src/main/java/com/diario_intimidad/controller/DailyEntryController.java, backend/src/main/java/com/diario_intimidad/service/DailyEntryService.java, CHANGES.md
 - **Cambios específicos realizados:**
