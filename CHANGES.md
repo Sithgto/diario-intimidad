@@ -1,5 +1,13 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-25 - Corrección Completa de Búsqueda de Versículos en Página Biblia: Soporte para Capítulos Completos, Interfaz Mejorada con Dos Versiones Simultáneas y Configuración Avanzada de Voz
+- **Archivos afectados:** frontend/src/pages/Biblia.tsx, backend/src/main/java/com/diario_intimidad/controller/BibleController.java, CHANGES.md
+- **Cambios específicos realizados:**
+  - **Biblia.tsx**: Corregida inconsistencia en IDs de traducción (rv1960 en lugar de rvr1960); implementada interfaz con dos versiones simultáneas de traducciones seleccionables; agregado botón de cerrar (X) en header; movido botón "Configurar Voz" al header con controles inline (voz, velocidad, tono); agregados botones de recargar y mostrar/ocultar números de versículos; reducido tamaño del input de búsqueda cuando se muestra configuración de voz; nombres completos de voces en selector; eliminada opción de volumen; implementada configuración avanzada de TTS; agregado logs detallados para debugging de búsquedas.
+  - **BibleController.java**: Modificada lógica de parseo para manejar referencias de capítulo completo (sin ":"); actualizada construcción de URLs para capítulos completos usando /book/chapter; mejorado procesamiento de respuestas API para manejar tanto listas como mapas; agregado logs detallados para debugging de llamadas API, parsing y procesamiento de respuestas.
+- **Explicación del porqué se realiza el cambio:** Para resolver problemas críticos en la búsqueda de versículos (solo funcionaba con formato específico), implementar soporte completo para capítulos completos, mejorar significativamente la interfaz de usuario con funcionalidades avanzadas similares a DailyEntry, y proporcionar debugging completo para troubleshooting.
+- **Resultado esperado:** Búsqueda de versículos completamente funcional para referencias específicas ("Juan 3:16") y capítulos completos ("Juan 3"); interfaz moderna con dos traducciones simultáneas, configuración de voz avanzada, botones intuitivos para recarga y control de números; experiencia de usuario consistente con DailyEntry; logs detallados para diagnóstico de problemas.
+
 ### 2025-11-25 - Corrección del Botón Cerrar en DailyEntry y Mejoras Visuales en Calendario con Diseño Responsivo
 - **Archivos afectados:** frontend/src/pages/DailyEntry.tsx, frontend/src/pages/Calendario.tsx, backend/src/main/java/com/diario_intimidad/controller/DiarioAnualController.java, backend/src/main/java/com/diario_intimidad/entity/DiarioAnual.java, CHANGES.md
 - **Cambios específicos realizados:**

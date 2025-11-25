@@ -35,7 +35,6 @@ const Biblia: React.FC = () => {
   const [selectedVoice, setSelectedVoice] = useState<string>('');
   const [ttsRate, setTtsRate] = useState<number>(1);
   const [ttsPitch, setTtsPitch] = useState<number>(1);
-  const [ttsVolume, setTtsVolume] = useState<number>(1);
 
   useEffect(() => {
     fetchTranslations();
@@ -142,7 +141,6 @@ const Biblia: React.FC = () => {
       // Apply TTS settings
       utterance.rate = ttsRate;
       utterance.pitch = ttsPitch;
-      utterance.volume = ttsVolume;
 
       utterance.onend = () => {
         setPlaying(false);
@@ -175,13 +173,58 @@ const Biblia: React.FC = () => {
           <h2>📖 Biblia</h2>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {(verse1 || verse2) && (
-              <button
-                className="btn"
-                onClick={() => setShowTtsSettings(!showTtsSettings)}
-                style={{ fontSize: '14px', padding: '5px 10px' }}
-              >
-                {showTtsSettings ? 'Ocultar Voz' : 'Configurar Voz'}
-              </button>
+              <>
+                <button
+                  className="btn"
+                  onClick={() => setShowTtsSettings(!showTtsSettings)}
+                  style={{ fontSize: '14px', padding: '5px 10px' }}
+                >
+                  {showTtsSettings ? 'Ocultar Voz' : 'Configurar Voz'}
+                </button>
+                {showTtsSettings && (
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                    <div>
+                      <label style={{ fontSize: '12px', marginRight: '5px' }}>Voz:</label>
+                      <select
+                        value={selectedVoice}
+                        onChange={(e) => setSelectedVoice(e.target.value)}
+                        style={{ fontSize: '12px', padding: '2px 4px' }}
+                      >
+                        <option value="">Predeterminada</option>
+                        {voices.filter(v => v.lang.startsWith('es')).map(voice => (
+                          <option key={voice.name} value={voice.name}>{voice.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '12px', marginRight: '5px' }}>Vel:</label>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="2"
+                        step="0.1"
+                        value={ttsRate}
+                        onChange={(e) => setTtsRate(parseFloat(e.target.value))}
+                        style={{ width: '60px' }}
+                      />
+                      <span style={{ fontSize: '12px', marginLeft: '5px' }}>{ttsRate.toFixed(1)}</span>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '12px', marginRight: '5px' }}>Ton:</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={ttsPitch}
+                        onChange={(e) => setTtsPitch(parseFloat(e.target.value))}
+                        style={{ width: '60px' }}
+                      />
+                      <span style={{ fontSize: '12px', marginLeft: '5px' }}>{ttsPitch.toFixed(1)}</span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             <button
               className="btn"
@@ -202,7 +245,7 @@ const Biblia: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              style={{ flex: 1 }}
+              style={{ flex: 1, maxWidth: showTtsSettings ? '300px' : 'none' }}
             />
             <button className="btn" onClick={searchVerse} disabled={loading} style={{ padding: '8px 16px', fontSize: '14px' }}>
               {loading ? 'Buscando...' : 'Buscar'}
@@ -383,42 +426,13 @@ const Biblia: React.FC = () => {
           </>
         )}
 
-        {showTtsSettings && (
-          <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e7f3ff', borderRadius: '5px' }}>
-            <h4>Configuración de Voz</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div>
-                <label>Voz: </label>
-                <select value={selectedVoice} onChange={(e) => setSelectedVoice(e.target.value)}>
-                  <option value="">Predeterminada</option>
-                  {voices.filter(v => v.lang.startsWith('es')).map(voice => (
-                    <option key={voice.name} value={voice.name}>{voice.name} ({voice.lang})</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label>Velocidad: {ttsRate.toFixed(1)}</label>
-                <input type="range" min="0.5" max="2" step="0.1" value={ttsRate} onChange={(e) => setTtsRate(parseFloat(e.target.value))} />
-              </div>
-              <div>
-                <label>Tono: {ttsPitch.toFixed(1)}</label>
-                <input type="range" min="0" max="2" step="0.1" value={ttsPitch} onChange={(e) => setTtsPitch(parseFloat(e.target.value))} />
-              </div>
-              <div>
-                <label>Volumen: {ttsVolume.toFixed(1)}</label>
-                <input type="range" min="0" max="1" step="0.1" value={ttsVolume} onChange={(e) => setTtsVolume(parseFloat(e.target.value))} />
-              </div>
-            </div>
-          </div>
-        )}
 
-        <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#f0f8ff', borderRadius: '8px' }}>
+        <div style={{ marginTop: '30px', padding: '8px', backgroundColor: '#f0f8ff', borderRadius: '8px' }}>
           <h4>💡 Consejos de búsqueda:</h4>
           <ul style={{ margin: 0, paddingLeft: '20px' }}>
             <li>Usa el formato: Libro Capítulo:Versículo (ej: Génesis 1:1)</li>
             <li>Puedes buscar rangos: Juan 3:16-20</li>
             <li>Libros completos: Juan 3</li>
-            <li>Múltiples versículos: Juan 3:16,17,18</li>
           </ul>
         </div>
       </div>
