@@ -365,10 +365,6 @@ const DailyEntry: React.FC = () => {
                   <label>Tono: {ttsPitch.toFixed(1)}</label>
                   <input type="range" min="0" max="2" step="0.1" value={ttsPitch} onChange={(e) => setTtsPitch(parseFloat(e.target.value))} />
                 </div>
-                <div>
-                  <label>Volumen: {ttsVolume.toFixed(1)}</label>
-                  <input type="range" min="0" max="1" step="0.1" value={ttsVolume} onChange={(e) => setTtsVolume(parseFloat(e.target.value))} />
-                </div>
               </div>
             </div>
           )}

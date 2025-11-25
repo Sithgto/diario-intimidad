@@ -1,5 +1,14 @@
 # Registro de Cambios - Diario de Intimidad
 
+### 2025-11-25 - Inclusión del Logo en el Header de la Aplicación, Mejoras en Navegación y Control de Acceso por Roles
+- **Archivos afectados:** frontend/src/components/Header.tsx, frontend/src/index.css, frontend/src/components/Menu.tsx, CHANGES.md
+- **Cambios específicos realizados:**
+  - **Header.tsx**: Agregada sección del logo con imagen LOGOTIPOPRINCIPAL-SINFONDO.png y texto "Diario de Intimidad" debajo, reemplazando el título anterior.
+  - **index.css**: Agregados estilos para .logo-section (flex column, gap 5px, margin-top 3px), .logo (altura 60px desktop/50px móvil, ancho auto, max-width 250px), y ajustes responsivos en media queries.
+  - **Menu.tsx**: Convertido el span del usuario logado en enlace Link a "/users" con título descriptivo; agregado condición para ocultar enlace "Usuarios" solo para usuarios con rol 'USER'.
+- **Explicación del porqué se realiza el cambio:** Para mejorar la identidad visual de la aplicación incluyendo el logo oficial en el header con diseño responsive, facilitar la navegación del usuario logado a su perfil de gestión, y reforzar la seguridad ocultando opciones administrativas a usuarios regulares.
+- **Resultado esperado:** Header con logo prominente y texto debajo, responsive en todas las pantallas; enlace funcional del usuario logado a gestión de usuarios; enlace "Usuarios" visible solo para roles administrativos, mejorando la experiencia y seguridad.
+
 ### 2025-11-25 - Corrección Completa de Búsqueda de Versículos en Página Biblia: Soporte para Capítulos Completos, Interfaz Mejorada con Dos Versiones Simultáneas y Configuración Avanzada de Voz
 - **Archivos afectados:** frontend/src/pages/Biblia.tsx, backend/src/main/java/com/diario_intimidad/controller/BibleController.java, CHANGES.md
 - **Cambios específicos realizados:**
