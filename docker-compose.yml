@@ -6,7 +6,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./DB/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # 1. Archivos de inicialización (para DDL y DML iniciales)
+      - ./DB:/docker-entrypoint-initdb.d
+      
+      # 2. PUNTO CLAVE: Monta el volumen para la persistencia de datos
+      - diario_db_data:/var/lib/postgresql/data # <--- ESTO GARANTIZA LA PERSISTENCIA
     ports:
       - "${POSTGRES_PORT}:5432"
     healthcheck:
@@ -56,3 +60,11 @@ services:
 networks:
   diario-network:
     driver: bridge
+
+# -------------------------------------------------------------
+# DEFINICIÓN DE VOLÚMENES (NUEVA SECCIÓN)
+# -------------------------------------------------------------
+volumes:
+  diario_db_data: # <--- El volumen con nombre para la base de datos
+  # También es buena práctica definir el volumen de uploads aquí, aunque ya lo esté usando
+  uploads:
